@@ -644,6 +644,21 @@ th { color: var(--muted); font-weight: 400; font-size: .7rem; text-transform: up
     });
   }
 
+  /* Agenda dos turnos (horário de Cuiabá): vendas 7h37 seg-sáb; mesa 9h07, 12h07, 16h07 todo dia */
+  function proximoTurno() {
+    var p; try { p = new Date(new Date().toLocaleString("en-US", { timeZone: "America/Cuiaba" })); } catch (e) { p = new Date(); }
+    var agenda = [[7, 37, "vendas", true], [9, 7, "mesa"], [12, 7, "mesa"], [16, 7, "mesa"]];
+    for (var dia = 0; dia < 3; dia++) {
+      var dd = new Date(p); dd.setDate(p.getDate() + dia);
+      for (var i = 0; i < agenda.length; i++) {
+        var a = agenda[i], t = new Date(dd); t.setHours(a[0], a[1], 0, 0);
+        if (a[3] && t.getDay() === 0) continue;
+        if (t > p) return (dia === 0 ? "" : dia === 1 ? "amanhã " : "") + a[0] + "h" + String(a[1]).padStart(2, "0") + " (" + a[2] + ")";
+      }
+    }
+    return "—";
+  }
+
   /* ---------- Relógio ---------- */
   function clock() {
     var d = new Date(), h = d.getHours() % 12, m = d.getMinutes(), s = d.getSeconds();
@@ -672,7 +687,7 @@ th { color: var(--muted); font-weight: 400; font-size: .7rem; text-transform: up
       var a = (stCart && stCart.acoes) || [], t = 0; a.forEach(function (x) { t += x.posicao; }); $("cabVal").textContent = a.length ? brl(t).replace("R$ ", "R$") : "—"; }, function () {});
     db.doc("mesa/atual").onSnapshot(function (s) {
       clearTimeout(timer); stMesa = s.exists ? s.data() : {}; renderOffice();
-      if (stMesa.atualizado_em) { var d = new Date(stMesa.atualizado_em); $("when").textContent = "Último turno: " + (isNaN(d) ? stMesa.atualizado_em : d.toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" })); }
+      if (stMesa.atualizado_em) { var d = new Date(stMesa.atualizado_em); $("when").textContent = "Último turno: " + (isNaN(d) ? stMesa.atualizado_em : d.toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" })) + " · próximo: " + proximoTurno(); }
     }, function () { $("dot").classList.remove("live"); $("when").textContent = "Conexão caiu. Recarregue a página."; });
   })();
 
