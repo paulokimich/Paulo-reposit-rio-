@@ -178,7 +178,7 @@ th { color: var(--muted); font-weight: 400; font-size: .72rem; text-transform: u
       </div>
       <div class="runners" id="runners" aria-hidden="true"></div>
     </div>
-    <p class="small">Toque em qualquer funcionário para ler o relatório dele. Toque no gerente para ver a ficha de decisão.</p>
+    <p class="small">Os robôs só levam papel ao gerente quando o assunto é importante, uma vez só. Toque em qualquer funcionário para ler o relatório. Toque no gerente para ver o que chegou e a ficha de decisão.</p>
   </section>
 
   <section class="kpis" id="kpis" aria-label="Resumo da carteira"><p class="empty">Carregando carteira…</p></section>
@@ -359,7 +359,7 @@ th { color: var(--muted); font-weight: 400; font-size: .72rem; text-transform: u
     $("sheetTask").textContent = "> " + (x.tarefa || "sem tarefa no momento");
     $("sheetText").textContent = x.texto || "Sem relatório ainda.";
     var f = $("sheetFicha"); f.textContent = "";
-    var fic = b.k === "chefe" && Array.isArray(stMesa.ficha) ? stMesa.ficha : [];
+    var fic = b.k === "chefe" ? importantes().filter(function (i) { return jaEntregue(i.key); }).map(function (i) { return "❗ " + i.b.nome + ": " + i.x.texto; }).concat(Array.isArray(stMesa.ficha) ? stMesa.ficha : []) : [];
     fic.forEach(function (t) { f.append(el("li", null, t)); }); f.hidden = !fic.length;
     var fc = $("sheetFace"); fc.textContent = ""; var mb = miniBot(); mb.style.setProperty("--c", "var(" + b.c + ")"); fc.append(mb);
     $("sheet").hidden = false; $("sheetX").focus();
@@ -385,16 +385,32 @@ th { color: var(--muted); font-weight: 400; font-size: .72rem; text-transform: u
     document.querySelectorAll(".ws[data-k]").forEach(function (d) {
       var x = dataOf(d.dataset.team, d.dataset.k), n = nivelOk(x.nivel), s = d.querySelector(".st");
       d.classList.toggle("working", n === "work");
-      d.classList.toggle("done", n === "ok" || n === "warn" || n === "neg");
+      var key = d.dataset.team + "/" + d.dataset.k + ":" + (x.texto || "");
+      d.dataset.key = key;
+      d.classList.toggle("done", isImp(d.dataset.team, d.dataset.k) && !jaEntregue(key));
       s.className = "st " + n; s.textContent = x.status || "aguardando";
       d.setAttribute("aria-label", d.querySelector(".lbl").textContent + ": " + (x.status || "aguardando"));
     });
+    renderInbox();
   }
   function center(node, sc) { var r = node.getBoundingClientRect(); return { x: r.left - sc.left + r.width / 2, y: r.top - sc.top + r.height / 2 }; }
-  function addInbox() {
-    delivered++; var ib = $("inbox"); ib.textContent = "";
-    for (var i = 0; i < Math.min(delivered, 6); i++) { var p = el("span", "slip"); p.style.transform = "translate(" + (i % 2 ? 2 : -2) + "px," + (-i * 3) + "px) rotate(" + (((i * 37) % 9) - 4) + "deg)"; ib.append(p); }
-    $("inboxN").textContent = delivered + (delivered === 1 ? " relatório recebido" : " relatórios recebidos");
+  var entregues = []; try { entregues = JSON.parse(localStorage.getItem("entregues") || "[]"); } catch (e) {}
+  function jaEntregue(k) { return entregues.indexOf(k) >= 0; }
+  function marcar(k) { if (jaEntregue(k)) return; entregues.push(k); entregues = entregues.slice(-60); try { localStorage.setItem("entregues", JSON.stringify(entregues)); } catch (e) {} }
+  function isImp(team, k) { var s = team === "mesa" ? stMesa : stEsc; return dataOf(team, k).importante === true || (Array.isArray(s.importantes) && s.importantes.indexOf(k) >= 0); }
+  function importantes() {
+    var out = [];
+    [["mesa", BOTS], ["esc", ESC]].forEach(function (t) { t[1].forEach(function (b) { if (isImp(t[0], b.k)) { var x = dataOf(t[0], b.k); out.push({ b: b, x: x, key: t[0] + "/" + b.k + ":" + (x.texto || "") }); } }); });
+    return out;
+  }
+  function renderInbox() {
+    var na = importantes().filter(function (i) { return jaEntregue(i.key); }).length, ib = $("inbox"); ib.textContent = "";
+    for (var i = 0; i < Math.min(na, 6); i++) { var p = el("span", "slip"); p.style.transform = "translate(" + (i % 2 ? 2 : -2) + "px," + (-i * 3) + "px) rotate(" + (((i * 37) % 9) - 4) + "deg)"; ib.append(p); }
+    var pend = document.querySelectorAll(".ws.done").length;
+    $("inboxN").textContent = na ? na + (na === 1 ? " assunto importante" : " assuntos importantes") + (pend ? " · mais chegando" : "") : (pend ? "relatório importante a caminho" : "nada importante agora");
+  }
+  function addInbox(key) {
+    marcar(key); renderInbox();
     var boss = $("d-chefe"); boss.classList.remove("got"); void boss.offsetWidth; boss.classList.add("got");
   }
   function deliver(desk) {
@@ -406,10 +422,10 @@ th { color: var(--muted); font-weight: 400; font-size: .72rem; text-transform: u
     var dur = Math.max(1300, Math.min(3000, Math.hypot(b.x - a.x, b.y - a.y) * 6));
     var A = "translate(" + (a.x - 17) + "px," + (a.y - 17) + "px)", B = "translate(" + (b.x - 17) + "px," + (b.y + 12) + "px)";
     r.animate([{ transform: A }, { transform: B }], { duration: dur, easing: "ease-in-out", fill: "forwards" }).finished
-      .then(function () { pap.hidden = true; addInbox(); return new Promise(function (res) { setTimeout(res, 600); }); })
+      .then(function () { pap.hidden = true; addInbox(desk.dataset.key); return new Promise(function (res) { setTimeout(res, 600); }); })
       .then(function () { return r.animate([{ transform: B }, { transform: A }], { duration: dur, easing: "ease-in-out", fill: "forwards" }).finished; })
       .catch(function () {})
-      .then(function () { r.remove(); bot.style.visibility = ""; desk.classList.remove("away"); busy--; });
+      .then(function () { r.remove(); bot.style.visibility = ""; desk.classList.remove("away"); desk.classList.remove("done"); busy--; renderInbox(); });
   }
   setInterval(function () {
     if (RM || document.hidden || busy >= 2 || !built || typeof Element.prototype.animate !== "function") return;
