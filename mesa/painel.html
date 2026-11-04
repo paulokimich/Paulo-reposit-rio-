@@ -71,7 +71,11 @@ button { font: inherit; color: inherit; }
 
 /* Áreas do chão */
 .area { position: relative; border-radius: 18px; padding: 22px 8px 10px; }
-.area.boss { background: var(--rug-boss); display: grid; grid-template-columns: auto 1fr auto; align-items: end; gap: 6px; }
+.area.boss { background: var(--rug-boss); display: grid; grid-template-columns: auto auto 1fr auto; align-items: end; justify-items: center; gap: 6px; }
+.shelf { width: 60px; display: grid; justify-items: center; gap: 2px; }
+.shelfbox { width: 54px; height: 62px; background: #8a5a2b; border-radius: 4px; padding: 4px; display: grid; grid-template-rows: 1fr 1fr 1fr; gap: 3px; }
+.shelfbox i { display: block; border-radius: 2px; background: repeating-linear-gradient(90deg, #e63946 0 6px, #ffd166 6px 11px, #4cc9f0 11px 17px, #8cdf6a 17px 22px); }
+.shelf .lbl { font-size: .62rem; }
 .area.inv { background: var(--rug-inv); }
 .area.ven { background: var(--rug-ven); }
 .area::after { content: ""; position: absolute; inset: 5px; border: 2px dashed rgba(255, 255, 255, .55); border-radius: 14px; pointer-events: none; }
@@ -263,6 +267,7 @@ th { color: var(--muted); font-weight: 400; font-size: .7rem; text-transform: up
           <span class="st-s big"><span class="chair"></span><span class="bot-s"><span class="antenna"></span><span class="vz"><i></i><i></i></span></span><span class="desk-top"></span><span class="desk-front"></span><span class="inbox" id="inbox"></span></span>
           <span class="lbl">Gerente</span><span class="chip" id="inboxN">nada importante agora</span>
         </button>
+        <button class="obj shelf" id="o-biblioteca" type="button" aria-label="Biblioteca: o que os robôs aprenderam"><span class="shelfbox"><i></i><i></i><i></i></span><span class="lbl">Biblioteca</span><span class="chip" id="shelfChip">aprendizados</span></button>
         <div class="plant" aria-hidden="true"><span class="leaf a"></span><span class="leaf b"></span><span class="leaf c"></span><span class="pot"></span></div>
       </div>
       <div class="teams">
@@ -479,6 +484,21 @@ th { color: var(--muted); font-weight: 400; font-size: .7rem; text-transform: up
   $("o-janela").addEventListener("click", function () {
     openSheet("Cuiabá", "lá fora", "--r-cambio", null, function (body) {
       body.append(el("p", "say", "Calor de Cuiabá: bom dia para lembrar os clientes de calibrar o pneu. Volte para o escritório e confira o mural."));
+    });
+  });
+  var mem = { vendas: null, wallstreet: null };
+  function nLicoes() { return [mem.vendas, mem.wallstreet].reduce(function (n, m) { return n + (m && Array.isArray(m.licoes) ? m.licoes.length : 0); }, 0); }
+  function renderShelf() { var c = $("shelfChip"); if (!c) return; var n = nLicoes(); c.className = "chip " + (n ? "ok" : ""); c.textContent = n ? n + " lições" : "aprendizados"; }
+  $("o-biblioteca").addEventListener("click", function () {
+    openSheet("Biblioteca", "o que os robôs aprenderam sozinhos", "--r-espiao", null, function (body) {
+      [["vendas", "Equipe de Vendas"], ["wallstreet", "Wall Street"]].forEach(function (t) {
+        var m = mem[t[0]]; body.append(el("strong", null, t[1]));
+        if (!m || (!m.playbook && !(m.licoes && m.licoes.length))) { body.append(el("p", "sub", "Ainda sem aprendizados. Eles vêm a cada turno e a cada retrospectiva semanal.")); return; }
+        if (m.playbook) { var pb = el("div", "legenda", m.playbook); body.append(el("span", "sub", "Playbook atual"), pb); }
+        var ls = Array.isArray(m.licoes) ? m.licoes.slice(-6).reverse() : [];
+        if (ls.length) { var ul = el("ul", "list"); ls.forEach(function (l) { ul.append(el("li", null, (l.data ? l.data + ": " : "") + (l.texto || ""))); }); body.append(el("span", "sub", "Lições recentes"), ul); }
+        if (m.atualizado_em) body.append(el("span", "sub", "Atualizado: " + m.atualizado_em));
+      });
     });
   });
   $("o-carteira").addEventListener("click", function () {
@@ -718,6 +738,7 @@ th { color: var(--muted); font-weight: 400; font-size: .7rem; text-transform: up
     db.collection("prospeccao").limit(300).onSnapshot(function (qs) {
       prospects = qs.docs.map(function (d) { var o = d.data() || {}; o.id = d.id; return o; }).sort(function (a, b) { return (a.ordem || 0) - (b.ordem || 0); }); renderKanban();
     }, function (e) { var c = $("kbChip"); if (c) { c.className = "chip neg"; c.textContent = "erro ao ler (" + (e && e.code || "?") + ")"; } });
+    ["vendas", "wallstreet"].forEach(function (k) { db.doc("memoria/" + k).onSnapshot(function (s) { mem[k] = s.exists ? s.data() : null; renderShelf(); }, function () {}); });
     db.collection("pedidos").orderBy("criado_em", "desc").limit(15).onSnapshot(function (qs) {
       pedidos = qs.docs.map(function (d) { var o = d.data() || {}; o.id = d.id; return o; }); renderMailbox(); renderPedList();
     }, function () {});
