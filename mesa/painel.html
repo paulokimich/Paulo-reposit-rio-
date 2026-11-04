@@ -604,6 +604,11 @@ th { color: var(--muted); font-weight: 400; font-size: .7rem; text-transform: up
     c.className = "chip " + (lista ? "work" : fech ? "ok" : "");
     c.textContent = lista ? lista + " para hoje" : fech ? fech + " fechado(s)" : prospects.length + " na lista";
   }
+  async function salvarProspect(id, campos, base) {
+    var ref = dbRef.doc("prospeccao/" + id);
+    try { await ref.update(campos); }
+    catch (e) { var full = Object.assign({}, base || {}, campos); delete full.id; await ref.set(full); }
+  }
   function openClientes() {
     openSheet("Clientes", "frotas de Cuiabá e VG · você atualiza, o Vendedor acompanha", "--r-vendedor", null, function (body) {
       var ld = Array.isArray(stEsc.lista_do_dia) ? stEsc.lista_do_dia : [];
@@ -620,12 +625,18 @@ th { color: var(--muted); font-weight: 400; font-size: .7rem; text-transform: up
           if (/^\d{2}9\d{8}$/.test(cel)) { var wa = el("a", "copy wa", "Abrir no WhatsApp"); wa.href = "https://wa.me/55" + cel + "?text=" + encodeURIComponent(x.mensagem || ""); wa.target = "_blank"; wa.rel = "noopener"; acts.append(wa); }
           var pr = prospects.filter(function (q) { return q.id === x.id; })[0];
           var feito = pr && pr.ultimo_contato && stEsc.atualizado_em && new Date(pr.ultimo_contato) >= new Date(stEsc.atualizado_em);
-          var ck = el("button", "mini" + (feito ? " ok" : ""), feito ? "✓ Enviado" : "☐ Marcar como enviado"); ck.type = "button"; ck.disabled = !!feito || !pr;
+          var ck = el("button", "mini" + (feito ? " ok" : ""), feito ? "✓ Enviado" : "☐ Marcar como enviado"); ck.type = "button"; ck.disabled = !!feito;
           ck.addEventListener("click", async function () {
-            if (!dbRef || !pr) return; ck.disabled = true; ck.textContent = "…";
+            if (!dbRef) { ck.textContent = "Entre na conta Claude"; return; }
+            if (!x.id) { ck.textContent = "Sem cadastro no quadro"; return; }
+            ck.disabled = true; ck.textContent = "…";
             var agora = new Date().toISOString();
-            try { await dbRef.doc("prospeccao/" + pr.id).update({ status: pr.status === "a contatar" ? "contatado" : pr.status, ultimo_contato: agora, atualizado_em: agora }); ck.textContent = "✓ Enviado"; ck.className = "mini ok"; }
-            catch (e) { ck.textContent = "Erro: toque de novo"; ck.disabled = false; }
+            var st = pr && pr.status && pr.status !== "a contatar" ? pr.status : "contatado";
+            try {
+              await salvarProspect(x.id, { status: st, ultimo_contato: agora, atualizado_em: agora }, pr || { nome: x.nome, contato: x.contato || "", motivo: x.motivo || "" });
+              if (pr) { pr.status = st; pr.ultimo_contato = agora; }
+              ck.textContent = "✓ Enviado"; ck.className = "mini ok";
+            } catch (e) { ck.textContent = "Erro (" + (e && e.code || "?") + "): toque de novo"; ck.disabled = false; }
           });
           acts.append(ck); box.append(acts);
           t.append(box);
@@ -651,7 +662,7 @@ th { color: var(--muted); font-weight: 400; font-size: .7rem; text-transform: up
         sv.addEventListener("click", async function () {
           sv.disabled = true; sv.textContent = "…";
           try { await dbRef.doc("prospeccao/" + p.id).update({ status: sel.value, nota: nota.value.trim(), atualizado_em: new Date().toISOString() }); sv.textContent = "Salvo"; }
-          catch (e) { sv.textContent = "Erro"; }
+          catch (e) { sv.textContent = "Erro (" + (e && e.code || "?") + ")"; }
           setTimeout(function () { sv.disabled = false; sv.textContent = "Salvar"; }, 1500);
         });
         ctl.append(sel, nota, sv); r.append(ctl); list.append(r);
@@ -692,9 +703,9 @@ th { color: var(--muted); font-weight: 400; font-size: .7rem; text-transform: up
     if (!db) { clearTimeout(timer); $("when").textContent = "Entre na sua conta Claude para ver o escritório."; return; }
     $("dot").classList.add("live"); dbRef = db;
     claude.use("assets").then(function (a) { assetsCap = a; }, function () {});
-    db.collection("prospeccao").orderBy("ordem").limit(300).onSnapshot(function (qs) {
-      prospects = qs.docs.map(function (d) { var o = d.data() || {}; o.id = d.id; return o; }); renderKanban();
-    }, function () {});
+    db.collection("prospeccao").limit(300).onSnapshot(function (qs) {
+      prospects = qs.docs.map(function (d) { var o = d.data() || {}; o.id = d.id; return o; }).sort(function (a, b) { return (a.ordem || 0) - (b.ordem || 0); }); renderKanban();
+    }, function (e) { var c = $("kbChip"); if (c) { c.className = "chip neg"; c.textContent = "erro ao ler (" + (e && e.code || "?") + ")"; } });
     db.collection("pedidos").orderBy("criado_em", "desc").limit(15).onSnapshot(function (qs) {
       pedidos = qs.docs.map(function (d) { var o = d.data() || {}; o.id = d.id; return o; }); renderMailbox(); renderPedList();
     }, function () {});
