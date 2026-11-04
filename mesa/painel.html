@@ -397,7 +397,7 @@ th { color: var(--muted); font-weight: 400; font-size: .7rem; text-transform: up
   var nivelOk = function (n) { return ["ok", "warn", "neg", "idle", "work"].indexOf(n) >= 0 ? n : "idle"; };
   var stMesa = {}, stEsc = {}, stCart = null, busy = 0, rr = -1, built = false;
   var vistos = []; try { vistos = JSON.parse(localStorage.getItem("vistos") || "[]"); } catch (e) {}
-  var audit = null, ideiasC = null, ideiasV = null, ordensDoc = null;
+  var audit = null, ideiasC = null, ideiasV = null, ordensDoc = null, conh = [];
   var RM = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
 
   function miniBot(colorVar) {
@@ -579,7 +579,7 @@ th { color: var(--muted); font-weight: 400; font-size: .7rem; text-transform: up
   });
   var mem = { vendas: null, wallstreet: null };
   function nLicoes() { return [mem.vendas, mem.wallstreet].reduce(function (n, m) { return n + (m && Array.isArray(m.licoes) ? m.licoes.length : 0); }, 0); }
-  function renderShelf() { var c = $("shelfChip"); if (!c) return; var n = nLicoes(); c.className = "chip " + (n ? "ok" : ""); c.textContent = n ? n + " lições" : "aprendizados"; }
+  function renderShelf() { var c = $("shelfChip"); if (!c) return; var n = nLicoes() + conh.length; c.className = "chip " + (n ? "ok" : ""); c.textContent = n ? n + " itens" : "aprendizados"; }
   $("o-biblioteca").addEventListener("click", function () {
     openSheet("Biblioteca", "o que os robôs aprenderam sozinhos", "--r-espiao", null, function (body) {
       [["vendas", "Equipe de Vendas"], ["wallstreet", "Wall Street"]].forEach(function (t) {
@@ -590,8 +590,36 @@ th { color: var(--muted); font-weight: 400; font-size: .7rem; text-transform: up
         if (ls.length) { var ul = el("ul", "list"); ls.forEach(function (l) { ul.append(el("li", null, (l.data ? l.data + ": " : "") + (l.texto || ""))); }); body.append(el("span", "sub", "Lições recentes"), ul); }
         if (m.atualizado_em) body.append(el("span", "sub", "Atualizado: " + m.atualizado_em));
       });
+      kbSection(body); teachForm(body);
     });
   });
+  var AREA = { vendas: "Vendas", wallstreet: "Wall Street", todas: "Todos" };
+  function kbSection(body) {
+    body.append(el("strong", null, "Base de conhecimento: " + conh.length + " temas (só cresce)"));
+    if (!conh.length) { body.append(el("p", "sub", "Os robôs e o gerente guardam aqui o que aprendem. Nada é apagado: temas antigos são juntados, não perdidos.")); return; }
+    conh.slice().sort(function (a, b) { return String(b.atualizado_em || "").localeCompare(String(a.atualizado_em || "")); }).slice(0, 14).forEach(function (k) {
+      var r = el("div", "waitcard"); r.append(el("b", null, k.tema || k.id), el("p", null, k.resumo || ""));
+      var chips = el("div", "acts"); chips.append(el("span", "chip", AREA[k.area] || k.area || ""), el("span", "chip " + (k.confianca === "alta" ? "ok" : k.confianca === "baixa" ? "warn" : ""), "confiança " + (k.confianca || "?")), el("span", "chip", (k.origem || "") + " · " + (k.atualizado_em || "")));
+      r.append(chips);
+      if (Array.isArray(k.fatos) && k.fatos.length) { var b = el("button", "mini", k.fatos.length + " fatos"); b.type = "button"; b.addEventListener("click", function () { openSheet(k.tema || "Tema", (AREA[k.area] || "") + " · confiança " + (k.confianca || "?"), "--r-espiao", null, function (bd) { bd.append(el("p", "say", k.resumo || "")); var ul = el("ul", "list"); k.fatos.forEach(function (f) { ul.append(el("li", null, (f.data ? f.data + ": " : "") + (f.texto || "") + (f.fonte ? " (fonte: " + f.fonte + ")" : ""))); }); bd.append(ul); }); }); r.append(b); }
+      body.append(r);
+    });
+  }
+  function teachForm(body) {
+    body.append(el("strong", null, "Ensinar os robôs"));
+    if (!dbRef) { body.append(el("p", "sub", "Entre na sua conta Claude para ensinar.")); return; }
+    var f = el("form", "form"), sel = el("select"), ta = el("textarea"), btn = el("button", "btn alt", "Ensinar"), msg = el("p", "sub");
+    sel.id = "t-area"; sel.setAttribute("aria-label", "Para quem"); [["vendas", "Equipe de Vendas"], ["wallstreet", "Wall Street"], ["todas", "Os dois"]].forEach(function (o) { var op = el("option", null, o[1]); op.value = o[0]; sel.append(op); });
+    ta.id = "t-texto"; ta.placeholder = "Ex.: Na Itahum quem decide é o seu João; eles têm 12 caminhões e recapam fora."; btn.type = "submit";
+    f.addEventListener("submit", async function (e) {
+      e.preventDefault(); var t = ta.value.trim(); if (!t) { msg.textContent = "Escreva o que os robôs devem aprender."; return; }
+      btn.disabled = true; msg.textContent = "Guardando…"; var agora = new Date().toISOString();
+      try { await dbRef.collection("conhecimento").add({ area: sel.value, tema: "Ensinado pelo Paulo", resumo: t, fatos: [{ texto: t, fonte: "Paulo", data: agora.slice(0, 10) }], confianca: "alta", origem: "paulo", atualizado_em: agora.slice(0, 10), versao: 1, integrado: false }); msg.textContent = "Guardado! Os robôs leem isso já no próximo turno."; ta.value = ""; }
+      catch (err) { msg.textContent = "Não consegui guardar (" + (err && err.code || "erro") + ")."; }
+      btn.disabled = false;
+    });
+    f.append(sel, ta, btn, msg); body.append(f);
+  }
   function cot(ativo) { return (stMesa.cotacoes || []).filter(function (c) { return c.ativo === ativo && typeof c.preco === "number"; })[0] || null; }
   function liveAcao(a) {
     var custo = typeof a.custo === "number" ? a.custo : a.posicao - a.resultado, q = cot(a.ativo);
@@ -1175,6 +1203,7 @@ th { color: var(--muted); font-weight: 400; font-size: .7rem; text-transform: up
       prospects = qs.docs.map(function (d) { var o = d.data() || {}; o.id = d.id; return o; }).sort(function (a, b) { return (a.ordem || 0) - (b.ordem || 0); }); renderKanban(); renderTower();
     }, function (e) { var c = $("kbChip"); if (c) { c.className = "chip neg"; c.textContent = "erro ao ler (" + (e && e.code || "?") + ")"; } });
     db.doc("auditoria/atual").onSnapshot(function (s) { audit = s.exists ? s.data() : null; renderTower(); }, function () {});
+    db.collection("conhecimento").limit(300).onSnapshot(function (qs) { conh = qs.docs.map(function (d) { var o = d.data() || {}; o.id = d.id; return o; }); renderShelf(); }, function () {});
     db.doc("auditoria/ordens").onSnapshot(function (s) { ordensDoc = s.exists ? s.data() : null; renderOrdens(); }, function () {});
     db.doc("ideias/compras").onSnapshot(function (s) { ideiasC = s.exists ? s.data() : null; renderIdeias(); renderTower(); }, function () {});
     db.doc("ideias/vendas").onSnapshot(function (s) { ideiasV = s.exists ? s.data() : null; renderIdeias(); renderTower(); }, function () {});
