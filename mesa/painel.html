@@ -212,6 +212,35 @@ th { color: var(--muted); font-weight: 400; font-size: .7rem; text-transform: up
 .kv span { font-family: var(--mono); font-size: .65rem; color: var(--muted); text-transform: uppercase; }
 .kv b { font-family: var(--mono); font-size: 1.05rem; }
 
+
+/* Torre */
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chips .chip { font-size: .72rem; padding: 3px 10px; }
+.tower { position: relative; border-radius: 22px 22px 10px 10px; background: #262a35; padding: 0 8px 8px; box-shadow: 0 12px 34px rgba(30, 20, 10, .3); }
+.roof { height: 40px; margin: 0 -8px; border-radius: 22px 22px 0 0; background: linear-gradient(#1b1e27, #262a35); display: grid; place-items: center; }
+.roof span { font-family: var(--display); font-weight: 700; letter-spacing: .28em; font-size: .78rem; color: #ffd166; text-shadow: 0 0 12px rgba(255, 209, 102, .6); }
+.fl { margin-top: 8px; border-radius: 12px; overflow: hidden; border: 2px solid #3d4352; background: #1b1e27; }
+.flhead { display: flex; align-items: center; gap: 8px; padding: 6px 10px; background: #2f3441; color: #fff; flex-wrap: wrap; }
+.flnum { width: 24px; height: 24px; border-radius: 7px; background: var(--c); display: grid; place-items: center; font: 700 .8rem var(--display); color: #1b1e27; flex: none; }
+.flname { font-family: var(--display); font-weight: 600; font-size: .92rem; }
+.flcnt { margin-left: auto; display: flex; gap: 4px; flex-wrap: wrap; }
+.flcnt .chip { font-size: .6rem; }
+.flbody { padding: 8px; }
+.flbody.wood { background: var(--floor); background-image: repeating-linear-gradient(0deg, transparent 0 34px, var(--plank) 34px 36px); }
+.lockbody { background: repeating-linear-gradient(135deg, #2a2e3a 0 10px, #252935 10px 20px); color: #cfd3dc; font-size: .8rem; display: grid; gap: 6px; padding: 12px; }
+.lockbody b { color: #fff; font-family: var(--display); }
+.lockbody .sub { color: #aeb3bf; }
+.lockbar { height: 8px; border-radius: 4px; background: #3d4352; overflow: hidden; }
+.lockbar i { display: block; height: 100%; background: #ffd166; }
+.fl.open .lockbody { background: #1f3a2e; }
+.fl .wall { border-radius: 10px; }
+.fl .area.inv::after, .fl .area.ven::after { inset: 4px; }
+.ground { height: 16px; margin: 8px -8px -8px; border-radius: 0 0 10px 10px; background: linear-gradient(#4a8f4a 0 55%, #3a3f4b 55%); display: flex; justify-content: space-around; align-items: flex-end; overflow: hidden; }
+.ground i { width: 14px; height: 14px; border-radius: 50% 50% 4px 4px; background: #2e9e4f; margin-bottom: 2px; }
+.waitcard { display: grid; gap: 6px; background: var(--page); border-radius: 12px; padding: 10px; border-left: 6px solid var(--c, var(--warn)); }
+.waitcard p { margin: 0; font-size: .88rem; }
+#waiting h2 { display: flex; align-items: center; gap: 8px; }
+
 @keyframes blink { 50% { opacity: .3 } }
 @keyframes look { 0%, 44%, 56%, 100% { transform: none } 48%, 52% { transform: scaleY(.15) } }
 @keyframes scan { from { transform: translateX(-2px) } to { transform: translateX(2px) } }
@@ -230,53 +259,82 @@ th { color: var(--muted); font-weight: 400; font-size: .7rem; text-transform: up
   </div>
   <span class="status"><span class="dot" id="dot"></span><span id="when">Abrindo o escritório…</span></span>
 
-  <div class="scene" id="scene">
-    <div class="wall">
-      <button class="obj window" id="o-janela" type="button" aria-label="Janela: Cuiabá">
-        <span class="sun"></span><span class="cloud"></span><span class="wlabel">CUIABÁ</span>
-      </button>
-      <button class="obj tv" id="o-tv" type="button" aria-label="TV de cotações">
-        <span class="tag">COTAÇÕES</span>
-        <span class="tvscreen" id="tv"><span class="t1">MERCADO</span><span class="t2">aguardando</span><span class="t3"></span></span>
-      </button>
-      <button class="obj board" id="o-quadro" type="button" aria-label="Quadro: ficha de decisão">
-        <span class="tag">FICHA</span>
-        <b>Plano do dia</b><span id="boardTxt">…</span>
-      </button>
-      <button class="obj cork" id="o-mural" type="button" aria-label="Mural: suas tarefas">
-        <span class="tag">SUAS TAREFAS</span>
-        <span class="note" id="n1"></span><span class="note" id="n2"></span><span class="note" id="n3"></span>
-      </button>
-      <div class="obj" aria-hidden="true" style="cursor:default">
-        <span class="clock" id="clock" style="display:block;position:relative"><span class="hand h" id="hh"></span><span class="hand m" id="hm"></span><span class="hand s" id="hs"></span></span>
-      </div>
-      <button class="obj clip" id="o-historico" type="button" aria-label="Prancheta: histórico">
-        <span class="tag">HISTÓRICO</span>
-        <span class="clippaper" id="clipTxt" style="display:block">…</span>
-      </button>
-    </div>
+  <div class="chips" id="topchips" aria-live="polite"></div>
 
-    <div class="floor">
+  <div class="tower" id="scene">
+    <div class="roof"><span>TORRE DO PAULO</span></div>
+
+    <section class="fl locked" id="fl6" aria-label="Andar 6: Expansão">
+      <div class="flhead" style="--c:#ff7f3f"><span class="flnum">6</span><span class="flname">Expansão</span><span class="flcnt" id="cnt6"></span></div>
+      <div class="flbody lockbody" id="body6"></div>
+    </section>
+    <section class="fl locked" id="fl5" aria-label="Andar 5: Pós-venda">
+      <div class="flhead" style="--c:#00b4d8"><span class="flnum">5</span><span class="flname">Pós-venda</span><span class="flcnt" id="cnt5"></span></div>
+      <div class="flbody lockbody" id="body5"></div>
+    </section>
+
+    <section class="fl" id="fl4" aria-label="Andar 4: Gerência">
+      <div class="flhead" style="--c:#a493e0"><span class="flnum">4</span><span class="flname">Gerência</span><span class="flcnt" id="cnt4"></span></div>
+      <div class="flbody wood">
+    <div class="wall">
+        <button class="obj window" id="o-janela" type="button" aria-label="Janela: Cuiabá">
+          <span class="sun"></span><span class="cloud"></span><span class="wlabel">CUIABÁ</span>
+        </button>
+        <button class="obj tv" id="o-tv" type="button" aria-label="TV de cotações">
+          <span class="tag">COTAÇÕES</span>
+          <span class="tvscreen" id="tv"><span class="t1">MERCADO</span><span class="t2">aguardando</span><span class="t3"></span></span>
+        </button>
+        <button class="obj board" id="o-quadro" type="button" aria-label="Quadro: ficha de decisão">
+          <span class="tag">FICHA</span>
+          <b>Plano do dia</b><span id="boardTxt">…</span>
+        </button>
+        <button class="obj cork" id="o-mural" type="button" aria-label="Mural: suas tarefas">
+          <span class="tag">SUAS TAREFAS</span>
+          <span class="note" id="n1"></span><span class="note" id="n2"></span><span class="note" id="n3"></span>
+        </button>
+        <div class="obj" aria-hidden="true" style="cursor:default">
+          <span class="clock" id="clock" style="display:block;position:relative"><span class="hand h" id="hh"></span><span class="hand m" id="hm"></span><span class="hand s" id="hs"></span></span>
+        </div>
+        <button class="obj clip" id="o-historico" type="button" aria-label="Prancheta: histórico">
+          <span class="tag">HISTÓRICO</span>
+          <span class="clippaper" id="clipTxt" style="display:block">…</span>
+        </button>
+      </div>
+        <div style="height:10px"></div>
       <div class="area boss">
-        <span class="sign">Gerência</span>
-        <button class="obj cabinet" id="o-carteira" type="button" aria-label="Arquivo: sua carteira">
-          <span class="cablbl">CARTEIRA<br><span id="cabVal">…</span></span>
-          <span class="drawer"></span><span class="drawer"></span>
-        </button>
-        <button class="obj ws boss-desk" id="d-chefe" type="button" style="--c: var(--boss)">
-          <span class="st-s big"><span class="chair"></span><span class="bot-s"><span class="antenna"></span><span class="vz"><i></i><i></i></span></span><span class="desk-top"></span><span class="desk-front"></span><span class="inbox" id="inbox"></span></span>
-          <span class="lbl">Gerente</span><span class="chip" id="inboxN">nada importante agora</span>
-        </button>
-        <button class="obj shelf" id="o-biblioteca" type="button" aria-label="Biblioteca: o que os robôs aprenderam"><span class="shelfbox"><i></i><i></i><i></i></span><span class="lbl">Biblioteca</span><span class="chip" id="shelfChip">aprendizados</span></button>
-        <div class="plant" aria-hidden="true"><span class="leaf a"></span><span class="leaf b"></span><span class="leaf c"></span><span class="pot"></span></div>
+                    <button class="obj cabinet" id="o-carteira" type="button" aria-label="Arquivo: sua carteira">
+            <span class="cablbl">CARTEIRA<br><span id="cabVal">…</span></span>
+            <span class="drawer"></span><span class="drawer"></span>
+          </button>
+          <button class="obj ws boss-desk" id="d-chefe" type="button" style="--c: var(--boss)">
+            <span class="st-s big"><span class="chair"></span><span class="bot-s"><span class="antenna"></span><span class="vz"><i></i><i></i></span></span><span class="desk-top"></span><span class="desk-front"></span><span class="inbox" id="inbox"></span></span>
+            <span class="lbl">Gerente</span><span class="chip" id="inboxN">nada importante agora</span>
+          </button>
+          <button class="obj shelf" id="o-biblioteca" type="button" aria-label="Biblioteca: o que os robôs aprenderam"><span class="shelfbox"><i></i><i></i><i></i></span><span class="lbl">Biblioteca</span><span class="chip" id="shelfChip">aprendizados</span></button>
+          <div class="plant" aria-hidden="true"><span class="leaf a"></span><span class="leaf b"></span><span class="leaf c"></span><span class="pot"></span></div>
+        </div>
+  
       </div>
-      <div class="teams">
-        <div class="area inv"><span class="sign">Wall Street</span><div class="desks" id="room-mesa"></div><span class="coffee" aria-hidden="true"></span></div>
-        <div class="area ven"><span class="sign">Vendas</span><div class="desks" id="room-esc"></div></div>
-      </div>
-    </div>
+    </section>
+
+    <section class="fl" id="fl3" aria-label="Andar 3: Wall Street">
+      <div class="flhead" style="--c:#f5b700"><span class="flnum">3</span><span class="flname">Wall Street</span><span class="flcnt" id="cnt3"></span></div>
+      <div class="flbody wood"><div class="area inv"><div class="desks" id="room-mesa"></div><span class="coffee" aria-hidden="true"></span></div></div>
+    </section>
+
+    <section class="fl" id="fl2" aria-label="Andar 2: Vendas">
+      <div class="flhead" style="--c:#ff5d8f"><span class="flnum">2</span><span class="flname">Vendas</span><span class="flcnt" id="cnt2"></span></div>
+      <div class="flbody wood"><div class="area ven"><div class="desks" id="room-esc"></div></div></div>
+    </section>
+
+    <div class="ground" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
     <div class="runners" id="runners" aria-hidden="true"></div>
   </div>
+
+  <section class="card" id="waiting" aria-label="Esperando você">
+    <h2>Esperando você <span class="chip warn" id="waitN">0</span></h2>
+    <div id="waitlist" style="display:grid;gap:8px"></div>
+  </section>
 
   <p class="hint" id="agoramsg">Toque num robô para ler o relatório. Toque na TV, no quadro, no mural, na prancheta ou no arquivo para ver os detalhes. Os robôs só levam papel ao gerente quando é importante.</p>
   <p class="hint">Análise de apoio, não recomendação profissional de investimento. Nada é comprado ou vendido pelos robôs.</p>
@@ -313,6 +371,8 @@ th { color: var(--muted); font-weight: 400; font-size: .7rem; text-transform: up
   var pct = function (n) { return (n > 0 ? "+" : n < 0 ? "−" : "") + Math.abs(n).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + "%"; };
   var nivelOk = function (n) { return ["ok", "warn", "neg", "idle", "work"].indexOf(n) >= 0 ? n : "idle"; };
   var stMesa = {}, stEsc = {}, stCart = null, busy = 0, rr = -1, built = false;
+  var vistos = []; try { vistos = JSON.parse(localStorage.getItem("vistos") || "[]"); } catch (e) {}
+  var audit = null;
   var RM = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
 
   function miniBot(colorVar) {
@@ -345,6 +405,11 @@ th { color: var(--muted); font-weight: 400; font-size: .7rem; text-transform: up
   function openBoss() {
     openSheet("Gerente", "recebe os relatórios importantes", "--rug-boss", miniBot("--boss"), function (body) {
       var c = stMesa.robos && stMesa.robos.chefe; if (c && c.texto) body.append(el("p", "say", c.texto));
+      if (audit) {
+        body.append(el("strong", null, "Auditoria do gerente" + (audit.atualizado_em ? " · " + audit.atualizado_em : "")));
+        body.append(el("p", "say", audit.resumo || ""));
+        if (Array.isArray(audit.falhas) && audit.falhas.length) { var fu = el("ul", "list"); audit.falhas.forEach(function (f) { fu.append(el("li", null, f)); }); body.append(fu); }
+      } else body.append(el("p", "sub", "A auditoria do gerente roda toda noite às 21h (Cuiabá)."));
       var imp = importantes().filter(function (i) { return jaEntregue(i.key); });
       if (imp.length) {
         body.append(el("strong", null, "Na mesa do gerente"));
@@ -379,7 +444,7 @@ th { color: var(--muted); font-weight: 400; font-size: .7rem; text-transform: up
       c.className = "chip " + n; c.textContent = x.status || "aguardando";
       d.setAttribute("aria-label", d.querySelector(".lbl").textContent + ": " + (x.status || "aguardando"));
     });
-    renderInbox(); renderWall(); renderMailbox(); renderKanban();
+    renderInbox(); renderWall(); renderMailbox(); renderKanban(); renderTower();
   }
 
   /* ---------- Importantes e entregas ---------- */
@@ -718,6 +783,80 @@ th { color: var(--muted); font-weight: 400; font-size: .7rem; text-transform: up
     return "—";
   }
 
+
+  /* ---------- Torre: andares, contagens, desbloqueio e fila "esperando você" ---------- */
+  function isStuck(x) { return x.travado === true || /sem (dado|cota)|erro|falh|travad/i.test(x.status || ""); }
+  function seen(k) { return vistos.indexOf(k) >= 0; }
+  function markSeen(k) { if (!seen(k)) { vistos.push(k); vistos = vistos.slice(-80); try { localStorage.setItem("vistos", JSON.stringify(vistos)); } catch (e) {} } }
+  function floorStats(team, list) {
+    var st = { w: 0, s: 0, idle: 0, wait: 0 };
+    list.forEach(function (b) {
+      var x = dataOf(team, b.k);
+      if (nivelOk(x.nivel) === "work") st.w++; else if (isStuck(x)) st.s++; else st.idle++;
+      if (isImp(team, b.k) && !seen(team + "/" + b.k + ":" + (x.texto || ""))) st.wait++;
+    });
+    return st;
+  }
+  function setCnt(id, st) {
+    var e = $(id); if (!e) return; e.textContent = "";
+    if (st.w) e.append(el("span", "chip work", st.w + " trabalhando"));
+    if (st.wait) e.append(el("span", "chip warn", st.wait + " esperando você"));
+    if (st.s) e.append(el("span", "chip neg", st.s + " travado"));
+    if (!st.w && !st.wait && !st.s) e.append(el("span", "chip ok", "em dia"));
+  }
+  function lockFloor(n, open, have, need, titulo, what) {
+    var fl = $("fl" + n), body = $("body" + n), cnt = $("cnt" + n); if (!fl) return;
+    fl.classList.toggle("open", open); body.textContent = ""; cnt.textContent = "";
+    if (open) {
+      body.append(el("b", null, "Andar liberado: " + titulo), el("span", null, what + " Diga ao gerente: \"contrata o robô do andar " + n + "\"."));
+      cnt.append(el("span", "chip ok", "liberado"));
+    } else {
+      body.append(el("b", null, "Trancado: abre com " + need + (need > 1 ? " clientes fechados" : " cliente fechado")), el("span", null, titulo + ": " + what));
+      var bar = el("div", "lockbar"), i = el("i"); i.style.width = Math.min(100, have / need * 100) + "%"; bar.append(i);
+      body.append(bar, el("span", "sub", have + " de " + need + " fechado(s)"));
+      cnt.append(el("span", "chip", "trancado"));
+    }
+  }
+  function waitingItems() {
+    var out = [];
+    importantes().forEach(function (i) {
+      var team = i.key.split("/")[0];
+      out.push({ key: i.key, nome: i.b.nome, cor: "var(--r-" + i.b.k + ")", texto: i.x.texto || i.x.status || "", ver: function () { openBot(i.b, team); } });
+    });
+    out = out.filter(function (it) { return !seen(it.key); });
+    (pedidos || []).forEach(function (p) { if (p.status === "pronto" && !seen("pedido:" + p.id)) out.push({ key: "pedido:" + p.id, nome: "Copywriter · post pronto", cor: "var(--r-copywriter)", texto: p.texto || "Legenda pronta na caixa de entrada.", ver: openCaixa }); });
+    if (audit && audit.ok === false && !seen("audit:" + audit.atualizado_em)) out.push({ key: "audit:" + audit.atualizado_em, nome: "Auditoria do gerente", cor: "var(--neg)", texto: audit.resumo || "A auditoria achou falhas.", ver: openBoss });
+    return out;
+  }
+  function renderWaiting() {
+    var list = $("waitlist"); if (!list) return; list.textContent = "";
+    var items = waitingItems(); $("waitN").textContent = items.length; $("waitN").className = "chip " + (items.length ? "warn" : "ok");
+    if (!items.length) { list.append(el("p", "sub", "Nada esperando você. Os robôs só chamam quando precisam.")); return; }
+    items.forEach(function (it) {
+      var c = el("div", "waitcard"); c.style.setProperty("--c", it.cor);
+      var t = it.texto.length > 180 ? it.texto.slice(0, 180) + "…" : it.texto;
+      c.append(el("b", null, it.nome), el("p", null, t));
+      var acts = el("div", "acts"), v = el("button", "mini", "Ver"), ok = el("button", "mini ok", "Ok, vi");
+      v.type = "button"; ok.type = "button";
+      v.addEventListener("click", it.ver);
+      ok.addEventListener("click", function () { markSeen(it.key); renderTower(); });
+      acts.append(v, ok); c.append(acts); list.append(c);
+    });
+  }
+  function renderTower() {
+    if (!$("cnt3")) return;
+    var a = floorStats("mesa", BOTS), b = floorStats("esc", ESC);
+    setCnt("cnt3", a); setCnt("cnt2", b);
+    setCnt("cnt4", { w: 0, s: 0, wait: (audit && audit.ok === false && !seen("audit:" + audit.atualizado_em)) ? 1 : 0 });
+    var waiting = waitingItems().length, tc = $("topchips"); tc.textContent = "";
+    tc.append(el("span", "chip work", (a.w + b.w) + " trabalhando"), el("span", "chip " + (waiting ? "warn" : "ok"), waiting + " esperando você"),
+      el("span", "chip " + ((a.s + b.s) ? "neg" : "ok"), (a.s + b.s) + " travado"), el("span", "chip", (a.idle + b.idle) + " descansando"));
+    var fech = (prospects || []).filter(function (p) { return p.status === "fechou"; }).length;
+    lockFloor(5, fech >= 1, fech, 1, "Pós-venda", "robô que lembra rodízio e alinhamento e pede indicação depois de cada venda.");
+    lockFloor(6, fech >= 3, fech, 3, "Expansão", "novas frentes (agro, locadoras) e a hora de avaliar um plano maior do Claude.");
+    renderWaiting();
+  }
+
   /* ---------- Relógio ---------- */
   function clock() {
     var d = new Date(), h = d.getHours() % 12, m = d.getMinutes(), s = d.getSeconds();
@@ -736,11 +875,12 @@ th { color: var(--muted); font-weight: 400; font-size: .7rem; text-transform: up
     $("dot").classList.add("live"); dbRef = db;
     claude.use("assets").then(function (a) { assetsCap = a; }, function () {});
     db.collection("prospeccao").limit(300).onSnapshot(function (qs) {
-      prospects = qs.docs.map(function (d) { var o = d.data() || {}; o.id = d.id; return o; }).sort(function (a, b) { return (a.ordem || 0) - (b.ordem || 0); }); renderKanban();
+      prospects = qs.docs.map(function (d) { var o = d.data() || {}; o.id = d.id; return o; }).sort(function (a, b) { return (a.ordem || 0) - (b.ordem || 0); }); renderKanban(); renderTower();
     }, function (e) { var c = $("kbChip"); if (c) { c.className = "chip neg"; c.textContent = "erro ao ler (" + (e && e.code || "?") + ")"; } });
+    db.doc("auditoria/atual").onSnapshot(function (s) { audit = s.exists ? s.data() : null; renderTower(); }, function () {});
     ["vendas", "wallstreet"].forEach(function (k) { db.doc("memoria/" + k).onSnapshot(function (s) { mem[k] = s.exists ? s.data() : null; renderShelf(); }, function () {}); });
     db.collection("pedidos").orderBy("criado_em", "desc").limit(15).onSnapshot(function (qs) {
-      pedidos = qs.docs.map(function (d) { var o = d.data() || {}; o.id = d.id; return o; }); renderMailbox(); renderPedList();
+      pedidos = qs.docs.map(function (d) { var o = d.data() || {}; o.id = d.id; return o; }); renderMailbox(); renderPedList(); renderTower();
     }, function () {});
     db.doc("escritorio/atual").onSnapshot(function (s) { stEsc = s.exists ? s.data() : {}; renderOffice(); }, function () {});
     db.doc("mesa/carteira").onSnapshot(function (s) { stCart = s.exists ? s.data() : null;
