@@ -31,14 +31,23 @@ def media(valores, n):
 
 
 def moedas(pares):
+    """AwesomeAPI primeiro; se falhar (ex.: limite 429), usa o Yahoo (EURBRL=X)."""
     if not pares:
         return {}
-    dados = baixar_json("https://economia.awesomeapi.com.br/json/last/" + ",".join(pares))
     out = {}
+    try:
+        dados = baixar_json("https://economia.awesomeapi.com.br/json/last/" + ",".join(pares))
+        for par in pares:
+            d = dados.get(par.replace("-", ""))
+            if d:
+                out[par] = {"preco": float(d["bid"]), "var_dia_pct": float(d["pctChange"])}
+    except Exception:
+        pass
     for par in pares:
-        d = dados.get(par.replace("-", ""))
-        if d:
-            out[par] = {"preco": float(d["bid"]), "var_dia_pct": float(d["pctChange"])}
+        if par not in out:
+            meta = baixar_json(f"https://query1.finance.yahoo.com/v8/finance/chart/{par.replace('-', '')}=X?range=5d&interval=1d")["chart"]["result"][0]["meta"]
+            preco, ant = meta["regularMarketPrice"], meta.get("chartPreviousClose") or meta["regularMarketPrice"]
+            out[par] = {"preco": preco, "var_dia_pct": (preco / ant - 1) * 100}
     return out
 
 
