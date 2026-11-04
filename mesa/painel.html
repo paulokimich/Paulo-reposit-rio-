@@ -590,25 +590,33 @@ th { color: var(--muted); font-weight: 400; font-size: .7rem; text-transform: up
       });
     });
   });
+  function cot(ativo) { return (stMesa.cotacoes || []).filter(function (c) { return c.ativo === ativo && typeof c.preco === "number"; })[0] || null; }
+  function liveAcao(a) {
+    var custo = typeof a.custo === "number" ? a.custo : a.posicao - a.resultado, q = cot(a.ativo);
+    if (a.qtd && q) { var v = a.qtd * q.preco; return { valor: v, custo: custo, res: v - custo, preco: q.preco, dia: q.var_dia, vivo: true }; }
+    return { valor: a.posicao, custo: custo, res: a.resultado, preco: null, dia: null, vivo: false };
+  }
+  function renderCab() { var a = (stCart && stCart.acoes) || [], t = 0; a.forEach(function (x) { t += liveAcao(x).valor; }); var e = $("cabVal"); if (e) e.textContent = a.length ? brl(t).replace("R$ ", "R$") : "—"; }
   $("o-carteira").addEventListener("click", function () {
     openSheet("Arquivo: sua carteira", stCart && stCart.fonte ? "fonte: " + stCart.fonte : "", "--r-caixa", null, function (body) {
       var acoes = (stCart && stCart.acoes) || []; if (!acoes.length) { body.append(el("p", "say", "Carteira ainda não cadastrada.")); return; }
-      var total = 0, aplic = 0; acoes.forEach(function (a) { total += a.posicao; aplic += a.posicao - a.resultado; });
+      var total = 0, aplic = 0, vivo = 0; acoes.forEach(function (a) { var l = liveAcao(a); total += l.valor; aplic += l.custo; if (l.vivo) vivo++; });
       var res = total - aplic, kv = el("div", "kv");
       [["Total", brl(total), ""], ["Aplicado", brl(aplic), ""], ["Resultado", (res < 0 ? "−" : "") + brl(Math.abs(res)) + " (" + pct(res / aplic * 100) + ")", res < 0 ? "neg" : "pos"]].forEach(function (k) {
         var d = el("div"); d.append(el("span", null, k[0]), el("b", k[2], k[1])); kv.append(d); });
       body.append(kv);
-      var maxPct = Math.max(25, Math.ceil(Math.max.apply(null, acoes.map(function (a) { return a.posicao / total * 100; })) / 5) * 5);
+      var maxPct = Math.max(25, Math.ceil(Math.max.apply(null, acoes.map(function (a) { return liveAcao(a).valor / total * 100; })) / 5) * 5);
       var bars = el("div", "bars");
-      acoes.slice().sort(function (x, y) { return y.posicao - x.posicao; }).forEach(function (a) {
-        var w = a.posicao / total * 100, row = el("div", "brow"), bar = el("div", "bar"), f = el("div", "fill"), lim = el("div", "limit");
+      acoes.slice().sort(function (x, y) { return liveAcao(y).valor - liveAcao(x).valor; }).forEach(function (a) {
+        var l = liveAcao(a), w = l.valor / total * 100, row = el("div", "brow"), bar = el("div", "bar"), f = el("div", "fill"), lim = el("div", "limit");
         f.style.width = (w / maxPct * 100) + "%"; f.style.background = w > 20 ? "var(--neg)" : "var(--r-caixa)";
         lim.style.left = (20 / maxPct * 100) + "%";
-        var r = a.resultado / (a.posicao - a.resultado) * 100;
-        bar.append(f, lim, el("span", "barlbl", w.toLocaleString("pt-BR", { maximumFractionDigits: 1 }) + "% · " + brl(a.posicao) + " · " + pct(r)));
+        var r = l.res / l.custo * 100;
+        bar.append(f, lim, el("span", "barlbl", w.toLocaleString("pt-BR", { maximumFractionDigits: 1 }) + "% · " + brl(l.valor) + " · " + pct(r)));
         row.append(el("strong", "sub", a.ativo), bar); bars.append(row);
       });
-      body.append(bars, el("p", "sub", "Linha tracejada: limite da mesa de 20% por ação."));
+      var qt = el("div", "kv"); acoes.forEach(function (a) { var l = liveAcao(a), d = el("div"); d.append(el("span", null, a.ativo + (a.qtd ? " · " + a.qtd + " ações" : "")), el("b", l.dia == null ? "" : l.dia < 0 ? "neg" : "pos", l.preco ? "R$ " + fmtP(l.preco) + " (" + pct(l.dia) + ")" : "sem preço")); qt.append(d); });
+      body.append(bars, el("p", "sub", "Linha tracejada: limite da mesa de 20% por ação."), el("strong", null, "Preços de hoje"), qt, el("p", "sub", vivo ? "Valores calculados com a quantidade de ações e o preço lido pelos robôs no último turno (" + ((stMesa && stMesa.atualizado_em) || "") + "). Pode ter atraso de alguns minutos." : "Sem preços ao vivo: mostrando o valor do print da corretora."), el("p", "sub", "Se você comprar ou vender, me avise a quantidade nova ou mande o print."));
     });
   });
   $("d-chefe").addEventListener("click", openBoss);
@@ -887,6 +895,7 @@ th { color: var(--muted); font-weight: 400; font-size: .7rem; text-transform: up
     lockFloor(6, fech >= 3, fech, 3, "Expansão", "novas frentes (agro, locadoras) e a hora de avaliar um plano maior do Claude.");
     renderWaiting();
     updateIso();
+    renderCab();
   }
 
   /* ---------- Torre isométrica (SVG) ---------- */
@@ -1165,7 +1174,7 @@ th { color: var(--muted); font-weight: 400; font-size: .7rem; text-transform: up
     }, function () {});
     db.doc("escritorio/atual").onSnapshot(function (s) { stEsc = s.exists ? s.data() : {}; renderOffice(); }, function () {});
     db.doc("mesa/carteira").onSnapshot(function (s) { stCart = s.exists ? s.data() : null;
-      var a = (stCart && stCart.acoes) || [], t = 0; a.forEach(function (x) { t += x.posicao; }); $("cabVal").textContent = a.length ? brl(t).replace("R$ ", "R$") : "—"; }, function () {});
+      renderCab(); }, function () {});
     db.doc("mesa/atual").onSnapshot(function (s) {
       clearTimeout(timer); stMesa = s.exists ? s.data() : {}; renderOffice();
       if (stMesa.atualizado_em) { var d = new Date(stMesa.atualizado_em); $("when").textContent = "Último turno: " + (isNaN(d) ? stMesa.atualizado_em : d.toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" })) + " · próximo: " + proximoTurno(); }
