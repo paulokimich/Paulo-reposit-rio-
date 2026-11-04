@@ -520,6 +520,7 @@ th { color: var(--muted); font-weight: 400; font-size: .7rem; text-transform: up
 
   /* ---------- Parede: TV, quadro, mural, prancheta, arquivo ---------- */
   var tvIdx = 0;
+  function horaCot(h) { if (!h) return "—"; var d = new Date(h); if (isNaN(d)) return String(h); return d.toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo", day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }); }
   function cotacoes() { return Array.isArray(stMesa.cotacoes) ? stMesa.cotacoes : []; }
   function tvTick() {
     var q = cotacoes(), s = $("tv"); if (!q.length) return;
@@ -545,10 +546,10 @@ th { color: var(--muted); font-weight: 400; font-size: .7rem; text-transform: up
   $("o-tv").addEventListener("click", function () {
     openSheet("TV de cotações", "últimos preços lidos pelos robôs", "--r-cambio", null, function (body) {
       var q = cotacoes(); if (!q.length) { body.append(el("p", "say", "Ainda sem cotações.")); return; }
-      var w = el("div", "tablewrap"), t = el("table"), h = el("tr"); ["Ativo", "Preço", "Dia", "Fonte"].forEach(function (x) { h.append(el("th", null, x)); });
+      var w = el("div", "tablewrap"), t = el("table"), h = el("tr"); ["Ativo", "Preço", "Dia", "Hora", "Fonte"].forEach(function (x) { h.append(el("th", null, x)); });
       var th = el("thead"); th.append(h); t.append(th); var tb = el("tbody");
       q.forEach(function (c) { var tr = el("tr"), v = typeof c.var_dia === "number" ? c.var_dia : null;
-        tr.append(el("td", null, c.ativo || ""), el("td", null, typeof c.preco === "number" ? brl(c.preco) : (c.preco || "sem dado")), el("td", v == null ? "" : v < 0 ? "neg" : "pos", v == null ? "—" : pct(v)), el("td", null, c.fonte || "")); tb.append(tr); });
+        tr.append(el("td", null, c.ativo || ""), el("td", null, typeof c.preco === "number" ? brl(c.preco) : (c.preco || "sem dado")), el("td", v == null ? "" : v < 0 ? "neg" : "pos", v == null ? "—" : pct(v)), el("td", null, horaCot(c.hora) + (c.mercado === "fechado" ? " (fechado)" : "")), el("td", null, c.fonte || "")); tb.append(tr); });
       t.append(tb); w.append(t); body.append(w);
       body.append(el("p", "sub", "Preços com atraso. Confira no app da corretora antes de operar."));
     });
@@ -1141,7 +1142,8 @@ th { color: var(--muted); font-weight: 400; font-size: .7rem; text-transform: up
   function openCompra(it) {
     openSheet(it.ticker + (it.nome ? " · " + it.nome : ""), (it.setor || "") + " · ideia para estudar, não ordem de compra", "--r-caixa", null, function (body) {
       body.append(kvBox([["Preço", "R$ " + fmtP(it.preco)], ["No dia", (it.var_dia >= 0 ? "+" : "") + fmtP(it.var_dia) + "%", it.var_dia < 0 ? "neg" : "pos"], ["Dividendos 12m", fmtP(it.dy12m) + "%"], ["Da máxima de 6m", fmtP(it.vs_max6m) + "%", "neg"]]));
-      [["Por que olhar", it.tese], ["Como está o gráfico", it.tendencia], ["O que pode dar errado", it.riscos], ["Se decidir comprar", it.sugestao]].forEach(function (t) { if (t[1]) { body.append(el("strong", null, t[0])); body.append(el("p", "say", t[1])); } });
+      [["Por que olhar", it.tese], ["Como está o gráfico", it.tendencia], ["O que pode dar errado", it.riscos], ["Horizonte", it.horizonte], ["O que pode ajudar (catalisadores)", it.catalisadores], ["O que invalida a tese", it.invalida], ["Comparar com", it.referencia], ["Se decidir comprar", it.sugestao]].forEach(function (t) { if (t[1]) { body.append(el("strong", null, t[0])); body.append(el("p", "say", t[1])); } });
+      if (it.hora_cotacao) body.append(el("p", "sub", "Preço lido em " + horaCot(it.hora_cotacao)));
       if (it.fonte) body.append(el("p", "sub", "Fonte: " + it.fonte));
       body.append(el("p", "sub", "Análise de apoio dos robôs, não recomendação profissional. Quem decide e assina é você."));
     });
