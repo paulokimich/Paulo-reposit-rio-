@@ -41,6 +41,19 @@ Posso "contratar" (acionar) estes especialistas quando a tarefa pedir:
 | Vendedor / Prospecção | `vendedor-prospeccao.md` | Lista de clientes, scripts de abordagem, follow-up |
 | Advogado do Diabo | `advogado-do-diabo.md` | Destruir a ideia antes que o mercado destrua |
 
+### Mesa de Operações (investimentos — ver `mesa/README.md`)
+
+| Funcionário | Arquivo | Papel |
+|---|---|---|
+| Chefe da Mesa | `chefe-da-mesa.md` | Coordena a mesa e entrega a Ficha de Decisão |
+| Tendência | `tendencia.md` | Aposta na direção (análise técnica) |
+| Espião | `espiao.md` | Segue quem tem vantagem (CVM, insiders, analistas) |
+| Vigia do Câmbio | `vigia-cambio.md` | Euro e dólar |
+| Caixa / Renda | `caixa-renda.md` | Ganha no fluxo: reserva, renda fixa, dividendos |
+| Gestor de Risco | `gestor-de-risco.md` | Decide rápido, dimensiona e pode vetar |
+
+Regra da mesa: **a mesa analisa, o Paulo assina.** Nada é comprado ou vendido automaticamente.
+
 Regra: só aciono funcionário quando o trabalho é grande o bastante para valer a pena. Tarefa simples eu mesmo faço.
 
 ## Autoaperfeiçoamento
@@ -58,4 +71,5 @@ Ao final de cada sessão relevante, reviso este arquivo e:
 ## Lições aprendidas
 
 - Com capital zero, combinar uma frente de dinheiro rápido (serviço/comissão) com uma recorrente; reinvestir os primeiros ganhos em ferramentas.
+- Paulo é vendedor de pneus numa loja em Cuiabá: a maior alavanca rápida é aumentar as vendas/comissão dele lá.
 - Paulo está em Cuiabá: considerar sempre o calor (ar-condicionado, água, quintal) como fonte de demanda local.

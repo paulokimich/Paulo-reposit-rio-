@@ -9,7 +9,9 @@
 | Meta inicial | R$ 500 a R$ 1.000/mês |
 | Equipamentos | Celular com internet (confirmar: moto/bicicleta/carro?) |
 | MEI/CNPJ | A confirmar (abrir MEI é gratuito quando houver renda recorrente) |
-| Habilidades | A detalhar |
+| Trabalho atual | Vendedor de pneus em loja (Cuiabá) |
+| Investimentos | Já investe; acompanha ações e euro (detalhar carteira em `mesa/carteira.json`) |
+| Habilidades | Vendas, atendimento, conhecimento técnico de pneus |
 
 ## Implicações para o assessor
 - Capital zero ⇒ só ideias que usam tempo + celular. Reinvestir os primeiros ganhos em ferramentas.

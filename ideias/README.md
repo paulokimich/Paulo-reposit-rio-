@@ -32,3 +32,13 @@
 - **Para longo prazo/escala:** #5, mas é o mais lento para o 1º real.
 
 Recomendação provisória: **combinar #1 + #7** — "Pacote de presença digital para negócios do bairro" (ver `planos/plano-30-dias.md`). A decisão final depende do seu perfil.
+
+## Atualização — Paulo é vendedor de pneus (maior alavanca)
+
+| # | Ideia | Por quê |
+|---|---|---|
+| 8 | **Vender mais pneus na própria loja** — carteira de clientes no WhatsApp, lembrete de rodízio/alinhamento a cada 10 mil km, vídeos curtos "qual pneu para Hilux/Strada/moto", indicação de motoristas de app | Usa o que você já faz; cada venda a mais = comissão. Combinar com a loja antes. |
+| 9 | **Frotas e motoristas de app** — abordar transportadoras, frotas agrícolas (MT!), autoescolas, motoboys com condição especial da loja | Venda B2B grande e recorrente; agro de MT gasta muito com pneu |
+| 10 | **Conteúdo "o pneueiro de Cuiabá"** — Instagram/TikTok com dicas de pneu e calor de Cuiabá (calibragem, desgaste no asfalto quente) | Vira canal de clientes próprio e pode render publicidade depois |
+
+> Cuidado: não montar negócio concorrente da loja onde trabalha (pode dar justa causa). Tudo aqui é para vender MAIS pela loja e ganhar mais comissão, ou com acordo do patrão.
