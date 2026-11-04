@@ -57,4 +57,5 @@ Ao final de cada sessão relevante, reviso este arquivo e:
 
 ## Lições aprendidas
 
-- (vazio — será preenchido conforme trabalhamos)
+- Com capital zero, combinar uma frente de dinheiro rápido (serviço/comissão) com uma recorrente; reinvestir os primeiros ganhos em ferramentas.
+- Paulo está em Cuiabá: considerar sempre o calor (ar-condicionado, água, quintal) como fonte de demanda local.

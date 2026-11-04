@@ -1,17 +1,17 @@
-# Perfil do Paulo (preencher / atualizar)
-
-O assessor usa este arquivo para personalizar as recomendações. Quanto mais completo, melhores as ideias.
+# Perfil do Paulo
 
 | Item | Resposta |
 |---|---|
-| Cidade / estado | |
-| Capital disponível para investir (sem passar aperto) | R$ |
-| Horas por semana disponíveis | |
-| Trabalha hoje? Em quê? | |
-| Habilidades (o que sabe fazer bem) | |
-| Gosta de lidar com pessoas / vender? (1–5) | |
-| Tem carro / moto / ferramentas / computador? | |
-| Já tem MEI ou CNPJ? | |
-| Meta de renda extra mensal | R$ |
-| Prazo para a meta | |
-| O que NÃO quer fazer de jeito nenhum | |
+| Cidade / estado | Cuiabá – MT |
+| Capital disponível | R$ 0 (começar sem investir) |
+| Horas por semana | Integral — "o tempo que for necessário" |
+| Disposição | "Faço tudo que for necessário" — aceita trabalho braçal e venda |
+| Meta inicial | R$ 500 a R$ 1.000/mês |
+| Equipamentos | Celular com internet (confirmar: moto/bicicleta/carro?) |
+| MEI/CNPJ | A confirmar (abrir MEI é gratuito quando houver renda recorrente) |
+| Habilidades | A detalhar |
+
+## Implicações para o assessor
+- Capital zero ⇒ só ideias que usam tempo + celular. Reinvestir os primeiros ganhos em ferramentas.
+- Cuiabá: calor extremo o ano todo ⇒ alta demanda por limpeza/higienização de ar-condicionado, lavagem de caixa d'água, limpeza de quintal/terreno, piscinas.
+- Meta de R$ 500–1.000 é atingível em 30 dias com serviços + comissão.
