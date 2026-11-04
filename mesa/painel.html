@@ -152,6 +152,23 @@ button { font: inherit; color: inherit; }
 .copy { appearance: none; border: 0; border-radius: 999px; padding: 6px 12px; background: var(--r-copywriter); color: #fff; font-weight: 700; font-size: .78rem; cursor: pointer; justify-self: start; }
 .copy:focus-visible { outline: 3px solid var(--rug-inv); outline-offset: 2px; }
 
+/* Quadro de clientes */
+.kb { position: absolute; left: 10px; top: 2px; width: 66px; height: 44px; background: #fff; border: 4px solid #3b3f4a; border-radius: 6px; display: flex; gap: 3px; padding: 4px; z-index: 1; }
+.kb i { flex: 1; border-radius: 2px; background: repeating-linear-gradient(var(--kc) 0 6px, transparent 6px 9px); }
+.kb i:nth-child(1) { --kc: #ffd166; } .kb i:nth-child(2) { --kc: #9be7ff; } .kb i:nth-child(3) { --kc: #8cdf6a; }
+.kb-legs { position: absolute; left: 24px; right: 24px; bottom: 2px; height: 20px; border-left: 3px solid #3b3f4a; border-right: 3px solid #3b3f4a; }
+.pgroup { display: grid; gap: 8px; }
+.prow { background: var(--page); border-radius: 12px; padding: 8px 10px; display: grid; gap: 4px; }
+.top2 { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+.pctl { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr) auto; gap: 6px; margin-top: 4px; }
+.pctl select, .pctl input { font: inherit; font-size: .85rem; border: 1px solid var(--line); border-radius: 8px; padding: 6px; background: #fff; color: var(--ink); min-width: 0; }
+.pctl select:focus-visible, .pctl input:focus-visible { outline: 3px solid var(--rug-inv); }
+.counts { display: flex; flex-wrap: wrap; gap: 6px; }
+.today { background: #fff3c4; border-radius: 12px; padding: 10px; display: grid; gap: 10px; }
+.mini { appearance: none; border: 0; border-radius: 8px; padding: 6px 10px; background: var(--ink); color: #fff; font-weight: 700; font-size: .78rem; cursor: pointer; }
+.mini:focus-visible { outline: 3px solid var(--rug-inv); outline-offset: 2px; }
+.tel { font-family: var(--mono); font-size: .8rem; user-select: all; }
+
 /* Entregas */
 .runners { position: absolute; inset: 0; pointer-events: none; z-index: 10; }
 .runner { position: absolute; left: 0; top: 0; width: 34px; height: 34px; }
@@ -341,7 +358,7 @@ th { color: var(--muted); font-weight: 400; font-size: .7rem; text-transform: up
     if (!built) {
       BOTS.forEach(function (b) { $("room-mesa").append(deskFor(b, "mesa")); });
       ESC.forEach(function (b) { $("room-esc").append(deskFor(b, "esc")); });
-      $("room-esc").append(mailboxBtn());
+      $("room-esc").append(mailboxBtn(), kanbanBtn());
       built = true;
     }
     document.querySelectorAll(".ws[data-k]").forEach(function (d) {
@@ -353,7 +370,7 @@ th { color: var(--muted); font-weight: 400; font-size: .7rem; text-transform: up
       c.className = "chip " + n; c.textContent = x.status || "aguardando";
       d.setAttribute("aria-label", d.querySelector(".lbl").textContent + ": " + (x.status || "aguardando"));
     });
-    renderInbox(); renderWall(); renderMailbox();
+    renderInbox(); renderWall(); renderMailbox(); renderKanban();
   }
 
   /* ---------- Importantes e entregas ---------- */
@@ -566,6 +583,67 @@ th { color: var(--muted); font-weight: 400; font-size: .7rem; text-transform: up
   }
   $("postar").addEventListener("click", openCaixa);
 
+  /* ---------- Quadro de clientes (prospecção) ---------- */
+  var prospects = [], ST = ["a contatar", "contatado", "proposta", "fechou", "sem interesse"];
+  var PRI = { "proposta": 0, "contatado": 1, "a contatar": 2, "fechou": 3, "sem interesse": 4 };
+  function kanbanBtn() {
+    var b = el("button", "obj ws"); b.type = "button"; b.id = "o-clientes";
+    var s = el("span", "st-s"), kb = el("span", "kb"); kb.append(el("i"), el("i"), el("i")); s.append(kb, el("span", "kb-legs"));
+    var c = el("span", "chip", "clientes"); c.id = "kbChip";
+    b.append(s, el("span", "lbl", "Clientes"), c);
+    b.addEventListener("click", openClientes);
+    return b;
+  }
+  function renderKanban() {
+    var c = $("kbChip"); if (!c) return;
+    var lista = Array.isArray(stEsc.lista_do_dia) ? stEsc.lista_do_dia.length : 0;
+    var fech = prospects.filter(function (p) { return p.status === "fechou"; }).length;
+    c.className = "chip " + (lista ? "work" : fech ? "ok" : "");
+    c.textContent = lista ? lista + " para hoje" : fech ? fech + " fechado(s)" : prospects.length + " na lista";
+  }
+  function openClientes() {
+    openSheet("Clientes", "frotas de Cuiabá e VG · você atualiza, o Vendedor acompanha", "--r-vendedor", null, function (body) {
+      var ld = Array.isArray(stEsc.lista_do_dia) ? stEsc.lista_do_dia : [];
+      if (ld.length) {
+        var t = el("div", "today"); t.append(el("strong", null, "Lista do dia do Vendedor"));
+        ld.forEach(function (x) {
+          var box = el("div"); box.style.cssText = "display:grid;gap:4px";
+          box.append(el("b", null, x.nome || ""));
+          if (x.contato) box.append(el("span", "tel", x.contato));
+          if (x.motivo) box.append(el("span", "sub", x.motivo));
+          if (x.mensagem) { var m = el("div", "legenda", x.mensagem), cp = el("button", "copy", "Copiar mensagem"); cp.type = "button"; cp.addEventListener("click", function () { copiar(x.mensagem, m, cp); }); box.append(m, cp); }
+          t.append(box);
+        });
+        body.append(t);
+      } else body.append(el("p", "sub", "A lista do dia sai toda manhã às 7h37 (Cuiabá), de segunda a sábado."));
+      var counts = el("div", "counts");
+      ST.forEach(function (s) { var k = prospects.filter(function (p) { return p.status === s; }).length; counts.append(el("span", "chip " + (s === "fechou" ? "ok" : s === "sem interesse" ? "neg" : s === "a contatar" ? "" : "work"), s + ": " + k)); });
+      body.append(counts);
+      if (!dbRef) { body.append(el("p", "say", "Entre na sua conta Claude para atualizar os clientes.")); return; }
+      if (!prospects.length) { body.append(el("p", "say", "Carregando a lista…")); return; }
+      var list = el("div", "pgroup");
+      prospects.slice().sort(function (a, b) { return ((PRI[a.status] != null ? PRI[a.status] : 9) - (PRI[b.status] != null ? PRI[b.status] : 9)) || ((a.ordem || 0) - (b.ordem || 0)); }).forEach(function (p) {
+        var r = el("div", "prow"), top = el("div", "top2");
+        top.append(el("b", null, p.nome || ""), el("span", "sub", p.prioridade || "")); r.append(top);
+        r.append(el("span", "sub", (p.segmento || "") + " · " + (p.cidade || "")));
+        if (p.contato) r.append(el("span", "tel", p.contato));
+        var ctl = el("div", "pctl"), sel = el("select"), nota = el("input"), sv = el("button", "mini", "Salvar");
+        sel.id = "st-" + p.id; sel.setAttribute("aria-label", "Situação de " + p.nome);
+        ST.forEach(function (s) { var o = el("option", null, s); o.value = s; if (s === p.status) o.selected = true; sel.append(o); });
+        nota.id = "nt-" + p.id; nota.placeholder = "anotação (ex.: falar com João, 12 caminhões)"; nota.value = p.nota || ""; nota.setAttribute("aria-label", "Anotação de " + p.nome);
+        sv.type = "button";
+        sv.addEventListener("click", async function () {
+          sv.disabled = true; sv.textContent = "…";
+          try { await dbRef.doc("prospeccao/" + p.id).update({ status: sel.value, nota: nota.value.trim(), atualizado_em: new Date().toISOString() }); sv.textContent = "Salvo"; }
+          catch (e) { sv.textContent = "Erro"; }
+          setTimeout(function () { sv.disabled = false; sv.textContent = "Salvar"; }, 1500);
+        });
+        ctl.append(sel, nota, sv); r.append(ctl); list.append(r);
+      });
+      body.append(list);
+    });
+  }
+
   /* ---------- Relógio ---------- */
   function clock() {
     var d = new Date(), h = d.getHours() % 12, m = d.getMinutes(), s = d.getSeconds();
@@ -583,6 +661,9 @@ th { color: var(--muted); font-weight: 400; font-size: .7rem; text-transform: up
     if (!db) { clearTimeout(timer); $("when").textContent = "Entre na sua conta Claude para ver o escritório."; return; }
     $("dot").classList.add("live"); dbRef = db;
     claude.use("assets").then(function (a) { assetsCap = a; }, function () {});
+    db.collection("prospeccao").orderBy("ordem").limit(300).onSnapshot(function (qs) {
+      prospects = qs.docs.map(function (d) { var o = d.data() || {}; o.id = d.id; return o; }); renderKanban();
+    }, function () {});
     db.collection("pedidos").orderBy("criado_em", "desc").limit(15).onSnapshot(function (qs) {
       pedidos = qs.docs.map(function (d) { var o = d.data() || {}; o.id = d.id; return o; }); renderMailbox(); renderPedList();
     }, function () {});
