@@ -352,6 +352,8 @@ th { color: var(--muted); font-weight: 400; font-size: .7rem; text-transform: up
   </div>
   </details>
 
+  <section class="card" id="ideias" aria-label="Ideias dos robôs"><h2>Ideias dos robôs</h2><div id="ideiasBody" style="display:grid;gap:10px"></div></section>
+
   <section class="card" id="waiting" aria-label="Esperando você">
     <h2>Esperando você <span class="chip warn" id="waitN">0</span></h2>
     <div id="waitlist" style="display:grid;gap:8px"></div>
@@ -393,7 +395,7 @@ th { color: var(--muted); font-weight: 400; font-size: .7rem; text-transform: up
   var nivelOk = function (n) { return ["ok", "warn", "neg", "idle", "work"].indexOf(n) >= 0 ? n : "idle"; };
   var stMesa = {}, stEsc = {}, stCart = null, busy = 0, rr = -1, built = false;
   var vistos = []; try { vistos = JSON.parse(localStorage.getItem("vistos") || "[]"); } catch (e) {}
-  var audit = null;
+  var audit = null, ideiasC = null, ideiasV = null;
   var RM = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
 
   function miniBot(colorVar) {
@@ -852,6 +854,8 @@ th { color: var(--muted); font-weight: 400; font-size: .7rem; text-transform: up
     });
     out = out.filter(function (it) { return !seen(it.key); });
     (pedidos || []).forEach(function (p) { if (p.status === "pronto" && !seen("pedido:" + p.id)) out.push({ key: "pedido:" + p.id, nome: "Copywriter · post pronto", cor: "var(--r-copywriter)", texto: p.texto || "Legenda pronta na caixa de entrada.", ver: openCaixa }); });
+    if (ideiasC && ideiasC.atualizado_em && !seen("ideias-c:" + ideiasC.atualizado_em)) out.push({ key: "ideias-c:" + ideiasC.atualizado_em, nome: "Wall Street · ideias para estudar", cor: "var(--r-caixa)", texto: "Os robôs trouxeram " + ((ideiasC.itens || []).length) + " ideias de ações para você estudar. Veja a seção Ideias dos robôs.", ver: function () { openCompras(); } });
+    if (ideiasV && ideiasV.atualizado_em && !seen("ideias-v:" + ideiasV.atualizado_em)) out.push({ key: "ideias-v:" + ideiasV.atualizado_em, nome: "Vendas · ideias para vender mais", cor: "var(--r-vendedor)", texto: "Ideias novas para aumentar suas vendas de pneus. Veja a seção Ideias dos robôs.", ver: function () { openVendas(); } });
     if (audit && audit.ok === false && !seen("audit:" + audit.atualizado_em)) out.push({ key: "audit:" + audit.atualizado_em, nome: "Auditoria do gerente", cor: "var(--neg)", texto: audit.resumo || "A auditoria achou falhas.", ver: openBoss });
     return out;
   }
@@ -1080,6 +1084,52 @@ th { color: var(--muted); font-weight: 400; font-size: .7rem; text-transform: up
     if (nf) { var fechados = (prospects || []).filter(function (p) { return p.status === "fechou"; }).length; nf.textContent = fechados >= 1 ? "Clientes fechados: " + fechados + ". Novo andar liberado: diga ao gerente para contratar o próximo robô." : "Novos andares e robôs abrem com os primeiros clientes fechados (" + fechados + " até agora)."; }
   }
 
+  /* ---------- Ideias dos robôs ---------- */
+  var fmtP = function (n) { return typeof n === "number" ? n.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "—"; };
+  function kvBox(pairs) { var kv = el("div", "kv"); pairs.forEach(function (k) { var d = el("div"); d.append(el("span", null, k[0]), el("b", k[2] || "", k[1])); kv.append(d); }); return kv; }
+  function openCompra(it) {
+    openSheet(it.ticker + (it.nome ? " · " + it.nome : ""), (it.setor || "") + " · ideia para estudar, não ordem de compra", "--r-caixa", null, function (body) {
+      body.append(kvBox([["Preço", "R$ " + fmtP(it.preco)], ["No dia", (it.var_dia >= 0 ? "+" : "") + fmtP(it.var_dia) + "%", it.var_dia < 0 ? "neg" : "pos"], ["Dividendos 12m", fmtP(it.dy12m) + "%"], ["Da máxima de 6m", fmtP(it.vs_max6m) + "%", "neg"]]));
+      [["Por que olhar", it.tese], ["Como está o gráfico", it.tendencia], ["O que pode dar errado", it.riscos], ["Se decidir comprar", it.sugestao]].forEach(function (t) { if (t[1]) { body.append(el("strong", null, t[0])); body.append(el("p", "say", t[1])); } });
+      if (it.fonte) body.append(el("p", "sub", "Fonte: " + it.fonte));
+      body.append(el("p", "sub", "Análise de apoio dos robôs, não recomendação profissional. Quem decide e assina é você."));
+    });
+  }
+  function openVenda(it) {
+    openSheet(it.titulo || "Ideia", "ideia para vender mais", "--r-vendedor", null, function (body) {
+      [["Para quem", it.para_quem], ["Como fazer", it.como], ["Por que funciona", it.por_que], ["Esforço", it.esforco], ["Antes de começar", it.cuidado]].forEach(function (t) { if (t[1]) { body.append(el("strong", null, t[0])); body.append(el("p", "say", t[1])); } });
+    });
+  }
+  function openCompras() {
+    openSheet("Ideias de compra", "para estudar · atualizado " + ((ideiasC && ideiasC.atualizado_em) || ""), "--r-caixa", null, function (body) {
+      if (ideiasC && ideiasC.observacao) body.append(el("p", "say", ideiasC.observacao));
+      ((ideiasC && ideiasC.itens) || []).forEach(function (it) { var r = el("div", "waitcard"); r.append(el("b", null, it.ticker + " · " + (it.nome || "")), el("p", null, it.tese || "")); var b = el("button", "mini", "Ver detalhes"); b.type = "button"; b.addEventListener("click", function () { openCompra(it); }); r.append(b); body.append(r); });
+    });
+  }
+  function openVendas() {
+    openSheet("Ideias para vender mais", "atualizado " + ((ideiasV && ideiasV.atualizado_em) || ""), "--r-vendedor", null, function (body) {
+      ((ideiasV && ideiasV.itens) || []).forEach(function (it) { var r = el("div", "waitcard"); r.append(el("b", null, it.titulo || ""), el("p", null, it.como || "")); var b = el("button", "mini", "Ver detalhes"); b.type = "button"; b.addEventListener("click", function () { openVenda(it); }); r.append(b); body.append(r); });
+    });
+  }
+  function renderIdeias() {
+    var host = $("ideiasBody"); if (!host) return; host.textContent = "";
+    var c = (ideiasC && ideiasC.itens) || [], v = (ideiasV && ideiasV.itens) || [];
+    host.append(el("strong", null, "Para estudar na bolsa"));
+    if (!c.length) host.append(el("p", "sub", "Os robôs trazem ideias de ações todo dia, no turno do meio-dia."));
+    c.slice(0, 3).forEach(function (it) {
+      var r = el("div", "waitcard"); r.style.setProperty("--c", "var(--r-caixa)");
+      r.append(el("b", null, it.ticker + " · R$ " + fmtP(it.preco) + " · dividendos 12m " + fmtP(it.dy12m) + "%"), el("p", null, it.tese || ""));
+      var b = el("button", "mini", "Ver detalhes"); b.type = "button"; b.addEventListener("click", function () { openCompra(it); }); r.append(b); host.append(r);
+    });
+    host.append(el("strong", null, "Para vender mais pneus"));
+    if (!v.length) host.append(el("p", "sub", "As ideias de venda chegam toda semana."));
+    v.slice(0, 4).forEach(function (it) {
+      var r = el("div", "waitcard"); r.style.setProperty("--c", "var(--r-vendedor)");
+      r.append(el("b", null, it.titulo || ""), el("p", null, it.como || ""));
+      var b = el("button", "mini", "Ver detalhes"); b.type = "button"; b.addEventListener("click", function () { openVenda(it); }); r.append(b); host.append(r);
+    });
+  }
+
   /* ---------- Relógio ---------- */
   function clock() {
     var d = new Date(), h = d.getHours() % 12, m = d.getMinutes(), s = d.getSeconds();
@@ -1102,6 +1152,8 @@ th { color: var(--muted); font-weight: 400; font-size: .7rem; text-transform: up
       prospects = qs.docs.map(function (d) { var o = d.data() || {}; o.id = d.id; return o; }).sort(function (a, b) { return (a.ordem || 0) - (b.ordem || 0); }); renderKanban(); renderTower();
     }, function (e) { var c = $("kbChip"); if (c) { c.className = "chip neg"; c.textContent = "erro ao ler (" + (e && e.code || "?") + ")"; } });
     db.doc("auditoria/atual").onSnapshot(function (s) { audit = s.exists ? s.data() : null; renderTower(); }, function () {});
+    db.doc("ideias/compras").onSnapshot(function (s) { ideiasC = s.exists ? s.data() : null; renderIdeias(); renderTower(); }, function () {});
+    db.doc("ideias/vendas").onSnapshot(function (s) { ideiasV = s.exists ? s.data() : null; renderIdeias(); renderTower(); }, function () {});
     db.doc("estado/vistos").onSnapshot(function (s) {
       if (!s.exists) return; var l = (s.data() || {}).lista || [], ch = false;
       l.forEach(function (k) { if (vistos.indexOf(k) < 0) { vistos.push(k); ch = true; } });
