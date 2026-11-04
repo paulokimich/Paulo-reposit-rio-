@@ -809,7 +809,12 @@ th { color: var(--muted); font-weight: 400; font-size: .7rem; text-transform: up
   /* ---------- Torre: andares, contagens, desbloqueio e fila "esperando você" ---------- */
   function isStuck(x) { return x.travado === true || /sem (dado|cota)|erro|falh|travad/i.test(x.status || ""); }
   function seen(k) { return vistos.indexOf(k) >= 0; }
-  function markSeen(k) { if (!seen(k)) { vistos.push(k); vistos = vistos.slice(-80); try { localStorage.setItem("vistos", JSON.stringify(vistos)); } catch (e) {} } }
+  function markSeen(k) {
+    if (seen(k)) return;
+    vistos.push(k); vistos = vistos.slice(-80);
+    try { localStorage.setItem("vistos", JSON.stringify(vistos)); } catch (e) {}
+    if (dbRef) { try { dbRef.doc("estado/vistos").set({ lista: vistos, atualizado_em: new Date().toISOString() }).catch(function () {}); } catch (e) {} }
+  }
   function floorStats(team, list) {
     var st = { w: 0, s: 0, idle: 0, wait: 0 };
     list.forEach(function (b) {
@@ -1097,6 +1102,11 @@ th { color: var(--muted); font-weight: 400; font-size: .7rem; text-transform: up
       prospects = qs.docs.map(function (d) { var o = d.data() || {}; o.id = d.id; return o; }).sort(function (a, b) { return (a.ordem || 0) - (b.ordem || 0); }); renderKanban(); renderTower();
     }, function (e) { var c = $("kbChip"); if (c) { c.className = "chip neg"; c.textContent = "erro ao ler (" + (e && e.code || "?") + ")"; } });
     db.doc("auditoria/atual").onSnapshot(function (s) { audit = s.exists ? s.data() : null; renderTower(); }, function () {});
+    db.doc("estado/vistos").onSnapshot(function (s) {
+      if (!s.exists) return; var l = (s.data() || {}).lista || [], ch = false;
+      l.forEach(function (k) { if (vistos.indexOf(k) < 0) { vistos.push(k); ch = true; } });
+      if (ch) { vistos = vistos.slice(-80); renderTower(); }
+    }, function () {});
     ["vendas", "wallstreet"].forEach(function (k) { db.doc("memoria/" + k).onSnapshot(function (s) { mem[k] = s.exists ? s.data() : null; renderShelf(); }, function () {}); });
     db.collection("pedidos").orderBy("criado_em", "desc").limit(15).onSnapshot(function (qs) {
       pedidos = qs.docs.map(function (d) { var o = d.data() || {}; o.id = d.id; return o; }); renderMailbox(); renderPedList(); renderTower();
