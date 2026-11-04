@@ -7,7 +7,9 @@
 | Horas por semana | Integral — "o tempo que for necessário" |
 | Disposição | "Faço tudo que for necessário" — aceita trabalho braçal e venda |
 | Renda | R$ 5.500/mês (vendedor de pneus) |
-| Gastos fixos | Nenhum (informado em 04/11/2026); gastos variáveis a confirmar |
+| Gastos | ~R$ 1.000/mês, sem gastos fixos → sobra ~R$ 4.500/mês |
+| Comissão | 1,2 por pneu novo, 2,2 por recapado (confirmar se é % ou R$) |
+| Instagram da loja | @pneuaroficial |
 | Meta inicial | R$ 500 a R$ 1.000/mês extra |
 | Equipamentos | Celular com internet (confirmar: moto/bicicleta/carro?) |
 | MEI/CNPJ | A confirmar (abrir MEI é gratuito quando houver renda recorrente) |

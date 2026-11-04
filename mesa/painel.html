@@ -109,6 +109,17 @@ th { color: var(--muted); font-weight: 400; font-size: .72rem; text-transform: u
 
   <section class="desk" id="desk" aria-label="Robôs da mesa"></section>
 
+  <header style="gap:4px">
+    <span class="eyebrow">Escritório · equipe de vendas e novos negócios</span>
+    <h2 style="font-size:1.4rem">Pneus e renda extra</h2>
+    <p class="small" id="escwhen">Carregando o escritório…</p>
+  </header>
+  <section class="desk" id="esc" aria-label="Equipe do escritório"></section>
+  <section class="card" aria-label="Tarefas do Paulo">
+    <h2>Suas tarefas desta semana</h2>
+    <ol class="ficha" id="tarefas"><li>Carregando…</li></ol>
+  </section>
+
   <div class="grid2">
     <section class="card" aria-label="Carteira">
       <h2>Carteira por peso</h2>
@@ -232,13 +243,37 @@ th { color: var(--muted); font-weight: 400; font-size: .72rem; text-transform: u
     var fi = $("ficha"); if (Array.isArray(s.ficha) && s.ficha.length) { fi.textContent = ""; s.ficha.forEach(function (t) { fi.append(el("li", null, t)); }); }
   }
 
+  var ESC = [
+    { k: "vendedor", nome: "Vendedor", papel: "traz clientes", c: "--r-trend" },
+    { k: "copywriter", nome: "Copywriter", papel: "posts e mensagens", c: "--r-spy" },
+    { k: "financeiro", nome: "Financeiro", papel: "faz as contas", c: "--r-cash" },
+    { k: "pesquisador", nome: "Pesquisador", papel: "estuda o mercado", c: "--r-fx" },
+    { k: "advogado", nome: "Advogado do Diabo", papel: "acha os furos", c: "--r-risk" }
+  ];
+  function renderEsc(s) {
+    s = s || {}; var r = s.robos || {}, box = $("esc"); box.textContent = "";
+    ESC.forEach(function (b, i) {
+      var d = r[b.k] || {};
+      var a = el("article", "bot"); a.style.setProperty("--c", "var(" + b.c + ")");
+      var h = el("div", "botHead"), t = el("div"); t.append(el("div", "name", b.nome), el("div", "role", b.papel));
+      h.append(face(), t);
+      a.append(h, el("span", "pill " + nivelOk(d.nivel), d.status || "aguardando"), el("p", "say", d.texto || "Sem tarefa ainda."));
+      a.querySelectorAll(".eye").forEach(function (e) { e.style.animationDelay = (i * 0.5) + "s"; });
+      box.append(a);
+    });
+    if (s.atualizado_em) { var dt = new Date(s.atualizado_em); $("escwhen").textContent = "Atualizado: " + (isNaN(dt) ? s.atualizado_em : dt.toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" })); }
+    var ta = $("tarefas"); if (Array.isArray(s.tarefas) && s.tarefas.length) { ta.textContent = ""; s.tarefas.forEach(function (x) { ta.append(el("li", null, x)); }); }
+  }
+
   renderDesk(null, true);
+  renderEsc(null);
 
   (async function () {
     var timer = setTimeout(function () { $("when").textContent = "Banco da mesa indisponível agora. Recarregue a página."; renderDesk(null, false); }, 10000);
     var db = await claude.use("db");
     if (!db) { clearTimeout(timer); $("when").textContent = "Entre na sua conta Claude para ver os dados da mesa."; renderDesk(null, false); return; }
     $("dot").classList.add("live");
+    db.doc("escritorio/atual").onSnapshot(function (s) { renderEsc(s.exists ? s.data() : null); }, function () {});
     db.doc("mesa/carteira").onSnapshot(function (s) { clearTimeout(timer); renderCarteira(s.exists ? s.data() : null); }, function () {});
     db.doc("mesa/atual").onSnapshot(function (s) { clearTimeout(timer); renderAtual(s.exists ? s.data() : null); },
       function () { $("dot").classList.remove("live"); $("when").textContent = "Conexão com a mesa caiu. Recarregue a página."; });
