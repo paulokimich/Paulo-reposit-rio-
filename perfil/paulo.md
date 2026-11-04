@@ -8,7 +8,7 @@
 | Disposição | "Faço tudo que for necessário" — aceita trabalho braçal e venda |
 | Renda | R$ 5.500/mês (vendedor de pneus) |
 | Gastos | ~R$ 1.000/mês, sem gastos fixos → sobra ~R$ 4.500/mês |
-| Comissão | 1,2 por pneu novo, 2,2 por recapado (confirmar se é % ou R$) |
+| Comissão | 1,2% do valor no pneu novo e 2,2% na recapagem (confirmado em 03/11/2026) |
 | Instagram da loja | @pneuaroficial |
 | Meta inicial | R$ 500 a R$ 1.000/mês extra |
 | Equipamentos | Celular com internet (confirmar: moto/bicicleta/carro?) |
