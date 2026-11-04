@@ -168,6 +168,9 @@ button { font: inherit; color: inherit; }
 .mini { appearance: none; border: 0; border-radius: 8px; padding: 6px 10px; background: var(--ink); color: #fff; font-weight: 700; font-size: .78rem; cursor: pointer; }
 .mini:focus-visible { outline: 3px solid var(--rug-inv); outline-offset: 2px; }
 .tel { font-family: var(--mono); font-size: .8rem; user-select: all; }
+.acts { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.wa { background: #25d366; text-decoration: none; display: inline-block; }
+.mini.ok { background: var(--pos); }
 
 /* Entregas */
 .runners { position: absolute; inset: 0; pointer-events: none; z-index: 10; }
@@ -611,7 +614,20 @@ th { color: var(--muted); font-weight: 400; font-size: .7rem; text-transform: up
           box.append(el("b", null, x.nome || ""));
           if (x.contato) box.append(el("span", "tel", x.contato));
           if (x.motivo) box.append(el("span", "sub", x.motivo));
-          if (x.mensagem) { var m = el("div", "legenda", x.mensagem), cp = el("button", "copy", "Copiar mensagem"); cp.type = "button"; cp.addEventListener("click", function () { copiar(x.mensagem, m, cp); }); box.append(m, cp); }
+          var acts = el("div", "acts");
+          if (x.mensagem) { var m = el("div", "legenda", x.mensagem), cp = el("button", "copy", "Copiar mensagem"); cp.type = "button"; cp.addEventListener("click", function () { copiar(x.mensagem, m, cp); }); box.append(m); acts.append(cp); }
+          var dig = (x.contato || "").replace(/\D/g, ""), cel = dig.slice(-11);
+          if (/^\d{2}9\d{8}$/.test(cel)) { var wa = el("a", "copy wa", "Abrir no WhatsApp"); wa.href = "https://wa.me/55" + cel + "?text=" + encodeURIComponent(x.mensagem || ""); wa.target = "_blank"; wa.rel = "noopener"; acts.append(wa); }
+          var pr = prospects.filter(function (q) { return q.id === x.id; })[0];
+          var feito = pr && pr.ultimo_contato && stEsc.atualizado_em && new Date(pr.ultimo_contato) >= new Date(stEsc.atualizado_em);
+          var ck = el("button", "mini" + (feito ? " ok" : ""), feito ? "✓ Enviado" : "☐ Marcar como enviado"); ck.type = "button"; ck.disabled = !!feito || !pr;
+          ck.addEventListener("click", async function () {
+            if (!dbRef || !pr) return; ck.disabled = true; ck.textContent = "…";
+            var agora = new Date().toISOString();
+            try { await dbRef.doc("prospeccao/" + pr.id).update({ status: pr.status === "a contatar" ? "contatado" : pr.status, ultimo_contato: agora, atualizado_em: agora }); ck.textContent = "✓ Enviado"; ck.className = "mini ok"; }
+            catch (e) { ck.textContent = "Erro: toque de novo"; ck.disabled = false; }
+          });
+          acts.append(ck); box.append(acts);
           t.append(box);
         });
         body.append(t);
