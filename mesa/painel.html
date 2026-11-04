@@ -919,7 +919,7 @@ th { color: var(--muted); font-weight: 400; font-size: .7rem; text-transform: up
     var t = sv("text", { x: x, y: y, "text-anchor": "middle", "font-size": size, "font-weight": 600, fill: "#fff", "pointer-events": "none" }, parent); t.textContent = txt; return t;
   }
   function viaDom(id) { return function () { var e = $(id); if (e) e.click(); }; }
-  function slotXY(i) { return [1.2 + 1.65 * i, 1.15]; }
+  function slotXY(i) { return [1.1 + 1.72 * i, 1.15]; }
   function robotSprite(g, x, y, z, colorStyle) {
     var bp = ip(x, y, z), b = sv("g", { transform: "translate(" + bp[0].toFixed(1) + "," + bp[1].toFixed(1) + ")" }, g);
     sv("ellipse", { cx: 0, cy: 2, rx: 13, ry: 5, fill: "rgba(0,0,0,.25)" }, b);
@@ -932,8 +932,8 @@ th { color: var(--muted); font-weight: 400; font-size: .7rem; text-transform: up
     return bp;
   }
   function indicator(g, bp) {
-    var ind = sv("g", { class: "ind", transform: "translate(" + (bp[0] + 14).toFixed(1) + "," + (bp[1] - 38).toFixed(1) + ")" }, g);
-    sv("circle", { r: 8, fill: "#6b7080", stroke: "#10152b", "stroke-width": 1.5 }, ind); sv("text", { "text-anchor": "middle", y: 3.8, "font-size": 11, "font-weight": 700, fill: "#fff" }, ind);
+    var ind = sv("g", { class: "ind", transform: "translate(" + (bp[0] + 11).toFixed(1) + "," + (bp[1] - 28).toFixed(1) + ")" }, g);
+    sv("circle", { r: 7, fill: "#6b7080", stroke: "#10152b", "stroke-width": 1.5 }, ind); sv("text", { "text-anchor": "middle", y: 3.5, "font-size": 10, "font-weight": 700, fill: "#fff" }, ind);
     return ind;
   }
   function rug(g, z0, color) {
@@ -960,7 +960,7 @@ th { color: var(--muted); font-weight: 400; font-size: .7rem; text-transform: up
         var bp = robotSprite(rg, x, y - 0.15, z0 + 0.55, "fill:var(--r-" + b.k + ")");
         ibox(rg, x - 0.6, y, z0, 1.2, 0.75, 0.62, C_WOOD);
         var m = ibox(rg, x - 0.32, y + 0.12, z0 + 0.62, 0.64, 0.08, 0.52, { top: "#222", left: "#13202a", right: "#0c1319" }); m.setAttribute("class", "mon");
-        var lp = ip(x, y + 0.75, z0); label(rg, lp[0], lp[1] + (i % 2 ? 24 : 12), b.nome, 8.5);
+        label(rg, bp[0], bp[1] - 44, b.nome, 8.4);
         indicator(rg, bp);
         var go = function () { openBot(b, cfg.team); };
         rg.addEventListener("click", go); rg.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(); } });
@@ -971,7 +971,7 @@ th { color: var(--muted); font-weight: 400; font-size: .7rem; text-transform: up
       var mb = obj(g, "iso-caixa", "Caixa de entrada de posts", viaDom("o-caixa"));
       ibox(mb, 1.4, 1.2, z0, 0.12, 0.12, 0.9, { top: "#5a3a22", left: "#5a3a22", right: "#4a2f1b" });
       ibox(mb, 1.1, 1.05, z0 + 0.9, 0.8, 0.45, 0.5, { top: "#ff6b6b", left: "#e63946", right: "#c92d3a" });
-      var mp = ip(1.45, 1.9, z0); label(mb, mp[0], mp[1] + 12, "Posts");
+      var mp = ip(1.5, 1.3, z0 + 1.45); label(mb, mp[0], mp[1] - 6, "Posts");
       var kb = obj(g, "iso-clientes", "Quadro de clientes", viaDom("o-clientes"));
       wallRect("y0", 3.4, 6.2, z0 + 1.9, z0 + 4.2, "#ffffff", kb, { stroke: "#c9ced6", "stroke-width": 1.5 });
       [[3.6, "#ffd166"], [4.4, "#9be7ff"], [5.2, "#8cdf6a"]].forEach(function (c) { wallRect("y0", c[0], c[0] + 0.65, z0 + 2.1, z0 + 3.9, c[1], kb); });
@@ -993,16 +993,16 @@ th { color: var(--muted); font-weight: 400; font-size: .7rem; text-transform: up
       var cab = obj(g, "iso-carteira", "Arquivo: sua carteira", viaDom("o-carteira"));
       ibox(cab, 0.6, 1.1, z0, 0.9, 0.75, 1.6, { top: "#8a95a3", left: "#6c7a89", right: "#586574" });
       [0.4, 0.9, 1.3].forEach(function (h) { ibox(cab, 0.62, 1.1, z0 + h - 0.12, 0.9, 0.77, 0.1, { top: "#c9d1da", left: "#c9d1da", right: "#c9d1da" }); });
-      var cp2 = ip(1.0, 1.95, z0); label(cab, cp2[0], cp2[1] + 12, "Carteira");
+      var cp2 = ip(1.05, 1.5, z0 + 1.65); label(cab, cp2[0], cp2[1] - 6, "Carteira");
       var sh = obj(g, "iso-biblioteca", "Biblioteca: o que os robôs aprenderam", viaDom("o-biblioteca"));
       ibox(sh, 7.6, 0.3, z0, 1.0, 0.6, 2.6, { top: "#8a5a2b", left: "#6e4520", right: "#58361a" });
       var bk = ["#e63946", "#ffd166", "#4cc9f0", "#8cdf6a"];
       [0.4, 1.0, 1.6, 2.2].forEach(function (h, i) { ibox(sh, 7.65, 0.3, z0 + h, 0.9, 0.61, 0.4, { top: bk[i], left: bk[i], right: bk[i] }); });
-      var sp = ip(8.1, 1.0, z0); label(sh, sp[0], sp[1] + 12, "Biblioteca");
+      var sp = ip(8.1, 0.6, z0 + 2.65); label(sh, sp[0], sp[1] - 6, "Biblioteca");
       var bg = obj(g, "iso-chefe", "Gerente: relatórios importantes", openBoss);
       var bpos = robotSprite(bg, 4.8, 0.95, z0 + 0.55, "fill:#ffffff");
       ibox(bg, 4.1, 1.1, z0, 1.5, 0.85, 0.62, C_DARK); ibox(bg, 4.5, 1.2, z0 + 0.62, 0.7, 0.08, 0.52, { top: "#222", left: "#13202a", right: "#0c1319" });
-      var bl = ip(4.8, 1.95, z0); label(bg, bl[0], bl[1] + 12, "Gerente");
+      label(bg, bpos[0], bpos[1] - 44, "Gerente", 8.4);
       indicator(bg, bpos).setAttribute("id", "iso-bossind");
       plant(g, 6.6, 2.3, z0);
     }
