@@ -93,10 +93,62 @@ th { color: var(--muted); font-weight: 400; font-size: .72rem; text-transform: u
 .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
 .empty { color: var(--muted); font-size: .9rem; }
 
+/* Escritório ao vivo */
+.office { display: grid; gap: 8px; }
+.scene { position: relative; border: 1px solid var(--line); border-radius: 16px; padding: 12px; display: grid; gap: 12px; overflow: hidden; background: var(--panel); }
+.scene::before { content: ""; position: absolute; inset: 0; background-image: linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px); background-size: 24px 24px; opacity: .45; pointer-events: none; }
+.room { position: relative; display: grid; gap: 6px; padding: 10px; border-radius: 12px; border: 1px dashed var(--line); background: var(--bg); min-width: 0; }
+.room.boss { justify-items: center; border-style: solid; }
+.rooms { display: grid; gap: 12px; }
+@media (min-width: 760px) { .rooms { grid-template-columns: 1fr 1fr; } }
+.desks { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; }
+.ws { appearance: none; background: none; border: 0; color: inherit; font: inherit; cursor: pointer; display: grid; justify-items: center; gap: 2px; padding: 6px 2px; border-radius: 10px; min-width: 0; }
+.ws:hover { background: var(--panel); }
+.ws:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.station-s { position: relative; width: 74px; height: 56px; }
+.station-s .bot-s { position: absolute; left: 8px; top: 2px; }
+.bot-s { width: 34px; height: 34px; border-radius: 10px; background: var(--c); display: grid; place-items: center; }
+.vz { background: var(--eye-bg); border-radius: 6px; padding: 4px 6px; display: flex; gap: 4px; }
+.vz i { width: 4px; height: 9px; border-radius: 2px; background: var(--eye); animation: look 4s infinite; }
+.tabla { position: absolute; left: 0; right: 0; bottom: 8px; height: 10px; border-radius: 4px; background: var(--c); opacity: .55; }
+.mon { position: absolute; right: 6px; bottom: 18px; width: 28px; height: 20px; border-radius: 4px; background: var(--eye-bg); border: 2px solid var(--line); overflow: hidden; }
+.mon::before { content: ""; position: absolute; left: 3px; top: 3px; height: 9px; width: 40%; background: repeating-linear-gradient(var(--eye) 0 2px, transparent 2px 4px); opacity: .7; }
+.ws.working .mon { border-color: var(--c); }
+.ws.working .mon::before { animation: type 1.2s steps(5) infinite; }
+.ws.working .vz i { animation: scan .6s infinite alternate; }
+.deskpaper { position: absolute; left: 30px; bottom: 15px; width: 13px; height: 9px; background: var(--face); border: 1px solid var(--line); border-radius: 1px; transform: rotate(-8deg); opacity: 0; transition: opacity .3s; }
+.ws.done .deskpaper { opacity: 1; }
+.ws.away .deskpaper { opacity: 0; }
+.lbl { font-family: var(--mono); font-size: .66rem; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; text-align: center; overflow-wrap: anywhere; }
+.st { font-family: var(--mono); font-size: .6rem; color: var(--muted); text-align: center; overflow-wrap: anywhere; }
+.st.ok { color: var(--pos); } .st.warn { color: var(--warn); } .st.neg { color: var(--neg); } .st.work { color: var(--r-fx); }
+.station-s.big { width: 140px; height: 76px; }
+.station-s.big .bot-s { left: 14px; width: 50px; height: 50px; border-radius: 14px; background: var(--face); border: 1px solid var(--line); }
+.station-s.big .vz { padding: 6px 9px; gap: 6px; }
+.station-s.big .vz i { width: 6px; height: 13px; }
+.station-s.big .tabla { background: var(--accent); }
+.inbox { position: absolute; right: 18px; bottom: 18px; width: 22px; height: 34px; }
+.slip { position: absolute; left: 0; bottom: 0; width: 22px; height: 15px; background: var(--face); border: 1px solid var(--line); border-radius: 2px; }
+.boss-desk.got .bot-s { animation: nod .5s; }
+.runners { position: absolute; inset: 0; pointer-events: none; z-index: 5; }
+.runner { position: absolute; left: 0; top: 0; width: 34px; height: 34px; }
+.rbody { position: relative; display: block; animation: walk .28s ease-in-out infinite alternate; }
+.rbody .bot-s { box-shadow: 0 4px 10px rgba(0, 0, 0, .25); }
+.paper { position: absolute; right: -10px; top: 12px; width: 14px; height: 17px; border: 1px solid var(--line); border-radius: 2px; transform: rotate(10deg); background-color: var(--face); background-image: repeating-linear-gradient(transparent 0 3px, var(--line) 3px 4px); }
+.sheet { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; padding-left: max(12px, env(safe-area-inset-left, 0px)); padding-right: max(12px, env(safe-area-inset-right, 0px)); padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px)); }
+.sheetIn { max-width: 560px; margin: 0 auto; background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 16px; display: grid; gap: 10px; box-shadow: 0 -8px 30px rgba(0, 0, 0, .3); max-height: 70vh; overflow-y: auto; }
+.sheetHead { display: flex; align-items: center; gap: 12px; }
+.sheetHead > div { flex: 1; min-width: 0; }
+.x { appearance: none; border: 1px solid var(--line); background: var(--bg); color: var(--fg); border-radius: 10px; width: 36px; height: 36px; font-size: 1.2rem; cursor: pointer; }
+.x:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.sheet .screen { background: var(--eye-bg); border-radius: 8px; padding: 8px 10px; }
+@keyframes walk { from { transform: translateY(0) rotate(-3deg) } to { transform: translateY(-3px) rotate(3deg) } }
+@keyframes nod { 50% { transform: translateY(3px) } }
+@keyframes type { from { width: 10% } to { width: 80% } }
 @keyframes blink { 50% { opacity: .3 } }
 @keyframes look { 0%, 44%, 56%, 100% { transform: none } 48%, 52% { transform: scaleY(.15) } }
 @keyframes scan { from { transform: translateX(-3px) } to { transform: translateX(3px) } }
-@media (prefers-reduced-motion: reduce) { .dot, .eye, .caret { animation: none !important } }
+@media (prefers-reduced-motion: reduce) { .dot, .eye, .caret, .vz i, .rbody, .mon::before, .boss-desk.got .bot-s { animation: none !important } }
 @media (max-width: 480px) { .bot.chief { grid-template-columns: 1fr } .row { grid-template-columns: 60px 1fr } .val { grid-column: 2; text-align: left } }
 </style>
 
@@ -110,6 +162,24 @@ th { color: var(--muted); font-weight: 400; font-size: .72rem; text-transform: u
     </div>
     <p class="small" id="agoramsg">Turnos automáticos de hora em hora no pregão (seg–sex, 10h07 às 17h07 de Brasília).</p>
   </header>
+
+  <section class="office" aria-label="Escritório ao vivo">
+    <div class="scene" id="scene">
+      <div class="room boss">
+        <span class="eyebrow">Sala do gerente</span>
+        <button class="ws boss-desk" id="d-chefe" type="button" style="--c: var(--face)">
+          <span class="station-s big"><span class="bot-s"><span class="vz"><i></i><i></i></span></span><span class="tabla"></span><span class="inbox" id="inbox"></span></span>
+          <span class="lbl">Gerente</span><span class="st" id="inboxN">esperando relatórios</span>
+        </button>
+      </div>
+      <div class="rooms">
+        <div class="room"><span class="eyebrow">Mesa de investimentos</span><div class="desks" id="room-mesa"></div></div>
+        <div class="room"><span class="eyebrow">Escritório de vendas</span><div class="desks" id="room-esc"></div></div>
+      </div>
+      <div class="runners" id="runners" aria-hidden="true"></div>
+    </div>
+    <p class="small">Toque em qualquer funcionário para ler o relatório dele. Toque no gerente para ver a ficha de decisão.</p>
+  </section>
 
   <section class="kpis" id="kpis" aria-label="Resumo da carteira"><p class="empty">Carregando carteira…</p></section>
 
@@ -156,6 +226,16 @@ th { color: var(--muted); font-weight: 400; font-size: .72rem; text-transform: u
   </div>
 
   <p class="small">Análise de apoio, não recomendação profissional de investimento. Nada é comprado ou vendido pelos robôs.</p>
+</div>
+
+<div class="sheet" id="sheet" hidden role="dialog" aria-labelledby="sheetName">
+  <div class="sheetIn">
+    <div class="sheetHead"><span id="sheetFace"></span><div><div class="name" id="sheetName"></div><div class="role" id="sheetRole"></div></div><button class="x" id="sheetX" type="button" aria-label="Fechar">×</button></div>
+    <span class="pill" id="sheetPill"></span>
+    <div class="screen" id="sheetTask"></div>
+    <p class="say" id="sheetText"></p>
+    <ol class="ficha" id="sheetFicha" hidden></ol>
+  </div>
 </div>
 
 <script>
@@ -268,17 +348,88 @@ th { color: var(--muted); font-weight: 400; font-size: .72rem; text-transform: u
     var ta = $("tarefas"); if (Array.isArray(s.tarefas) && s.tarefas.length) { ta.textContent = ""; s.tarefas.forEach(function (x) { ta.append(el("li", null, x)); }); }
   }
 
+  var stMesa = {}, stEsc = {}, built = false, delivered = 0, busy = 0, rr = -1;
+  var RM = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  function miniBot() { var b = el("span", "bot-s"), v = el("span", "vz"); v.append(el("i"), el("i")); b.append(v); return b; }
+  function dataOf(team, k) { var s = team === "mesa" ? stMesa : stEsc; return ((s && s.robos) || {})[k] || {}; }
+  function openSheet(b, team) {
+    var x = dataOf(team, b.k);
+    $("sheetName").textContent = b.nome; $("sheetRole").textContent = b.papel;
+    var p = $("sheetPill"); p.className = "pill " + nivelOk(x.nivel); p.textContent = x.status || "aguardando";
+    $("sheetTask").textContent = "> " + (x.tarefa || "sem tarefa no momento");
+    $("sheetText").textContent = x.texto || "Sem relatório ainda.";
+    var f = $("sheetFicha"); f.textContent = "";
+    var fic = b.k === "chefe" && Array.isArray(stMesa.ficha) ? stMesa.ficha : [];
+    fic.forEach(function (t) { f.append(el("li", null, t)); }); f.hidden = !fic.length;
+    var fc = $("sheetFace"); fc.textContent = ""; var mb = miniBot(); mb.style.setProperty("--c", "var(" + b.c + ")"); fc.append(mb);
+    $("sheet").hidden = false; $("sheetX").focus();
+  }
+  $("sheetX").addEventListener("click", function () { $("sheet").hidden = true; });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape") $("sheet").hidden = true; });
+  function deskFor(b, team) {
+    var btn = el("button", "ws"); btn.type = "button"; btn.dataset.k = b.k; btn.dataset.team = team;
+    btn.style.setProperty("--c", "var(" + b.c + ")");
+    var st = el("span", "station-s");
+    st.append(miniBot(), el("span", "tabla"), el("span", "mon"), el("span", "deskpaper"));
+    btn.append(st, el("span", "lbl", b.nome), el("span", "st", "aguardando"));
+    btn.addEventListener("click", function () { openSheet(b, team); });
+    return btn;
+  }
+  function renderOffice() {
+    if (!built) {
+      BOTS.forEach(function (b) { $("room-mesa").append(deskFor(b, "mesa")); });
+      ESC.forEach(function (b) { $("room-esc").append(deskFor(b, "esc")); });
+      $("d-chefe").addEventListener("click", function () { openSheet({ k: "chefe", nome: "Gerente", papel: "recebe os relatórios e monta a ficha", c: "--face" }, "mesa"); });
+      built = true;
+    }
+    document.querySelectorAll(".ws[data-k]").forEach(function (d) {
+      var x = dataOf(d.dataset.team, d.dataset.k), n = nivelOk(x.nivel), s = d.querySelector(".st");
+      d.classList.toggle("working", n === "work");
+      d.classList.toggle("done", n === "ok" || n === "warn" || n === "neg");
+      s.className = "st " + n; s.textContent = x.status || "aguardando";
+      d.setAttribute("aria-label", d.querySelector(".lbl").textContent + ": " + (x.status || "aguardando"));
+    });
+  }
+  function center(node, sc) { var r = node.getBoundingClientRect(); return { x: r.left - sc.left + r.width / 2, y: r.top - sc.top + r.height / 2 }; }
+  function addInbox() {
+    delivered++; var ib = $("inbox"); ib.textContent = "";
+    for (var i = 0; i < Math.min(delivered, 6); i++) { var p = el("span", "slip"); p.style.transform = "translate(" + (i % 2 ? 2 : -2) + "px," + (-i * 3) + "px) rotate(" + (((i * 37) % 9) - 4) + "deg)"; ib.append(p); }
+    $("inboxN").textContent = delivered + (delivered === 1 ? " relatório recebido" : " relatórios recebidos");
+    var boss = $("d-chefe"); boss.classList.remove("got"); void boss.offsetWidth; boss.classList.add("got");
+  }
+  function deliver(desk) {
+    var sc = $("scene").getBoundingClientRect(), bot = desk.querySelector(".bot-s"), boss = $("d-chefe").querySelector(".bot-s");
+    var a = center(bot, sc), b = center(boss, sc);
+    var r = el("div", "runner"); r.style.setProperty("--c", desk.style.getPropertyValue("--c"));
+    var body = el("span", "rbody"), pap = el("span", "paper"); body.append(miniBot(), pap); r.append(body);
+    $("runners").append(r); bot.style.visibility = "hidden"; desk.classList.add("away"); busy++;
+    var dur = Math.max(1300, Math.min(3000, Math.hypot(b.x - a.x, b.y - a.y) * 6));
+    var A = "translate(" + (a.x - 17) + "px," + (a.y - 17) + "px)", B = "translate(" + (b.x - 17) + "px," + (b.y + 12) + "px)";
+    r.animate([{ transform: A }, { transform: B }], { duration: dur, easing: "ease-in-out", fill: "forwards" }).finished
+      .then(function () { pap.hidden = true; addInbox(); return new Promise(function (res) { setTimeout(res, 600); }); })
+      .then(function () { return r.animate([{ transform: B }, { transform: A }], { duration: dur, easing: "ease-in-out", fill: "forwards" }).finished; })
+      .catch(function () {})
+      .then(function () { r.remove(); bot.style.visibility = ""; desk.classList.remove("away"); busy--; });
+  }
+  setInterval(function () {
+    if (RM || document.hidden || busy >= 2 || !built || typeof Element.prototype.animate !== "function") return;
+    var all = Array.prototype.slice.call(document.querySelectorAll(".ws.done:not(.away)"));
+    if (!all.length) return;
+    rr = (rr + 1) % all.length; deliver(all[rr]);
+  }, 2400);
+
   renderDesk(null, true);
   renderEsc(null);
+  renderOffice();
 
   (async function () {
     var timer = setTimeout(function () { $("when").textContent = "Banco da mesa indisponível agora. Recarregue a página."; renderDesk(null, false); }, 10000);
     var db = await claude.use("db");
     if (!db) { clearTimeout(timer); $("when").textContent = "Entre na sua conta Claude para ver os dados da mesa."; renderDesk(null, false); return; }
     $("dot").classList.add("live");
-    db.doc("escritorio/atual").onSnapshot(function (s) { renderEsc(s.exists ? s.data() : null); }, function () {});
+    db.doc("escritorio/atual").onSnapshot(function (s) { stEsc = s.exists ? s.data() : {}; renderEsc(stEsc); renderOffice(); }, function () {});
     db.doc("mesa/carteira").onSnapshot(function (s) { clearTimeout(timer); renderCarteira(s.exists ? s.data() : null); }, function () {});
-    db.doc("mesa/atual").onSnapshot(function (s) { clearTimeout(timer); renderAtual(s.exists ? s.data() : null); },
+    db.doc("mesa/atual").onSnapshot(function (s) { clearTimeout(timer); stMesa = s.exists ? s.data() : {}; renderAtual(stMesa); renderOffice(); },
       function () { $("dot").classList.remove("live"); $("when").textContent = "Conexão com a mesa caiu. Recarregue a página."; });
   })();
 
