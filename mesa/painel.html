@@ -1,240 +1,242 @@
-<title>Mesa do Paulo</title>
+<title>Escritório do Paulo</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Manrope:wght@400;600;800&family=JetBrains+Mono:wght@400;600&family=Caveat:wght@600&display=swap">
 <style>
-/* Layout: mesa de operações — chefe no centro, 5 robôs em volta, carteira, cotações e ficha abaixo. Dados ao vivo do banco do painel. */
+/* Layout: o escritório É a interface. Parede (janela, TV, quadro, mural, relógio, histórico) em cima; chão de madeira com gerência e duas ilhas de mesas embaixo. Tocar num objeto abre o detalhe. Visual único, colorido e diurno. */
 :root {
-  --bg: #f4f5f2; --panel: #ffffff; --line: #dfe2da; --fg: #1b1f1a; --muted: #5e665b;
-  --accent: #b77d0c; --neg: #c0392b; --pos: #1e8a4c; --warn: #b77d0c;
-  --r-trend: #e08a4f; --r-spy: #3fae7f; --r-fx: #4f8fe0; --r-cash: #c9a227; --r-risk: #8b6fe0;
-  --face: #ffffff; --eye-bg: #1b1f1a; --eye: #6ee7b7;
-  --display: "Manrope", system-ui, sans-serif; --mono: "JetBrains Mono", ui-monospace, monospace;
+  color-scheme: light;
+  --page: #f3e9da; --ink: #1f2430; --muted: #5b5f6b; --paper: #fffaf0; --line: #e2d6c3;
+  --wall: #2f8f87; --wall-dark: #267a73; --molding: #f7f1e6;
+  --floor: #d9a46c; --plank: #c48f58;
+  --rug-inv: #ffcf56; --rug-ven: #ff8c69; --rug-boss: #a493e0;
+  --desk: #b9773f; --desk-front: #9c6230; --screen: #13202a; --glow: #6ef0b8;
+  --pos: #1e9e57; --neg: #d93a3a; --warn: #d98a00; --work: #2f6fe0;
+  --r-risco: #8b6fe0; --r-tendencia: #ff7f3f; --r-espiao: #22b573; --r-caixa: #f5b700; --r-cambio: #3a86ff;
+  --r-vendedor: #ff5d8f; --r-copywriter: #00b4d8; --r-financeiro: #8cc63f; --r-pesquisador: #5e60ce; --r-advogado: #e63946;
+  --boss: #ffffff;
+  --display: "Fredoka", "Manrope", system-ui, sans-serif; --body: "Manrope", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, monospace; --hand: "Caveat", "Comic Sans MS", cursive;
 }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
-  --bg: #0f1210; --panel: #171b18; --line: #2a302b; --fg: #e9ede6; --muted: #98a194;
-  --accent: #f2b33d; --neg: #ff6b5e; --pos: #4ade80; --warn: #f2b33d;
-  --face: #e9ede6; --eye-bg: #0f1210; --eye: #6ee7b7; color-scheme: dark } }
-:root[data-theme="dark"] {
-  --bg: #0f1210; --panel: #171b18; --line: #2a302b; --fg: #e9ede6; --muted: #98a194;
-  --accent: #f2b33d; --neg: #ff6b5e; --pos: #4ade80; --warn: #f2b33d;
-  --face: #e9ede6; --eye-bg: #0f1210; --eye: #6ee7b7; color-scheme: dark }
+body { background: var(--page); color: var(--ink); font-family: var(--body); line-height: 1.45; }
+.wrap { max-width: 980px; margin: 0 auto; padding-block: 14px 40px;
+  padding-left: max(12px, env(safe-area-inset-left, 0px)); padding-right: max(12px, env(safe-area-inset-right, 0px));
+  display: grid; gap: 12px; }
+button { font: inherit; color: inherit; }
+.obj { appearance: none; border: 0; background: none; padding: 0; cursor: pointer; text-align: left; position: relative; }
+.obj:focus-visible, .btn:focus-visible, .x:focus-visible { outline: 3px solid var(--rug-inv); outline-offset: 3px; border-radius: 8px; }
 
-body { background: var(--bg); color: var(--fg); font-family: var(--display); line-height: 1.5; }
-.wrap { max-width: 1040px; margin: 0 auto; padding-block: 24px 48px;
-  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
-  display: grid; gap: 28px; }
-h1, h2 { text-wrap: balance; margin: 0; }
-h1 { font-size: clamp(1.6rem, 4vw, 2.2rem); font-weight: 800; letter-spacing: -0.02em; }
-h2 { font-size: 1.1rem; font-weight: 800; }
-.eyebrow { font-family: var(--mono); font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
-.mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
-.neg { color: var(--neg); } .pos { color: var(--pos); }
-header { display: grid; gap: 8px; }
-.topline { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
-.status { display: inline-flex; align-items: center; gap: 8px; font-family: var(--mono); font-size: .8rem; color: var(--muted); }
-.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
+/* Topo */
+.top { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.top h1 { font-family: var(--display); font-weight: 700; font-size: clamp(1.4rem, 5vw, 2rem); margin: 0; letter-spacing: -0.01em; flex: 1 1 auto; text-wrap: balance; }
+.status { display: inline-flex; align-items: center; gap: 6px; font-family: var(--mono); font-size: .72rem; color: var(--muted); }
+.dot { width: 9px; height: 9px; border-radius: 50%; background: #b8b0a2; }
 .dot.live { background: var(--pos); animation: blink 2s infinite; }
-.btn { font: 600 .9rem var(--display); padding: 9px 14px; border-radius: 10px; border: 1px solid var(--accent); background: transparent; color: var(--accent); cursor: pointer; }
+.btn { appearance: none; border: 0; border-radius: 999px; padding: 9px 14px; background: var(--ink); color: var(--paper); font-weight: 700; font-size: .85rem; cursor: pointer; }
 .btn:disabled { opacity: .5; cursor: default; }
-.btn:focus-visible, .sign button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.hint { font-size: .78rem; color: var(--muted); margin: 0; }
 
-.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
-.kpi { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; display: grid; gap: 2px; }
-.kpi b { font-family: var(--mono); font-size: 1.35rem; font-variant-numeric: tabular-nums; }
+/* Cena */
+.scene { position: relative; border-radius: 22px; overflow: hidden; box-shadow: 0 10px 30px rgba(60, 40, 20, .18); }
+.wall { background: var(--wall); background-image: repeating-linear-gradient(90deg, transparent 0 46px, var(--wall-dark) 46px 48px); padding: 14px 12px 18px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; align-items: end; border-bottom: 10px solid var(--molding); }
+.floor { background: var(--floor); background-image: repeating-linear-gradient(0deg, transparent 0 34px, var(--plank) 34px 36px), repeating-linear-gradient(90deg, transparent 0 140px, rgba(0, 0, 0, .05) 140px 142px); padding: 14px 10px 18px; display: grid; gap: 14px; }
 
-.desk { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
-.bot { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 16px; display: grid; gap: 10px; align-content: start; min-width: 0; }
-.bot.chief { grid-column: 1 / -1; grid-template-columns: auto 1fr; align-items: center; gap: 16px; }
-.botHead { display: flex; align-items: center; gap: 12px; }
-.face { width: 52px; height: 52px; border-radius: 15px; background: var(--c, var(--face)); display: grid; place-items: center; flex: none; }
-.chief .face { width: 76px; height: 76px; border-radius: 22px; background: var(--face); border: 1px solid var(--line); }
-.visor { background: var(--eye-bg); border-radius: 10px; padding: 7px 10px; display: flex; gap: 7px; }
-.chief .visor { padding: 10px 16px; gap: 10px; }
-.eye { width: 6px; height: 14px; border-radius: 3px; background: var(--eye); animation: look 4s infinite; }
-.chief .eye { width: 9px; height: 20px; }
-.working .eye { animation: scan .6s infinite alternate; }
-.name { font-family: var(--mono); font-weight: 600; letter-spacing: .08em; text-transform: uppercase; font-size: .85rem; }
-.role { font-family: var(--mono); font-size: .72rem; color: var(--muted); }
-.say { font-size: .9rem; margin: 0; }
-.pill { justify-self: start; font-family: var(--mono); font-size: .7rem; padding: 2px 8px; border-radius: 999px; border: 1px solid currentColor; }
-.monitor { background: var(--eye-bg); border: 3px solid var(--line); border-radius: 8px; padding: 8px 10px; min-height: 54px; transition: border-color .3s; }
-.working .monitor { border-color: var(--c, var(--accent)); }
-.screen { font-family: var(--mono); font-size: .72rem; color: var(--eye); overflow-wrap: anywhere; line-height: 1.4; }
-.caret { display: inline-block; width: 7px; height: 12px; background: var(--eye); margin-left: 4px; vertical-align: -2px; animation: blink 1s steps(1) infinite; }
-.tabletop { height: 8px; border-radius: 4px; background: var(--c, var(--line)); opacity: .45; margin-top: -8px; }
-.pill.work { color: var(--r-fx); }
-.pill.warn { color: var(--warn); } .pill.neg { color: var(--neg); } .pill.ok { color: var(--pos); } .pill.idle { color: var(--muted); }
+/* Objetos de parede */
+.window { aspect-ratio: 1 / 1; border: 6px solid var(--molding); border-radius: 8px; background: linear-gradient(#7cc8ff, #cdeeff); overflow: hidden; }
+.window::before, .window::after { content: ""; position: absolute; background: var(--molding); }
+.window::before { left: 50%; top: 0; bottom: 0; width: 5px; transform: translateX(-50%); }
+.window::after { top: 50%; left: 0; right: 0; height: 5px; transform: translateY(-50%); }
+.sun { position: absolute; width: 34%; aspect-ratio: 1; border-radius: 50%; background: #ffd23f; top: 10%; right: 10%; box-shadow: 0 0 18px #ffe58a; }
+.cloud { position: absolute; left: 8%; bottom: 18%; width: 46%; height: 14%; background: #fff; border-radius: 20px; opacity: .9; }
+.wlabel { position: absolute; left: 6px; bottom: 4px; font-family: var(--mono); font-size: .58rem; color: #1b4b6b; font-weight: 600; z-index: 1; }
+.tv { background: #111; border-radius: 10px; padding: 6px; display: grid; gap: 4px; }
+.tvscreen { background: var(--screen); border-radius: 6px; min-height: 74px; padding: 8px; display: grid; align-content: center; gap: 2px; color: var(--glow); font-family: var(--mono); }
+.tvscreen .t1 { font-size: .62rem; opacity: .75; letter-spacing: .08em; }
+.tvscreen .t2 { font-size: .95rem; font-weight: 600; color: #fff; }
+.tvscreen .t3 { font-size: .8rem; font-weight: 600; }
+.tvscreen .up { color: #6ef0b8; } .tvscreen .down { color: #ff7a7a; }
+.board { background: #fff; border: 5px solid #c9ced6; border-radius: 6px; min-height: 96px; max-height: 112px; padding: 6px 8px; font-family: var(--hand); color: #1f5fd1; font-size: 1.05rem; line-height: 1.1; overflow: hidden; }
+.board b { color: #d93a3a; display: block; font-size: 1.15rem; }
+.cork { background: #c8955c; background-image: radial-gradient(#b07c45 1px, transparent 1.5px); background-size: 7px 7px; border: 5px solid #8a5a2b; border-radius: 6px; min-height: 92px; padding: 6px; display: flex; flex-wrap: wrap; gap: 5px; align-content: flex-start; }
+.note { width: 100%; padding: 3px 5px; font-family: var(--hand); font-size: .9rem; line-height: 1.1; color: #33302a; box-shadow: 0 2px 3px rgba(0, 0, 0, .2); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.note:nth-child(1) { background: #ffe066; transform: rotate(-3deg); } .note:nth-child(2) { background: #ffadad; transform: rotate(2deg); }
+.note:nth-child(3) { background: #9be7ff; transform: rotate(1deg); } .note:nth-child(4) { background: #c3f7a1; transform: rotate(-2deg); }
+.clock { width: 76%; max-width: 92px; aspect-ratio: 1; margin: 0 auto; border-radius: 50%; background: #fff; border: 6px solid var(--ink); }
+.hand { position: absolute; left: 50%; bottom: 50%; width: 4px; margin-left: -2px; background: var(--ink); border-radius: 2px; transform-origin: 50% 100%; }
+.hand.h { height: 26%; } .hand.m { height: 36%; width: 3px; margin-left: -1.5px; } .hand.s { height: 38%; width: 2px; margin-left: -1px; background: var(--neg); }
+.clip { background: #8a5a2b; border-radius: 6px; padding: 12px 7px 7px; min-height: 92px; }
+.clip::before { content: ""; position: absolute; top: -4px; left: 50%; width: 34%; height: 12px; transform: translateX(-50%); background: #b9c0c9; border-radius: 3px; }
+.clippaper { background: var(--paper); border-radius: 2px; padding: 5px; font-family: var(--mono); font-size: .56rem; line-height: 1.35; color: var(--ink); max-height: 76px; overflow: hidden; }
+.tag { position: absolute; top: -9px; left: 50%; transform: translateX(-50%); background: var(--ink); color: var(--paper); font-family: var(--mono); font-size: .55rem; padding: 2px 6px; border-radius: 999px; white-space: nowrap; z-index: 2; letter-spacing: .04em; }
 
-.card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 18px; display: grid; gap: 14px; min-width: 0; align-content: start; }
-.rows { display: grid; gap: 12px; }
-.row { display: grid; grid-template-columns: 70px 1fr auto; gap: 12px; align-items: center; }
-.tk { font-family: var(--mono); font-weight: 600; }
-.bar { position: relative; height: 22px; background: var(--bg); border-radius: 6px; overflow: hidden; }
-.fill { position: absolute; inset: 0 auto 0 0; background: var(--fill, var(--muted)); opacity: .85; border-radius: 6px; }
-.limit { position: absolute; top: -3px; bottom: -3px; width: 0; border-left: 2px dashed var(--accent); }
-.barlbl { position: absolute; left: 8px; top: 50%; transform: translateY(-50%); font-family: var(--mono); font-size: .72rem; color: var(--fg); }
-.val { font-family: var(--mono); font-size: .85rem; text-align: right; font-variant-numeric: tabular-nums; }
-.legend { font-size: .78rem; color: var(--muted); display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-.legend i { width: 16px; border-top: 2px dashed var(--accent); display: inline-block; }
+/* Áreas do chão */
+.area { position: relative; border-radius: 18px; padding: 22px 8px 10px; }
+.area.boss { background: var(--rug-boss); display: grid; grid-template-columns: auto 1fr auto; align-items: end; gap: 6px; }
+.area.inv { background: var(--rug-inv); }
+.area.ven { background: var(--rug-ven); }
+.area::after { content: ""; position: absolute; inset: 5px; border: 2px dashed rgba(255, 255, 255, .55); border-radius: 14px; pointer-events: none; }
+.sign { position: absolute; top: -10px; left: 14px; background: var(--paper); color: var(--ink); font-family: var(--display); font-weight: 600; font-size: .8rem; padding: 2px 10px; border-radius: 8px; box-shadow: 0 2px 0 rgba(0, 0, 0, .15); z-index: 2; }
+.teams { display: grid; gap: 18px; }
+@media (min-width: 760px) { .teams { grid-template-columns: 1fr 1fr; } }
+.desks { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px 2px; position: relative; z-index: 1; }
+
+/* Estação de trabalho */
+.ws { display: grid; justify-items: center; gap: 2px; padding: 4px 0; border-radius: 12px; min-width: 0; }
+.st-s { position: relative; width: 86px; height: 66px; }
+.chair { position: absolute; left: 12px; top: 10px; width: 38px; height: 40px; border-radius: 10px 10px 6px 6px; background: var(--c); filter: brightness(.7); }
+.bot-s { position: absolute; left: 14px; top: 0; width: 34px; height: 32px; border-radius: 10px; background: var(--c); display: grid; place-items: center; box-shadow: inset 0 -3px 0 rgba(0, 0, 0, .15); z-index: 1; }
+.vz { background: #14181f; border-radius: 6px; padding: 4px 6px; display: flex; gap: 4px; }
+.vz i { width: 4px; height: 9px; border-radius: 2px; background: var(--glow); animation: look 4s infinite; }
+.antenna { position: absolute; left: 50%; top: -7px; width: 2px; height: 7px; background: var(--ink); }
+.antenna::after { content: ""; position: absolute; top: -4px; left: -3px; width: 8px; height: 8px; border-radius: 50%; background: var(--c); border: 1px solid var(--ink); }
+.desk-top { position: absolute; left: 0; right: 0; bottom: 14px; height: 9px; border-radius: 4px; background: var(--desk); z-index: 2; }
+.desk-front { position: absolute; left: 4px; right: 4px; bottom: 0; height: 15px; border-radius: 0 0 4px 4px; background: var(--desk-front); z-index: 2; }
+.mon { position: absolute; right: 6px; bottom: 22px; width: 30px; height: 22px; border-radius: 4px; background: var(--screen); border: 2px solid #3a3f4b; z-index: 3; overflow: hidden; }
+.mon::before { content: ""; position: absolute; left: 3px; top: 3px; height: 10px; width: 40%; background: repeating-linear-gradient(var(--glow) 0 2px, transparent 2px 4px); opacity: .6; }
+.mug { position: absolute; left: 4px; bottom: 23px; width: 8px; height: 9px; background: #fff; border-radius: 0 0 3px 3px; z-index: 3; }
+.deskpaper { position: absolute; left: 30px; bottom: 21px; width: 14px; height: 10px; background: #fff; border: 1px solid #d9cdb8; border-radius: 1px; transform: rotate(-8deg); opacity: 0; transition: opacity .3s; z-index: 4; }
+.deskpaper::after { content: "!"; position: absolute; inset: 0; display: grid; place-items: center; font: 700 .55rem var(--mono); color: var(--neg); }
+.ws.done .deskpaper { opacity: 1; }
+.ws.away .deskpaper { opacity: 0; }
+.ws.working .mon { border-color: var(--glow); box-shadow: 0 0 8px var(--glow); }
+.ws.working .mon::before { animation: type 1.2s steps(5) infinite; }
+.ws.working .vz i { animation: scan .6s infinite alternate; }
+.lbl { font-family: var(--display); font-weight: 600; font-size: .78rem; text-align: center; overflow-wrap: anywhere; }
+.chip { font-family: var(--mono); font-size: .58rem; padding: 1px 6px; border-radius: 999px; background: var(--paper); color: var(--muted); text-align: center; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.chip.ok { background: #d8f5e3; color: #0f6b3a; } .chip.warn { background: #ffecc2; color: #8a5600; }
+.chip.neg { background: #ffd9d9; color: #a3191f; } .chip.work { background: #dbe7ff; color: #1d4fb8; }
+
+/* Gerente */
+.st-s.big { width: 140px; height: 86px; }
+.st-s.big .chair { left: 20px; top: 12px; width: 56px; height: 58px; background: #3b3f4a; filter: none; }
+.st-s.big .bot-s { left: 22px; width: 52px; height: 48px; border-radius: 14px; background: var(--boss); }
+.st-s.big .vz { padding: 6px 9px; gap: 6px; } .st-s.big .vz i { width: 6px; height: 13px; }
+.st-s.big .desk-top { background: #5a3a22; height: 11px; bottom: 16px; }
+.st-s.big .desk-front { background: #4a2f1b; height: 17px; }
+.inbox { position: absolute; right: 16px; bottom: 27px; width: 24px; height: 36px; z-index: 4; }
+.slip { position: absolute; left: 0; bottom: 0; width: 24px; height: 15px; background: #fff; border: 1px solid #d9cdb8; border-radius: 2px; }
+.boss-desk.got .bot-s { animation: nod .5s; }
+.cabinet { width: 58px; height: 84px; background: #6c7a89; border-radius: 6px; padding: 6px 5px; display: grid; gap: 4px; }
+.drawer { background: #5a6776; border-radius: 3px; height: 20px; position: relative; }
+.drawer::after { content: ""; position: absolute; left: 50%; top: 50%; width: 14px; height: 3px; margin: -1.5px 0 0 -7px; background: #c9d1da; border-radius: 2px; }
+.cablbl { font-family: var(--mono); font-size: .52rem; color: #fff; text-align: center; line-height: 1.2; }
+.plant { position: relative; width: 44px; height: 70px; }
+.pot { position: absolute; bottom: 0; left: 8px; width: 28px; height: 24px; background: #c0603a; border-radius: 0 0 8px 8px; }
+.leaf { position: absolute; border-radius: 50% 50% 50% 0; background: #2e9e4f; }
+.leaf.a { width: 26px; height: 26px; left: 2px; bottom: 22px; transform: rotate(-20deg); }
+.leaf.b { width: 24px; height: 24px; left: 18px; bottom: 30px; background: #3fb85f; transform: rotate(70deg); }
+.leaf.c { width: 20px; height: 20px; left: 10px; bottom: 44px; background: #57c96f; }
+.coffee { position: absolute; right: 10px; bottom: 8px; width: 30px; height: 40px; background: #3b3f4a; border-radius: 6px 6px 3px 3px; z-index: 0; opacity: .95; }
+.coffee::before { content: ""; position: absolute; top: 6px; left: 6px; width: 6px; height: 6px; border-radius: 50%; background: #ff5d5d; }
+.coffee::after { content: ""; position: absolute; bottom: 4px; left: 9px; width: 12px; height: 9px; background: #fff; border-radius: 0 0 3px 3px; }
+
+/* Entregas */
+.runners { position: absolute; inset: 0; pointer-events: none; z-index: 10; }
+.runner { position: absolute; left: 0; top: 0; width: 34px; height: 34px; }
+.rbody { position: relative; display: block; animation: walk .28s ease-in-out infinite alternate; }
+.rbody .bot-s { position: relative; left: 0; box-shadow: 0 6px 10px rgba(0, 0, 0, .3); }
+.paper { position: absolute; right: -10px; top: 12px; width: 14px; height: 17px; border: 1px solid #d9cdb8; border-radius: 2px; transform: rotate(10deg); background-color: #fff; background-image: repeating-linear-gradient(transparent 0 3px, #e2d6c3 3px 4px); z-index: 2; }
+
+/* Ficha que abre embaixo */
+.sheet { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; padding-left: max(10px, env(safe-area-inset-left, 0px)); padding-right: max(10px, env(safe-area-inset-right, 0px)); padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px)); }
+.sheetIn { max-width: 560px; margin: 0 auto; background: var(--paper); border-radius: 20px; padding: 16px; display: grid; gap: 10px; box-shadow: 0 -10px 40px rgba(40, 25, 10, .35); max-height: 72vh; overflow-y: auto; border-top: 8px solid var(--sc, var(--wall)); }
+.sheetHead { display: flex; align-items: center; gap: 12px; }
+.sheetHead > div { flex: 1; min-width: 0; }
+.sheetHead h2 { font-family: var(--display); font-size: 1.2rem; margin: 0; }
+.sub { font-family: var(--mono); font-size: .72rem; color: var(--muted); }
+.x { appearance: none; border: 0; background: var(--line); border-radius: 50%; width: 36px; height: 36px; font-size: 1.2rem; cursor: pointer; }
+.sheet .bot-s { position: relative; left: 0; flex: none; }
+.term { background: var(--screen); color: var(--glow); font-family: var(--mono); font-size: .78rem; border-radius: 10px; padding: 8px 10px; }
+.say { margin: 0; font-size: .95rem; }
+.list { margin: 0; padding-left: 1.2em; display: grid; gap: 6px; }
 .tablewrap { overflow-x: auto; }
 table { border-collapse: collapse; width: 100%; font-family: var(--mono); font-size: .82rem; font-variant-numeric: tabular-nums; }
 th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); white-space: nowrap; }
-th { color: var(--muted); font-weight: 400; font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; }
+th { color: var(--muted); font-weight: 400; font-size: .7rem; text-transform: uppercase; letter-spacing: .06em; }
+.pos { color: var(--pos); } .neg { color: var(--neg); }
+.bars { display: grid; gap: 10px; }
+.brow { display: grid; grid-template-columns: 64px 1fr; gap: 8px; align-items: center; }
+.bar { position: relative; height: 22px; background: var(--line); border-radius: 6px; overflow: hidden; }
+.fill { position: absolute; inset: 0 auto 0 0; border-radius: 6px; }
+.limit { position: absolute; top: 0; bottom: 0; width: 0; border-left: 2px dashed var(--ink); }
+.barlbl { position: absolute; left: 8px; top: 50%; transform: translateY(-50%); font-family: var(--mono); font-size: .7rem; color: var(--ink); font-weight: 600; }
+.kv { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px; }
+.kv div { background: var(--page); border-radius: 12px; padding: 8px 10px; display: grid; }
+.kv span { font-family: var(--mono); font-size: .65rem; color: var(--muted); text-transform: uppercase; }
+.kv b { font-family: var(--mono); font-size: 1.05rem; }
 
-.log { font-family: var(--mono); font-size: .8rem; display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
-.log li { display: grid; grid-template-columns: 92px 1fr; gap: 10px; }
-.log .who { font-weight: 600; }
-.ficha { display: grid; gap: 8px; margin: 0; padding-left: 1.2em; }
-.sign { display: flex; gap: 10px; flex-wrap: wrap; }
-.sign button { font: 600 .9rem var(--display); padding: 10px 16px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); cursor: pointer; }
-.sign button[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
-.small { font-size: .78rem; color: var(--muted); margin: 0; }
-.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
-.empty { color: var(--muted); font-size: .9rem; }
-
-/* Escritório ao vivo */
-.office { display: grid; gap: 8px; }
-.scene { position: relative; border: 1px solid var(--line); border-radius: 16px; padding: 12px; display: grid; gap: 12px; overflow: hidden; background: var(--panel); }
-.scene::before { content: ""; position: absolute; inset: 0; background-image: linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px); background-size: 24px 24px; opacity: .45; pointer-events: none; }
-.room { position: relative; display: grid; gap: 6px; padding: 10px; border-radius: 12px; border: 1px dashed var(--line); background: var(--bg); min-width: 0; }
-.room.boss { justify-items: center; border-style: solid; }
-.rooms { display: grid; gap: 12px; }
-@media (min-width: 760px) { .rooms { grid-template-columns: 1fr 1fr; } }
-.desks { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; }
-.ws { appearance: none; background: none; border: 0; color: inherit; font: inherit; cursor: pointer; display: grid; justify-items: center; gap: 2px; padding: 6px 2px; border-radius: 10px; min-width: 0; }
-.ws:hover { background: var(--panel); }
-.ws:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-.station-s { position: relative; width: 74px; height: 56px; }
-.station-s .bot-s { position: absolute; left: 8px; top: 2px; }
-.bot-s { width: 34px; height: 34px; border-radius: 10px; background: var(--c); display: grid; place-items: center; }
-.vz { background: var(--eye-bg); border-radius: 6px; padding: 4px 6px; display: flex; gap: 4px; }
-.vz i { width: 4px; height: 9px; border-radius: 2px; background: var(--eye); animation: look 4s infinite; }
-.tabla { position: absolute; left: 0; right: 0; bottom: 8px; height: 10px; border-radius: 4px; background: var(--c); opacity: .55; }
-.mon { position: absolute; right: 6px; bottom: 18px; width: 28px; height: 20px; border-radius: 4px; background: var(--eye-bg); border: 2px solid var(--line); overflow: hidden; }
-.mon::before { content: ""; position: absolute; left: 3px; top: 3px; height: 9px; width: 40%; background: repeating-linear-gradient(var(--eye) 0 2px, transparent 2px 4px); opacity: .7; }
-.ws.working .mon { border-color: var(--c); }
-.ws.working .mon::before { animation: type 1.2s steps(5) infinite; }
-.ws.working .vz i { animation: scan .6s infinite alternate; }
-.deskpaper { position: absolute; left: 30px; bottom: 15px; width: 13px; height: 9px; background: var(--face); border: 1px solid var(--line); border-radius: 1px; transform: rotate(-8deg); opacity: 0; transition: opacity .3s; }
-.ws.done .deskpaper { opacity: 1; }
-.ws.away .deskpaper { opacity: 0; }
-.lbl { font-family: var(--mono); font-size: .66rem; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; text-align: center; overflow-wrap: anywhere; }
-.st { font-family: var(--mono); font-size: .6rem; color: var(--muted); text-align: center; overflow-wrap: anywhere; }
-.st.ok { color: var(--pos); } .st.warn { color: var(--warn); } .st.neg { color: var(--neg); } .st.work { color: var(--r-fx); }
-.station-s.big { width: 140px; height: 76px; }
-.station-s.big .bot-s { left: 14px; width: 50px; height: 50px; border-radius: 14px; background: var(--face); border: 1px solid var(--line); }
-.station-s.big .vz { padding: 6px 9px; gap: 6px; }
-.station-s.big .vz i { width: 6px; height: 13px; }
-.station-s.big .tabla { background: var(--accent); }
-.inbox { position: absolute; right: 18px; bottom: 18px; width: 22px; height: 34px; }
-.slip { position: absolute; left: 0; bottom: 0; width: 22px; height: 15px; background: var(--face); border: 1px solid var(--line); border-radius: 2px; }
-.boss-desk.got .bot-s { animation: nod .5s; }
-.runners { position: absolute; inset: 0; pointer-events: none; z-index: 5; }
-.runner { position: absolute; left: 0; top: 0; width: 34px; height: 34px; }
-.rbody { position: relative; display: block; animation: walk .28s ease-in-out infinite alternate; }
-.rbody .bot-s { box-shadow: 0 4px 10px rgba(0, 0, 0, .25); }
-.paper { position: absolute; right: -10px; top: 12px; width: 14px; height: 17px; border: 1px solid var(--line); border-radius: 2px; transform: rotate(10deg); background-color: var(--face); background-image: repeating-linear-gradient(transparent 0 3px, var(--line) 3px 4px); }
-.sheet { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; padding-left: max(12px, env(safe-area-inset-left, 0px)); padding-right: max(12px, env(safe-area-inset-right, 0px)); padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px)); }
-.sheetIn { max-width: 560px; margin: 0 auto; background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 16px; display: grid; gap: 10px; box-shadow: 0 -8px 30px rgba(0, 0, 0, .3); max-height: 70vh; overflow-y: auto; }
-.sheetHead { display: flex; align-items: center; gap: 12px; }
-.sheetHead > div { flex: 1; min-width: 0; }
-.x { appearance: none; border: 1px solid var(--line); background: var(--bg); color: var(--fg); border-radius: 10px; width: 36px; height: 36px; font-size: 1.2rem; cursor: pointer; }
-.x:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-.sheet .screen { background: var(--eye-bg); border-radius: 8px; padding: 8px 10px; }
+@keyframes blink { 50% { opacity: .3 } }
+@keyframes look { 0%, 44%, 56%, 100% { transform: none } 48%, 52% { transform: scaleY(.15) } }
+@keyframes scan { from { transform: translateX(-2px) } to { transform: translateX(2px) } }
 @keyframes walk { from { transform: translateY(0) rotate(-3deg) } to { transform: translateY(-3px) rotate(3deg) } }
 @keyframes nod { 50% { transform: translateY(3px) } }
 @keyframes type { from { width: 10% } to { width: 80% } }
-@keyframes blink { 50% { opacity: .3 } }
-@keyframes look { 0%, 44%, 56%, 100% { transform: none } 48%, 52% { transform: scaleY(.15) } }
-@keyframes scan { from { transform: translateX(-3px) } to { transform: translateX(3px) } }
-@media (prefers-reduced-motion: reduce) { .dot, .eye, .caret, .vz i, .rbody, .mon::before, .boss-desk.got .bot-s { animation: none !important } }
-@media (max-width: 480px) { .bot.chief { grid-template-columns: 1fr } .row { grid-template-columns: 60px 1fr } .val { grid-column: 2; text-align: left } }
+@media (prefers-reduced-motion: reduce) { .dot, .vz i, .rbody, .mon::before, .boss-desk.got .bot-s { animation: none !important } }
+@media (max-width: 380px) { .st-s { width: 76px; } .wall { gap: 8px; } }
 </style>
 
 <div class="wrap">
-  <header>
-    <span class="eyebrow">Mesa de operações · Paulo · Cuiabá</span>
-    <h1>Os robôs analisam. Você assina.</h1>
-    <div class="topline">
-      <span class="status"><span class="dot" id="dot"></span><span id="when">Conectando ao banco da mesa…</span></span>
-      <button class="btn" id="agora" type="button">Chamar os robôs agora</button>
-    </div>
-    <p class="small" id="agoramsg">Turnos automáticos de hora em hora no pregão (seg–sex, 10h07 às 17h07 de Brasília).</p>
-  </header>
+  <div class="top">
+    <h1>Escritório do Paulo</h1>
+    <button class="btn" id="agora" type="button">Chamar os robôs</button>
+  </div>
+  <span class="status"><span class="dot" id="dot"></span><span id="when">Abrindo o escritório…</span></span>
 
-  <section class="office" aria-label="Escritório ao vivo">
-    <div class="scene" id="scene">
-      <div class="room boss">
-        <span class="eyebrow">Sala do gerente</span>
-        <button class="ws boss-desk" id="d-chefe" type="button" style="--c: var(--face)">
-          <span class="station-s big"><span class="bot-s"><span class="vz"><i></i><i></i></span></span><span class="tabla"></span><span class="inbox" id="inbox"></span></span>
-          <span class="lbl">Gerente</span><span class="st" id="inboxN">esperando relatórios</span>
+  <div class="scene" id="scene">
+    <div class="wall">
+      <button class="obj window" id="o-janela" type="button" aria-label="Janela: Cuiabá">
+        <span class="sun"></span><span class="cloud"></span><span class="wlabel">CUIABÁ</span>
+      </button>
+      <button class="obj tv" id="o-tv" type="button" aria-label="TV de cotações">
+        <span class="tag">COTAÇÕES</span>
+        <span class="tvscreen" id="tv"><span class="t1">MERCADO</span><span class="t2">aguardando</span><span class="t3"></span></span>
+      </button>
+      <button class="obj board" id="o-quadro" type="button" aria-label="Quadro: ficha de decisão">
+        <span class="tag">FICHA</span>
+        <b>Plano do dia</b><span id="boardTxt">…</span>
+      </button>
+      <button class="obj cork" id="o-mural" type="button" aria-label="Mural: suas tarefas">
+        <span class="tag">SUAS TAREFAS</span>
+        <span class="note" id="n1"></span><span class="note" id="n2"></span><span class="note" id="n3"></span>
+      </button>
+      <div class="obj" aria-hidden="true" style="cursor:default">
+        <span class="clock" id="clock" style="display:block;position:relative"><span class="hand h" id="hh"></span><span class="hand m" id="hm"></span><span class="hand s" id="hs"></span></span>
+      </div>
+      <button class="obj clip" id="o-historico" type="button" aria-label="Prancheta: histórico">
+        <span class="tag">HISTÓRICO</span>
+        <span class="clippaper" id="clipTxt" style="display:block">…</span>
+      </button>
+    </div>
+
+    <div class="floor">
+      <div class="area boss">
+        <span class="sign">Gerência</span>
+        <button class="obj cabinet" id="o-carteira" type="button" aria-label="Arquivo: sua carteira">
+          <span class="cablbl">CARTEIRA<br><span id="cabVal">…</span></span>
+          <span class="drawer"></span><span class="drawer"></span>
         </button>
+        <button class="obj ws boss-desk" id="d-chefe" type="button" style="--c: var(--boss)">
+          <span class="st-s big"><span class="chair"></span><span class="bot-s"><span class="antenna"></span><span class="vz"><i></i><i></i></span></span><span class="desk-top"></span><span class="desk-front"></span><span class="inbox" id="inbox"></span></span>
+          <span class="lbl">Gerente</span><span class="chip" id="inboxN">nada importante agora</span>
+        </button>
+        <div class="plant" aria-hidden="true"><span class="leaf a"></span><span class="leaf b"></span><span class="leaf c"></span><span class="pot"></span></div>
       </div>
-      <div class="rooms">
-        <div class="room"><span class="eyebrow">Mesa de investimentos</span><div class="desks" id="room-mesa"></div></div>
-        <div class="room"><span class="eyebrow">Escritório de vendas</span><div class="desks" id="room-esc"></div></div>
+      <div class="teams">
+        <div class="area inv"><span class="sign">Investimentos</span><div class="desks" id="room-mesa"></div></div>
+        <div class="area ven"><span class="sign">Vendas</span><div class="desks" id="room-esc"></div><span class="coffee" aria-hidden="true"></span></div>
       </div>
-      <div class="runners" id="runners" aria-hidden="true"></div>
     </div>
-    <p class="small">Os robôs só levam papel ao gerente quando o assunto é importante, uma vez só. Toque em qualquer funcionário para ler o relatório. Toque no gerente para ver o que chegou e a ficha de decisão.</p>
-  </section>
-
-  <section class="kpis" id="kpis" aria-label="Resumo da carteira"><p class="empty">Carregando carteira…</p></section>
-
-  <section class="desk" id="desk" aria-label="Robôs da mesa"></section>
-
-  <header style="gap:4px">
-    <span class="eyebrow">Escritório · equipe de vendas e novos negócios</span>
-    <h2 style="font-size:1.4rem">Pneus e renda extra</h2>
-    <p class="small" id="escwhen">Carregando o escritório…</p>
-  </header>
-  <section class="desk" id="esc" aria-label="Equipe do escritório"></section>
-  <section class="card" aria-label="Tarefas do Paulo">
-    <h2>Suas tarefas desta semana</h2>
-    <ol class="ficha" id="tarefas"><li>Carregando…</li></ol>
-  </section>
-
-  <div class="grid2">
-    <section class="card" aria-label="Carteira">
-      <h2>Carteira por peso</h2>
-      <div class="rows" id="rows"><p class="empty">Carregando…</p></div>
-      <div class="legend"><i></i> limite da mesa: 20% por ação</div>
-    </section>
-    <section class="card" aria-label="Cotações">
-      <h2>Últimas cotações lidas</h2>
-      <div class="tablewrap"><table><thead><tr><th>Ativo</th><th>Preço</th><th>Dia</th><th>Fonte</th></tr></thead><tbody id="cot"><tr><td colspan="4" class="empty">Aguardando o primeiro turno com cotações.</td></tr></tbody></table></div>
-      <p class="small">Cotações vêm de buscas na web e podem ter atraso. Confira no app da corretora antes de operar.</p>
-    </section>
+    <div class="runners" id="runners" aria-hidden="true"></div>
   </div>
 
-  <div class="grid2">
-    <section class="card" aria-label="Log da mesa">
-      <h2>O que os robôs fizeram</h2>
-      <ul class="log" id="log"><li><span class="who">MESA</span><span>Aguardando o primeiro turno.</span></li></ul>
-    </section>
-    <section class="card" aria-label="Ficha de decisão">
-      <h2>Ficha de decisão</h2>
-      <ol class="ficha" id="ficha"><li>Aguardando o Chefe da Mesa.</li></ol>
-      <div class="sign" role="group" aria-label="Sua assinatura">
-        <button id="sim" type="button" aria-pressed="false">Assino a ficha</button>
-        <button id="nao" type="button" aria-pressed="false">Quero discutir</button>
-      </div>
-      <p class="small" id="signmsg">Sua escolha fica salva só neste aparelho. Para a mesa saber, me conte na conversa.</p>
-    </section>
-  </div>
-
-  <p class="small">Análise de apoio, não recomendação profissional de investimento. Nada é comprado ou vendido pelos robôs.</p>
+  <p class="hint" id="agoramsg">Toque num robô para ler o relatório. Toque na TV, no quadro, no mural, na prancheta ou no arquivo para ver os detalhes. Os robôs só levam papel ao gerente quando é importante.</p>
+  <p class="hint">Análise de apoio, não recomendação profissional de investimento. Nada é comprado ou vendido pelos robôs.</p>
 </div>
 
-<div class="sheet" id="sheet" hidden role="dialog" aria-labelledby="sheetName">
-  <div class="sheetIn">
-    <div class="sheetHead"><span id="sheetFace"></span><div><div class="name" id="sheetName"></div><div class="role" id="sheetRole"></div></div><button class="x" id="sheetX" type="button" aria-label="Fechar">×</button></div>
-    <span class="pill" id="sheetPill"></span>
-    <div class="screen" id="sheetTask"></div>
-    <p class="say" id="sheetText"></p>
-    <ol class="ficha" id="sheetFicha" hidden></ol>
+<div class="sheet" id="sheet" hidden role="dialog" aria-labelledby="sheetTitle">
+  <div class="sheetIn" id="sheetIn">
+    <div class="sheetHead"><span id="sheetIcon"></span><div><h2 id="sheetTitle"></h2><div class="sub" id="sheetSub"></div></div><button class="x" id="sheetX" type="button" aria-label="Fechar">×</button></div>
+    <div id="sheetBody" style="display:grid;gap:10px"></div>
   </div>
 </div>
 
@@ -242,158 +244,95 @@ th { color: var(--muted); font-weight: 400; font-size: .72rem; text-transform: u
 (function () {
   var TRIGGER = "trig_01S17DzDaHhqaq2XiaDaxcBe";
   var BOTS = [
-    { k: "risco", nome: "Risco", papel: "decide rápido, pode vetar", c: "--r-risk" },
-    { k: "tendencia", nome: "Tendência", papel: "aposta na direção", c: "--r-trend" },
-    { k: "espiao", nome: "Espião", papel: "segue quem sabe mais", c: "--r-spy" },
-    { k: "caixa", nome: "Caixa", papel: "ganha no fluxo", c: "--r-cash" },
-    { k: "cambio", nome: "Câmbio", papel: "vigia euro e dólar", c: "--r-fx" }
+    { k: "risco", nome: "Risco", papel: "decide rápido, pode vetar" },
+    { k: "tendencia", nome: "Tendência", papel: "aposta na direção" },
+    { k: "espiao", nome: "Espião", papel: "segue quem sabe mais" },
+    { k: "caixa", nome: "Caixa", papel: "cuida do dinheiro parado" },
+    { k: "cambio", nome: "Câmbio", papel: "vigia euro e dólar" }
   ];
-  var WHO = { CHEFE: "--accent", RISCO: "--r-risk", "TENDÊNCIA": "--r-trend", "ESPIÃO": "--r-spy", CAIXA: "--r-cash", "CÂMBIO": "--r-fx" };
+  var ESC = [
+    { k: "vendedor", nome: "Vendedor", papel: "traz clientes" },
+    { k: "copywriter", nome: "Copywriter", papel: "posts e mensagens" },
+    { k: "financeiro", nome: "Financeiro", papel: "faz as contas" },
+    { k: "pesquisador", nome: "Pesquisador", papel: "estuda o mercado" },
+    { k: "advogado", nome: "Advogado", papel: "acha os furos" }
+  ];
+  var WHO = { "CHEFE": "--boss", "RISCO": "--r-risco", "TENDÊNCIA": "--r-tendencia", "ESPIÃO": "--r-espiao", "CAIXA": "--r-caixa", "CÂMBIO": "--r-cambio" };
   var $ = function (id) { return document.getElementById(id); };
+  function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
   var brl = function (n) { return "R$ " + Number(n).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }); };
   var pct = function (n) { return (n > 0 ? "+" : n < 0 ? "−" : "") + Math.abs(n).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + "%"; };
-  function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
-  function face() { var f = el("div", "face"), v = el("div", "visor"); v.append(el("span", "eye"), el("span", "eye")); f.append(v); return f; }
   var nivelOk = function (n) { return ["ok", "warn", "neg", "idle", "work"].indexOf(n) >= 0 ? n : "idle"; };
-  function station(b, d, i, working) {
-    var w = working || d.nivel === "work";
-    var a = el("article", "bot" + (w ? " working" : "")); a.style.setProperty("--c", "var(" + b.c + ")");
-    var h = el("div", "botHead"), t = el("div"); t.append(el("div", "name", b.nome), el("div", "role", b.papel));
-    h.append(face(), t);
-    var mon = el("div", "monitor"), scr = el("div", "screen", "> " + (d.tarefa || (w ? "trabalhando…" : "em espera")));
-    if (w) scr.append(el("span", "caret"));
-    mon.append(scr);
-    a.append(h, mon, el("div", "tabletop"), el("span", "pill " + nivelOk(d.nivel), d.status || "aguardando"), el("p", "say", d.texto || "Sem tarefa ainda."));
-    a.querySelectorAll(".eye").forEach(function (e) { e.style.animationDelay = (i * 0.6) + "s"; });
-    return a;
-  }
-
-  function renderDesk(robos, working) {
-    var desk = $("desk"); desk.textContent = "";
-    var r = robos || {};
-    var ch = el("article", "bot chief" + (working ? " working" : ""));
-    var box = el("div"); box.style.cssText = "display:grid;gap:6px;min-width:0";
-    box.append(el("span", "name", "Chefe da Mesa"), el("span", "role", "junta tudo e entrega a ficha"));
-    var c = r.chefe || {};
-    if (c.nivel === "work") ch.classList.add("working");
-    if (c.status) { var p = el("span", "pill " + nivelOk(c.nivel), c.status); box.append(p); }
-    box.append(el("p", "say", c.texto || "Aguardando o primeiro turno."));
-    ch.append(face(), box); desk.append(ch);
-    BOTS.forEach(function (b, i) { desk.append(station(b, r[b.k] || {}, i, working)); });
-  }
-
-  function renderCarteira(cart) {
-    var acoes = (cart && cart.acoes) || [];
-    var total = 0, aplic = 0, bancos = 0;
-    acoes.forEach(function (a) { total += a.posicao; aplic += a.posicao - a.resultado; if (a.setor === "bancos") bancos += a.posicao; });
-    var res = total - aplic, k = $("kpis"); k.textContent = "";
-    if (!acoes.length) { k.append(el("p", "empty", "Carteira ainda não cadastrada.")); $("rows").textContent = ""; return; }
-    function kpi(lbl, val, cls, sub) { var d = el("div", "kpi"); d.append(el("span", "eyebrow", lbl)); var b = el("b", cls, val); d.append(b); if (sub) d.append(el("span", "mono " + (cls || ""), sub)); k.append(d); }
-    kpi("Total em bolsa", brl(total));
-    kpi("Valor aplicado", brl(aplic));
-    kpi("Resultado total", (res < 0 ? "−" : "") + brl(Math.abs(res)), res < 0 ? "neg" : "pos", pct(res / aplic * 100));
-    kpi("Em bancos", Math.round(bancos / total * 100) + "%", bancos / total > 0.4 ? "neg" : "", null);
-    var maxPct = Math.max(25, Math.ceil(Math.max.apply(null, acoes.map(function (a) { return a.posicao / total * 100; })) / 5) * 5);
-    var rows = $("rows"); rows.textContent = "";
-    acoes.slice().sort(function (x, y) { return y.posicao - x.posicao; }).forEach(function (a) {
-      var w = a.posicao / total * 100, row = el("div", "row"), bar = el("div", "bar"), f = el("div", "fill"), lim = el("div", "limit");
-      f.style.width = (w / maxPct * 100) + "%";
-      f.style.setProperty("--fill", w > 20 ? "var(--neg)" : "var(--muted)");
-      lim.style.left = (20 / maxPct * 100) + "%";
-      bar.append(f, lim, el("span", "barlbl", w.toLocaleString("pt-BR", { maximumFractionDigits: 1 }) + "%"));
-      var v = el("span", "val", brl(a.posicao) + " "), r = a.resultado / (a.posicao - a.resultado) * 100;
-      v.append(el("span", r < 0 ? "neg" : "pos", pct(r)));
-      row.append(el("span", "tk", a.ativo), bar, v); rows.append(row);
-    });
-  }
-
-  function renderAtual(s) {
-    s = s || {};
-    renderDesk(s.robos, false);
-    if (s.atualizado_em) {
-      var d = new Date(s.atualizado_em);
-      $("when").textContent = "Último turno: " + (isNaN(d) ? s.atualizado_em : d.toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" }));
-    }
-    var cot = $("cot"); if (Array.isArray(s.cotacoes) && s.cotacoes.length) {
-      cot.textContent = "";
-      s.cotacoes.forEach(function (q) {
-        var tr = el("tr"), vd = typeof q.var_dia === "number" ? q.var_dia : null;
-        tr.append(el("td", null, q.ativo || ""), el("td", null, typeof q.preco === "number" ? brl(q.preco) : (q.preco || "sem dado")),
-          el("td", vd == null ? "" : vd < 0 ? "neg" : "pos", vd == null ? "—" : pct(vd)), el("td", null, q.fonte || ""));
-        cot.append(tr);
-      });
-    }
-    var log = $("log"); if (Array.isArray(s.log) && s.log.length) {
-      log.textContent = "";
-      s.log.slice(0, 10).forEach(function (l) {
-        var li = el("li"), w = el("span", "who", (l.quem || "").toUpperCase());
-        var tok = WHO[(l.quem || "").toUpperCase()]; if (tok) w.style.color = "var(" + tok + ")";
-        li.append(w, el("span", null, l.texto || "")); log.append(li);
-      });
-    }
-    var fi = $("ficha"); if (Array.isArray(s.ficha) && s.ficha.length) { fi.textContent = ""; s.ficha.forEach(function (t) { fi.append(el("li", null, t)); }); }
-  }
-
-  var ESC = [
-    { k: "vendedor", nome: "Vendedor", papel: "traz clientes", c: "--r-trend" },
-    { k: "copywriter", nome: "Copywriter", papel: "posts e mensagens", c: "--r-spy" },
-    { k: "financeiro", nome: "Financeiro", papel: "faz as contas", c: "--r-cash" },
-    { k: "pesquisador", nome: "Pesquisador", papel: "estuda o mercado", c: "--r-fx" },
-    { k: "advogado", nome: "Advogado do Diabo", papel: "acha os furos", c: "--r-risk" }
-  ];
-  function renderEsc(s) {
-    s = s || {}; var r = s.robos || {}, box = $("esc"); box.textContent = "";
-    ESC.forEach(function (b, i) { box.append(station(b, r[b.k] || {}, i, false)); });
-    if (s.atualizado_em) { var dt = new Date(s.atualizado_em); $("escwhen").textContent = "Atualizado: " + (isNaN(dt) ? s.atualizado_em : dt.toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" })); }
-    var ta = $("tarefas"); if (Array.isArray(s.tarefas) && s.tarefas.length) { ta.textContent = ""; s.tarefas.forEach(function (x) { ta.append(el("li", null, x)); }); }
-  }
-
-  var stMesa = {}, stEsc = {}, built = false, delivered = 0, busy = 0, rr = -1;
+  var stMesa = {}, stEsc = {}, stCart = null, busy = 0, rr = -1, built = false;
   var RM = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
-  function miniBot() { var b = el("span", "bot-s"), v = el("span", "vz"); v.append(el("i"), el("i")); b.append(v); return b; }
+
+  function miniBot(colorVar) {
+    var b = el("span", "bot-s"), v = el("span", "vz"); v.append(el("i"), el("i")); b.append(el("span", "antenna"), v);
+    if (colorVar) b.style.setProperty("--c", "var(" + colorVar + ")");
+    return b;
+  }
   function dataOf(team, k) { var s = team === "mesa" ? stMesa : stEsc; return ((s && s.robos) || {})[k] || {}; }
-  function openSheet(b, team) {
-    var x = dataOf(team, b.k);
-    $("sheetName").textContent = b.nome; $("sheetRole").textContent = b.papel;
-    var p = $("sheetPill"); p.className = "pill " + nivelOk(x.nivel); p.textContent = x.status || "aguardando";
-    $("sheetTask").textContent = "> " + (x.tarefa || "sem tarefa no momento");
-    $("sheetText").textContent = x.texto || "Sem relatório ainda.";
-    var f = $("sheetFicha"); f.textContent = "";
-    var fic = b.k === "chefe" ? importantes().filter(function (i) { return jaEntregue(i.key); }).map(function (i) { return "❗ " + i.b.nome + ": " + i.x.texto; }).concat(Array.isArray(stMesa.ficha) ? stMesa.ficha : []) : [];
-    fic.forEach(function (t) { f.append(el("li", null, t)); }); f.hidden = !fic.length;
-    var fc = $("sheetFace"); fc.textContent = ""; var mb = miniBot(); mb.style.setProperty("--c", "var(" + b.c + ")"); fc.append(mb);
+
+  /* ---------- Ficha que abre embaixo ---------- */
+  function openSheet(title, sub, colorVar, icon, fill) {
+    $("sheetTitle").textContent = title; $("sheetSub").textContent = sub || "";
+    $("sheetIn").style.setProperty("--sc", "var(" + colorVar + ")");
+    var ic = $("sheetIcon"); ic.textContent = ""; if (icon) ic.append(icon);
+    var body = $("sheetBody"); body.textContent = ""; fill(body);
     $("sheet").hidden = false; $("sheetX").focus();
   }
   $("sheetX").addEventListener("click", function () { $("sheet").hidden = true; });
   document.addEventListener("keydown", function (e) { if (e.key === "Escape") $("sheet").hidden = true; });
+  function chip(n, t) { return el("span", "chip " + nivelOk(n), t || "aguardando"); }
+
+  function openBot(b, team) {
+    var x = dataOf(team, b.k);
+    openSheet(b.nome, b.papel, "--r-" + b.k, miniBot("--r-" + b.k), function (body) {
+      var c = chip(x.nivel, x.status); c.style.justifySelf = "start"; body.append(c);
+      body.append(el("div", "term", "> " + (x.tarefa || "sem tarefa no momento")));
+      body.append(el("p", "say", x.texto || "Sem relatório ainda."));
+    });
+  }
+  function openBoss() {
+    openSheet("Gerente", "recebe os relatórios importantes", "--rug-boss", miniBot("--boss"), function (body) {
+      var c = stMesa.robos && stMesa.robos.chefe; if (c && c.texto) body.append(el("p", "say", c.texto));
+      var imp = importantes().filter(function (i) { return jaEntregue(i.key); });
+      if (imp.length) {
+        body.append(el("strong", null, "Na mesa do gerente"));
+        var ul = el("ul", "list"); imp.forEach(function (i) { ul.append(el("li", null, i.b.nome + ": " + i.x.texto)); }); body.append(ul);
+      } else body.append(el("p", "say", "Nenhum assunto importante agora."));
+    });
+  }
+
+  /* ---------- Mesas ---------- */
   function deskFor(b, team) {
-    var btn = el("button", "ws"); btn.type = "button"; btn.dataset.k = b.k; btn.dataset.team = team;
-    btn.style.setProperty("--c", "var(" + b.c + ")");
-    var st = el("span", "station-s");
-    st.append(miniBot(), el("span", "tabla"), el("span", "mon"), el("span", "deskpaper"));
-    btn.append(st, el("span", "lbl", b.nome), el("span", "st", "aguardando"));
-    btn.addEventListener("click", function () { openSheet(b, team); });
+    var btn = el("button", "obj ws"); btn.type = "button"; btn.dataset.k = b.k; btn.dataset.team = team;
+    btn.style.setProperty("--c", "var(--r-" + b.k + ")");
+    var st = el("span", "st-s");
+    st.append(el("span", "chair"), miniBot(), el("span", "desk-top"), el("span", "desk-front"), el("span", "mon"), el("span", "mug"), el("span", "deskpaper"));
+    btn.append(st, el("span", "lbl", b.nome), el("span", "chip", "aguardando"));
+    btn.addEventListener("click", function () { openBot(b, team); });
     return btn;
   }
   function renderOffice() {
     if (!built) {
       BOTS.forEach(function (b) { $("room-mesa").append(deskFor(b, "mesa")); });
       ESC.forEach(function (b) { $("room-esc").append(deskFor(b, "esc")); });
-      $("d-chefe").addEventListener("click", function () { openSheet({ k: "chefe", nome: "Gerente", papel: "recebe os relatórios e monta a ficha", c: "--face" }, "mesa"); });
       built = true;
     }
     document.querySelectorAll(".ws[data-k]").forEach(function (d) {
-      var x = dataOf(d.dataset.team, d.dataset.k), n = nivelOk(x.nivel), s = d.querySelector(".st");
-      d.classList.toggle("working", n === "work");
+      var x = dataOf(d.dataset.team, d.dataset.k), n = nivelOk(x.nivel), c = d.querySelector(".chip");
       var key = d.dataset.team + "/" + d.dataset.k + ":" + (x.texto || "");
       d.dataset.key = key;
-      d.classList.toggle("done", isImp(d.dataset.team, d.dataset.k) && !jaEntregue(key));
-      s.className = "st " + n; s.textContent = x.status || "aguardando";
+      d.classList.toggle("working", n === "work");
+      d.classList.toggle("done", isImp(d.dataset.team, d.dataset.k) && !jaEntregue(key) && !d.classList.contains("away"));
+      c.className = "chip " + n; c.textContent = x.status || "aguardando";
       d.setAttribute("aria-label", d.querySelector(".lbl").textContent + ": " + (x.status || "aguardando"));
     });
-    renderInbox();
+    renderInbox(); renderWall();
   }
-  function center(node, sc) { var r = node.getBoundingClientRect(); return { x: r.left - sc.left + r.width / 2, y: r.top - sc.top + r.height / 2 }; }
+
+  /* ---------- Importantes e entregas ---------- */
   var entregues = []; try { entregues = JSON.parse(localStorage.getItem("entregues") || "[]"); } catch (e) {}
   function jaEntregue(k) { return entregues.indexOf(k) >= 0; }
   function marcar(k) { if (jaEntregue(k)) return; entregues.push(k); entregues = entregues.slice(-60); try { localStorage.setItem("entregues", JSON.stringify(entregues)); } catch (e) {} }
@@ -406,75 +345,160 @@ th { color: var(--muted); font-weight: 400; font-size: .72rem; text-transform: u
   function renderInbox() {
     var na = importantes().filter(function (i) { return jaEntregue(i.key); }).length, ib = $("inbox"); ib.textContent = "";
     for (var i = 0; i < Math.min(na, 6); i++) { var p = el("span", "slip"); p.style.transform = "translate(" + (i % 2 ? 2 : -2) + "px," + (-i * 3) + "px) rotate(" + (((i * 37) % 9) - 4) + "deg)"; ib.append(p); }
-    var pend = document.querySelectorAll(".ws.done").length;
-    $("inboxN").textContent = na ? na + (na === 1 ? " assunto importante" : " assuntos importantes") + (pend ? " · mais chegando" : "") : (pend ? "relatório importante a caminho" : "nada importante agora");
+    var pend = document.querySelectorAll(".ws.done").length, chipN = $("inboxN");
+    chipN.className = "chip " + (na ? "warn" : pend ? "work" : "ok");
+    chipN.textContent = na ? na + (na === 1 ? " assunto importante" : " importantes") : (pend ? "papel a caminho" : "nada importante");
   }
-  function addInbox(key) {
-    marcar(key); renderInbox();
-    var boss = $("d-chefe"); boss.classList.remove("got"); void boss.offsetWidth; boss.classList.add("got");
-  }
+  function center(node, sc) { var r = node.getBoundingClientRect(); return { x: r.left - sc.left + r.width / 2, y: r.top - sc.top + r.height / 2 }; }
   function deliver(desk) {
     var sc = $("scene").getBoundingClientRect(), bot = desk.querySelector(".bot-s"), boss = $("d-chefe").querySelector(".bot-s");
-    var a = center(bot, sc), b = center(boss, sc);
-    var r = el("div", "runner"); r.style.setProperty("--c", desk.style.getPropertyValue("--c"));
+    var a = center(bot, sc), b = center(boss, sc), key = desk.dataset.key;
+    var r = el("div", "runner"); r.style.setProperty("--c", "var(--r-" + desk.dataset.k + ")");
     var body = el("span", "rbody"), pap = el("span", "paper"); body.append(miniBot(), pap); r.append(body);
-    $("runners").append(r); bot.style.visibility = "hidden"; desk.classList.add("away"); busy++;
-    var dur = Math.max(1300, Math.min(3000, Math.hypot(b.x - a.x, b.y - a.y) * 6));
-    var A = "translate(" + (a.x - 17) + "px," + (a.y - 17) + "px)", B = "translate(" + (b.x - 17) + "px," + (b.y + 12) + "px)";
+    $("runners").append(r); bot.style.visibility = "hidden"; desk.classList.add("away"); desk.classList.remove("done"); busy++;
+    var dur = Math.max(1400, Math.min(3200, Math.hypot(b.x - a.x, b.y - a.y) * 6));
+    var A = "translate(" + (a.x - 17) + "px," + (a.y - 16) + "px)", B = "translate(" + (b.x - 17) + "px," + (b.y + 14) + "px)";
     r.animate([{ transform: A }, { transform: B }], { duration: dur, easing: "ease-in-out", fill: "forwards" }).finished
-      .then(function () { pap.hidden = true; addInbox(desk.dataset.key); return new Promise(function (res) { setTimeout(res, 600); }); })
+      .then(function () {
+        pap.hidden = true; marcar(key); renderInbox();
+        var bd = $("d-chefe"); bd.classList.remove("got"); void bd.offsetWidth; bd.classList.add("got");
+        return new Promise(function (res) { setTimeout(res, 600); });
+      })
       .then(function () { return r.animate([{ transform: B }, { transform: A }], { duration: dur, easing: "ease-in-out", fill: "forwards" }).finished; })
       .catch(function () {})
-      .then(function () { r.remove(); bot.style.visibility = ""; desk.classList.remove("away"); desk.classList.remove("done"); busy--; renderInbox(); });
+      .then(function () { r.remove(); bot.style.visibility = ""; desk.classList.remove("away"); busy--; renderInbox(); });
   }
   setInterval(function () {
-    if (RM || document.hidden || busy >= 2 || !built || typeof Element.prototype.animate !== "function") return;
+    if (!built || document.hidden || busy >= 1) return;
     var all = Array.prototype.slice.call(document.querySelectorAll(".ws.done:not(.away)"));
     if (!all.length) return;
-    rr = (rr + 1) % all.length; deliver(all[rr]);
-  }, 2400);
+    rr = (rr + 1) % all.length;
+    if (RM || typeof Element.prototype.animate !== "function") { all.forEach(function (d) { marcar(d.dataset.key); d.classList.remove("done"); }); renderInbox(); return; }
+    deliver(all[rr]);
+  }, 2200);
 
-  renderDesk(null, true);
-  renderEsc(null);
+  /* ---------- Parede: TV, quadro, mural, prancheta, arquivo ---------- */
+  var tvIdx = 0;
+  function cotacoes() { return Array.isArray(stMesa.cotacoes) ? stMesa.cotacoes : []; }
+  function tvTick() {
+    var q = cotacoes(), s = $("tv"); if (!q.length) return;
+    var c = q[tvIdx % q.length]; tvIdx++;
+    s.children[0].textContent = c.ativo || "";
+    s.children[1].textContent = typeof c.preco === "number" ? brl(c.preco).replace("R$ ", "R$") : (c.preco || "sem dado");
+    var v = typeof c.var_dia === "number" ? c.var_dia : null;
+    s.children[2].textContent = v == null ? "" : (v >= 0 ? "▲ " : "▼ ") + pct(v);
+    s.children[2].className = "t3 " + (v == null ? "" : v >= 0 ? "up" : "down");
+  }
+  setInterval(function () { if (!document.hidden) tvTick(); }, 2600);
+  function renderWall() {
+    var f = Array.isArray(stMesa.ficha) ? stMesa.ficha : [];
+    $("boardTxt").textContent = f.length ? f.slice(0, 2).map(function (t) { var w = t.split(/[.:,(]/)[0]; return "• " + (w.length > 26 ? w.slice(0, 24) + "…" : w); }).join("\n") : "aguardando";
+    $("boardTxt").style.whiteSpace = "pre-line";
+    var t = Array.isArray(stEsc.tarefas) ? stEsc.tarefas : [];
+    ["n1", "n2", "n3"].forEach(function (id, i) { $(id).textContent = t[i] ? t[i].split(/[:.,]/)[0].slice(0, 34) : ""; $(id).hidden = !t[i]; });
+    var lg = Array.isArray(stMesa.log) ? stMesa.log : [];
+    $("clipTxt").textContent = lg.length ? lg.slice(0, 4).map(function (l) { return (l.quem || "") + ": " + (l.texto || ""); }).join("\n") : "sem registros";
+    $("clipTxt").style.whiteSpace = "pre-line";
+    if (cotacoes().length && $("tv").children[1].textContent === "aguardando") tvTick();
+  }
+  $("o-tv").addEventListener("click", function () {
+    openSheet("TV de cotações", "últimos preços lidos pelos robôs", "--r-cambio", null, function (body) {
+      var q = cotacoes(); if (!q.length) { body.append(el("p", "say", "Ainda sem cotações.")); return; }
+      var w = el("div", "tablewrap"), t = el("table"), h = el("tr"); ["Ativo", "Preço", "Dia", "Fonte"].forEach(function (x) { h.append(el("th", null, x)); });
+      var th = el("thead"); th.append(h); t.append(th); var tb = el("tbody");
+      q.forEach(function (c) { var tr = el("tr"), v = typeof c.var_dia === "number" ? c.var_dia : null;
+        tr.append(el("td", null, c.ativo || ""), el("td", null, typeof c.preco === "number" ? brl(c.preco) : (c.preco || "sem dado")), el("td", v == null ? "" : v < 0 ? "neg" : "pos", v == null ? "—" : pct(v)), el("td", null, c.fonte || "")); tb.append(tr); });
+      t.append(tb); w.append(t); body.append(w);
+      body.append(el("p", "sub", "Preços com atraso. Confira no app da corretora antes de operar."));
+    });
+  });
+  $("o-quadro").addEventListener("click", function () {
+    openSheet("Quadro: ficha de decisão", "o que a mesa recomenda; quem assina é você", "--r-espiao", null, function (body) {
+      var f = Array.isArray(stMesa.ficha) ? stMesa.ficha : [], ol = el("ol", "list");
+      f.forEach(function (t) { ol.append(el("li", null, t)); }); body.append(f.length ? ol : el("p", "say", "Sem ficha ainda."));
+    });
+  });
+  $("o-mural").addEventListener("click", function () {
+    openSheet("Mural: suas tarefas", "o que só você pode fazer", "--r-vendedor", null, function (body) {
+      var t = Array.isArray(stEsc.tarefas) ? stEsc.tarefas : [], ol = el("ol", "list");
+      t.forEach(function (x) { ol.append(el("li", null, x)); }); body.append(t.length ? ol : el("p", "say", "Sem tarefas agora."));
+    });
+  });
+  $("o-historico").addEventListener("click", function () {
+    openSheet("Prancheta: histórico", "o que os robôs fizeram", "--r-tendencia", null, function (body) {
+      var lg = Array.isArray(stMesa.log) ? stMesa.log : [], ul = el("ul", "list");
+      lg.forEach(function (l) { var li = el("li"); var w = el("strong", null, (l.quem || "") + " "); li.append(w, document.createTextNode(l.texto || "")); ul.append(li); });
+      body.append(lg.length ? ul : el("p", "say", "Sem registros ainda."));
+    });
+  });
+  $("o-janela").addEventListener("click", function () {
+    openSheet("Cuiabá", "lá fora", "--r-cambio", null, function (body) {
+      body.append(el("p", "say", "Calor de Cuiabá: bom dia para lembrar os clientes de calibrar o pneu. Volte para o escritório e confira o mural."));
+    });
+  });
+  $("o-carteira").addEventListener("click", function () {
+    openSheet("Arquivo: sua carteira", stCart && stCart.fonte ? "fonte: " + stCart.fonte : "", "--r-caixa", null, function (body) {
+      var acoes = (stCart && stCart.acoes) || []; if (!acoes.length) { body.append(el("p", "say", "Carteira ainda não cadastrada.")); return; }
+      var total = 0, aplic = 0; acoes.forEach(function (a) { total += a.posicao; aplic += a.posicao - a.resultado; });
+      var res = total - aplic, kv = el("div", "kv");
+      [["Total", brl(total), ""], ["Aplicado", brl(aplic), ""], ["Resultado", (res < 0 ? "−" : "") + brl(Math.abs(res)) + " (" + pct(res / aplic * 100) + ")", res < 0 ? "neg" : "pos"]].forEach(function (k) {
+        var d = el("div"); d.append(el("span", null, k[0]), el("b", k[2], k[1])); kv.append(d); });
+      body.append(kv);
+      var maxPct = Math.max(25, Math.ceil(Math.max.apply(null, acoes.map(function (a) { return a.posicao / total * 100; })) / 5) * 5);
+      var bars = el("div", "bars");
+      acoes.slice().sort(function (x, y) { return y.posicao - x.posicao; }).forEach(function (a) {
+        var w = a.posicao / total * 100, row = el("div", "brow"), bar = el("div", "bar"), f = el("div", "fill"), lim = el("div", "limit");
+        f.style.width = (w / maxPct * 100) + "%"; f.style.background = w > 20 ? "var(--neg)" : "var(--r-caixa)";
+        lim.style.left = (20 / maxPct * 100) + "%";
+        var r = a.resultado / (a.posicao - a.resultado) * 100;
+        bar.append(f, lim, el("span", "barlbl", w.toLocaleString("pt-BR", { maximumFractionDigits: 1 }) + "% · " + brl(a.posicao) + " · " + pct(r)));
+        row.append(el("strong", "sub", a.ativo), bar); bars.append(row);
+      });
+      body.append(bars, el("p", "sub", "Linha tracejada: limite da mesa de 20% por ação."));
+    });
+  });
+  $("d-chefe").addEventListener("click", openBoss);
+
+  /* ---------- Relógio ---------- */
+  function clock() {
+    var d = new Date(), h = d.getHours() % 12, m = d.getMinutes(), s = d.getSeconds();
+    $("hh").style.transform = "rotate(" + (h * 30 + m / 2) + "deg)";
+    $("hm").style.transform = "rotate(" + (m * 6) + "deg)";
+    $("hs").style.transform = "rotate(" + (s * 6) + "deg)";
+  }
+  clock(); setInterval(clock, 1000);
+
+  /* ---------- Dados ao vivo ---------- */
   renderOffice();
-
   (async function () {
-    var timer = setTimeout(function () { $("when").textContent = "Banco da mesa indisponível agora. Recarregue a página."; renderDesk(null, false); }, 10000);
+    var timer = setTimeout(function () { $("when").textContent = "Escritório sem conexão agora. Recarregue a página."; }, 10000);
     var db = await claude.use("db");
-    if (!db) { clearTimeout(timer); $("when").textContent = "Entre na sua conta Claude para ver os dados da mesa."; renderDesk(null, false); return; }
+    if (!db) { clearTimeout(timer); $("when").textContent = "Entre na sua conta Claude para ver o escritório."; return; }
     $("dot").classList.add("live");
-    db.doc("escritorio/atual").onSnapshot(function (s) { stEsc = s.exists ? s.data() : {}; renderEsc(stEsc); renderOffice(); }, function () {});
-    db.doc("mesa/carteira").onSnapshot(function (s) { clearTimeout(timer); renderCarteira(s.exists ? s.data() : null); }, function () {});
-    db.doc("mesa/atual").onSnapshot(function (s) { clearTimeout(timer); stMesa = s.exists ? s.data() : {}; renderAtual(stMesa); renderOffice(); },
-      function () { $("dot").classList.remove("live"); $("when").textContent = "Conexão com a mesa caiu. Recarregue a página."; });
+    db.doc("escritorio/atual").onSnapshot(function (s) { stEsc = s.exists ? s.data() : {}; renderOffice(); }, function () {});
+    db.doc("mesa/carteira").onSnapshot(function (s) { stCart = s.exists ? s.data() : null;
+      var a = (stCart && stCart.acoes) || [], t = 0; a.forEach(function (x) { t += x.posicao; }); $("cabVal").textContent = a.length ? brl(t).replace("R$ ", "R$") : "—"; }, function () {});
+    db.doc("mesa/atual").onSnapshot(function (s) {
+      clearTimeout(timer); stMesa = s.exists ? s.data() : {}; renderOffice();
+      if (stMesa.atualizado_em) { var d = new Date(stMesa.atualizado_em); $("when").textContent = "Último turno: " + (isNaN(d) ? stMesa.atualizado_em : d.toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" })); }
+    }, function () { $("dot").classList.remove("live"); $("when").textContent = "Conexão caiu. Recarregue a página."; });
   })();
 
-  // Botão: dispara um turno agora pelo conector Claude Code Remote
   var agora = $("agora"), amsg = $("agoramsg");
   (async function () {
     var mcp = await claude.use("mcp");
     if (!mcp) { agora.hidden = true; return; }
     agora.addEventListener("click", async function () {
-      agora.disabled = true; amsg.textContent = "Chamando os robôs…"; renderDesk(null, true);
+      agora.disabled = true; amsg.textContent = "Chamando os robôs…";
+      document.querySelectorAll(".ws[data-k]").forEach(function (d) { d.classList.add("working"); });
       try {
-        await mcp.callTool("Claude Code Remote", "fire_trigger", { trigger_id: TRIGGER, text: "Turno pedido pelo Paulo no painel." });
-        amsg.textContent = "Robôs acionados. O painel atualiza sozinho quando o turno terminar (alguns minutos).";
+        await mcp.callTool("Claude Code Remote", "fire_trigger", { trigger_id: TRIGGER, text: "Turno pedido pelo Paulo no escritório." });
+        amsg.textContent = "Robôs acionados. O escritório atualiza sozinho quando o turno terminar (alguns minutos).";
       } catch (e) {
         amsg.textContent = "Não consegui chamar os robôs (" + (e && e.code || "erro") + "). Peça \"mesa, roda o turno\" na conversa.";
-        agora.disabled = false;
+        agora.disabled = false; renderOffice();
       }
     });
   })();
-
-  var sim = $("sim"), nao = $("nao"), msg = $("signmsg");
-  function set(v) {
-    sim.setAttribute("aria-pressed", v === "sim"); nao.setAttribute("aria-pressed", v === "nao");
-    if (v) msg.textContent = v === "sim" ? "Ficha assinada neste aparelho. Me avise na conversa." : "Anotado. Me diga na conversa o que quer discutir.";
-    try { localStorage.setItem("ficha-assinatura", v || ""); } catch (e) {}
-  }
-  var saved = null; try { saved = localStorage.getItem("ficha-assinatura"); } catch (e) {}
-  if (saved) set(saved);
-  sim.addEventListener("click", function () { set("sim"); });
-  nao.addEventListener("click", function () { set("nao"); });
 })();
 </script>
