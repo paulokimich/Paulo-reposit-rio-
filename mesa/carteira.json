@@ -1,13 +1,15 @@
 {
-  "_comentario": "Edite: coloque os ativos que você tem ou acompanha. Alertas: preço abaixo/acima do qual a mesa avisa.",
+  "_comentario": "Carteira real do Paulo (print da corretora em 04/11/2026). Alertas: preço abaixo/acima do qual a mesa avisa — preencher.",
+  "atualizado_em": "2026-11-04",
   "moedas": {
-    "EUR-BRL": {"alerta_abaixo": 5.90, "alerta_acima": 6.60},
-    "USD-BRL": {"alerta_abaixo": 5.10, "alerta_acima": 5.80}
+    "EUR-BRL": {"alerta_abaixo": 5.80, "alerta_acima": 6.30},
+    "USD-BRL": {"alerta_abaixo": null, "alerta_acima": null}
   },
   "acoes": {
-    "PETR4": {"alerta_abaixo": null, "alerta_acima": null},
-    "VALE3": {"alerta_abaixo": null, "alerta_acima": null},
-    "ITUB4": {"alerta_abaixo": null, "alerta_acima": null},
-    "BBAS3": {"alerta_abaixo": null, "alerta_acima": null}
+    "ITUB4":  {"posicao": 1000.74, "resultado": -105.45, "alerta_abaixo": null, "alerta_acima": null},
+    "CURY3":  {"posicao": 779.03,  "resultado": -136.76, "alerta_abaixo": null, "alerta_acima": null},
+    "BPAC11": {"posicao": 611.76,  "resultado": -217.08, "alerta_abaixo": null, "alerta_acima": null},
+    "PETR4":  {"posicao": 405.68,  "resultado": -50.40,  "alerta_abaixo": null, "alerta_acima": null},
+    "BBAS3":  {"posicao": 404.75,  "resultado": -34.75,  "alerta_abaixo": null, "alerta_acima": null}
   }
 }
