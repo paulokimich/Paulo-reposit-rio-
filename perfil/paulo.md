@@ -3,10 +3,12 @@
 | Item | Resposta |
 |---|---|
 | Cidade / estado | Cuiabá – MT |
-| Capital disponível | R$ 0 (começar sem investir) |
+| Capital disponível | Sem caixa parado hoje; capacidade de poupar alta (renda sem gastos fixos) |
 | Horas por semana | Integral — "o tempo que for necessário" |
 | Disposição | "Faço tudo que for necessário" — aceita trabalho braçal e venda |
-| Meta inicial | R$ 500 a R$ 1.000/mês |
+| Renda | R$ 5.500/mês (vendedor de pneus) |
+| Gastos fixos | Nenhum (informado em 04/11/2026); gastos variáveis a confirmar |
+| Meta inicial | R$ 500 a R$ 1.000/mês extra |
 | Equipamentos | Celular com internet (confirmar: moto/bicicleta/carro?) |
 | MEI/CNPJ | A confirmar (abrir MEI é gratuito quando houver renda recorrente) |
 | Trabalho atual | Vendedor de pneus em loja (Cuiabá) |

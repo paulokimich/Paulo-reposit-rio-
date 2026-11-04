@@ -73,3 +73,5 @@ Ao final de cada sessão relevante, reviso este arquivo e:
 - Com capital zero, combinar uma frente de dinheiro rápido (serviço/comissão) com uma recorrente; reinvestir os primeiros ganhos em ferramentas.
 - Paulo é vendedor de pneus numa loja em Cuiabá: a maior alavanca rápida é aumentar as vendas/comissão dele lá.
 - Paulo está em Cuiabá: considerar sempre o calor (ar-condicionado, água, quintal) como fonte de demanda local.
+- Painel ao vivo da mesa: https://claude.ai/artifact/2qzmCbArju6nhqDSbiU9Mk — dados no banco do painel (docs `mesa/atual` e `mesa/carteira`). Turno automático `trig_01S17DzDaHhqaq2XiaDaxcBe` (hora em hora no pregão) atualiza `mesa/atual`. Ao mudar a carteira, atualizar `mesa/carteira`.
+- Paulo ganha R$ 5.500/mês sem gastos fixos: prioridade financeira é reserva de emergência e depois aportes diversificados.

@@ -3,7 +3,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&family=JetBrains+Mono:wght@400;600&display=swap">
 <style>
-/* Layout: mesa de operações — chefe no centro, 5 robôs em volta, carteira e ficha de decisão abaixo */
+/* Layout: mesa de operações — chefe no centro, 5 robôs em volta, carteira, cotações e ficha abaixo. Dados ao vivo do banco do painel. */
 :root {
   --bg: #f4f5f2; --panel: #ffffff; --line: #dfe2da; --fg: #1b1f1a; --muted: #5e665b;
   --accent: #b77d0c; --neg: #c0392b; --pos: #1e8a4c; --warn: #b77d0c;
@@ -30,16 +30,19 @@ h2 { font-size: 1.1rem; font-weight: 800; }
 .eyebrow { font-family: var(--mono); font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
 .mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
 .neg { color: var(--neg); } .pos { color: var(--pos); }
-header { display: grid; gap: 6px; }
+header { display: grid; gap: 8px; }
+.topline { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
 .status { display: inline-flex; align-items: center; gap: 8px; font-family: var(--mono); font-size: .8rem; color: var(--muted); }
-.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--pos); animation: blink 2s infinite; }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
+.dot.live { background: var(--pos); animation: blink 2s infinite; }
+.btn { font: 600 .9rem var(--display); padding: 9px 14px; border-radius: 10px; border: 1px solid var(--accent); background: transparent; color: var(--accent); cursor: pointer; }
+.btn:disabled { opacity: .5; cursor: default; }
+.btn:focus-visible, .sign button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
-/* KPIs */
 .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
 .kpi { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; display: grid; gap: 2px; }
 .kpi b { font-family: var(--mono); font-size: 1.35rem; font-variant-numeric: tabular-nums; }
 
-/* Robôs */
 .desk { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
 .bot { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 16px; display: grid; gap: 10px; align-content: start; min-width: 0; }
 .bot.chief { grid-column: 1 / -1; grid-template-columns: auto 1fr; align-items: center; gap: 16px; }
@@ -50,46 +53,44 @@ header { display: grid; gap: 6px; }
 .chief .visor { padding: 10px 16px; gap: 10px; }
 .eye { width: 6px; height: 14px; border-radius: 3px; background: var(--eye); animation: look 4s infinite; }
 .chief .eye { width: 9px; height: 20px; }
-.bot:nth-child(3) .eye { animation-delay: .7s } .bot:nth-child(4) .eye { animation-delay: 1.4s }
-.bot:nth-child(5) .eye { animation-delay: 2.1s } .bot:nth-child(6) .eye { animation-delay: 2.8s }
+.working .eye { animation: scan .6s infinite alternate; }
 .name { font-family: var(--mono); font-weight: 600; letter-spacing: .08em; text-transform: uppercase; font-size: .85rem; }
 .role { font-family: var(--mono); font-size: .72rem; color: var(--muted); }
 .say { font-size: .9rem; margin: 0; }
-.say strong { font-weight: 800; }
 .pill { justify-self: start; font-family: var(--mono); font-size: .7rem; padding: 2px 8px; border-radius: 999px; border: 1px solid currentColor; }
 .pill.warn { color: var(--warn); } .pill.neg { color: var(--neg); } .pill.ok { color: var(--pos); } .pill.idle { color: var(--muted); }
 
-/* Carteira */
-.card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 18px; display: grid; gap: 14px; min-width: 0; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 18px; display: grid; gap: 14px; min-width: 0; align-content: start; }
 .rows { display: grid; gap: 12px; }
 .row { display: grid; grid-template-columns: 70px 1fr auto; gap: 12px; align-items: center; }
 .tk { font-family: var(--mono); font-weight: 600; }
 .bar { position: relative; height: 22px; background: var(--bg); border-radius: 6px; overflow: hidden; }
 .fill { position: absolute; inset: 0 auto 0 0; background: var(--fill, var(--muted)); opacity: .85; border-radius: 6px; }
-.limit { position: absolute; top: -3px; bottom: -3px; left: 62.5%; width: 0; border-left: 2px dashed var(--accent); }
+.limit { position: absolute; top: -3px; bottom: -3px; width: 0; border-left: 2px dashed var(--accent); }
 .barlbl { position: absolute; left: 8px; top: 50%; transform: translateY(-50%); font-family: var(--mono); font-size: .72rem; color: var(--fg); }
 .val { font-family: var(--mono); font-size: .85rem; text-align: right; font-variant-numeric: tabular-nums; }
 .legend { font-size: .78rem; color: var(--muted); display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 .legend i { width: 16px; border-top: 2px dashed var(--accent); display: inline-block; }
+.tablewrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-family: var(--mono); font-size: .82rem; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+th { color: var(--muted); font-weight: 400; font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; }
 
-/* Log */
 .log { font-family: var(--mono); font-size: .8rem; display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
 .log li { display: grid; grid-template-columns: 92px 1fr; gap: 10px; }
 .log .who { font-weight: 600; }
-
-/* Ficha */
 .ficha { display: grid; gap: 8px; margin: 0; padding-left: 1.2em; }
 .sign { display: flex; gap: 10px; flex-wrap: wrap; }
 .sign button { font: 600 .9rem var(--display); padding: 10px 16px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); cursor: pointer; }
 .sign button[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
-.sign button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-.small { font-size: .78rem; color: var(--muted); }
-.small a { color: inherit; }
+.small { font-size: .78rem; color: var(--muted); margin: 0; }
 .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+.empty { color: var(--muted); font-size: .9rem; }
 
 @keyframes blink { 50% { opacity: .3 } }
 @keyframes look { 0%, 44%, 56%, 100% { transform: none } 48%, 52% { transform: scaleY(.15) } }
-@media (prefers-reduced-motion: reduce) { .dot, .eye { animation: none } }
+@keyframes scan { from { transform: translateX(-3px) } to { transform: translateX(3px) } }
+@media (prefers-reduced-motion: reduce) { .dot, .eye { animation: none !important } }
 @media (max-width: 480px) { .bot.chief { grid-template-columns: 1fr } .row { grid-template-columns: 60px 1fr } .val { grid-column: 2; text-align: left } }
 </style>
 
@@ -97,119 +98,178 @@ header { display: grid; gap: 6px; }
   <header>
     <span class="eyebrow">Mesa de operações · Paulo · Cuiabá</span>
     <h1>Os robôs analisam. Você assina.</h1>
-    <span class="status"><span class="dot"></span>Turno de 04/11/2026 · carteira do print das 20:24</span>
+    <div class="topline">
+      <span class="status"><span class="dot" id="dot"></span><span id="when">Conectando ao banco da mesa…</span></span>
+      <button class="btn" id="agora" type="button">Chamar os robôs agora</button>
+    </div>
+    <p class="small" id="agoramsg">Turnos automáticos de hora em hora no pregão (seg–sex, 10h07 às 17h07 de Brasília).</p>
   </header>
 
-  <section class="kpis" aria-label="Resumo da carteira">
-    <div class="kpi"><span class="eyebrow">Total em bolsa</span><b>R$ 3.201,96</b></div>
-    <div class="kpi"><span class="eyebrow">Valor aplicado</span><b>R$ 3.746,40</b></div>
-    <div class="kpi"><span class="eyebrow">Resultado total</span><b class="neg">−R$ 544,44</b><span class="mono neg">−14,53%</span></div>
-    <div class="kpi"><span class="eyebrow">Em bancos</span><b class="neg">63%</b><span class="small">ITUB4 + BPAC11 + BBAS3</span></div>
-  </section>
+  <section class="kpis" id="kpis" aria-label="Resumo da carteira"><p class="empty">Carregando carteira…</p></section>
 
-  <section class="desk" aria-label="Robôs da mesa">
-    <article class="bot chief">
-      <div class="face"><div class="visor"><span class="eye"></span><span class="eye"></span></div></div>
-      <div style="display:grid;gap:6px;min-width:0">
-        <span class="name">Chefe da Mesa</span>
-        <span class="role">junta tudo e entrega a ficha</span>
-        <p class="say"><strong>Resumo do turno:</strong> a carteira está 14,5% no vermelho e muito concentrada em bancos. Recomendação: <strong>não vender no susto</strong>, não colocar dinheiro novo até ter reserva de emergência e, no próximo aporte, comprar algo <strong>fora do setor financeiro</strong>.</p>
-      </div>
-    </article>
-
-    <article class="bot" style="--c: var(--r-risk)">
-      <div class="botHead"><div class="face"><div class="visor"><span class="eye"></span><span class="eye"></span></div></div>
-        <div><div class="name">Risco</div><div class="role">decide rápido, pode vetar</div></div></div>
-      <span class="pill neg">2 regras quebradas</span>
-      <p class="say">ITUB4 é <strong>31%</strong> da carteira (limite 20%). Bancos somam <strong>63%</strong>. Se o setor cair junto, tudo cai junto. Aporte novo em banco: <strong>vetado</strong>.</p>
-    </article>
-
-    <article class="bot" style="--c: var(--r-trend)">
-      <div class="botHead"><div class="face"><div class="visor"><span class="eye"></span><span class="eye"></span></div></div>
-        <div><div class="name">Tendência</div><div class="role">aposta na direção</div></div></div>
-      <span class="pill idle">aguardando cotações</span>
-      <p class="say">Preciso dos preços do dia para calcular médias de 20 e 50 dias. Rode <span class="mono">mesa/cotacoes.py</span> ou me peça a análise numa sessão.</p>
-    </article>
-
-    <article class="bot" style="--c: var(--r-spy)">
-      <div class="botHead"><div class="face"><div class="visor"><span class="eye"></span><span class="eye"></span></div></div>
-        <div><div class="name">Espião</div><div class="role">segue quem sabe mais</div></div></div>
-      <span class="pill warn">semana de balanços</span>
-      <p class="say">Petrobras divulga o 3º trimestre em <strong>10/11</strong>, segundo a imprensa. BPAC11 teve semana de queda forte e um rebaixamento do Itaú BBA. Itaú e BB também devem publicar em breve.</p>
-    </article>
-
-    <article class="bot" style="--c: var(--r-cash)">
-      <div class="botHead"><div class="face"><div class="visor"><span class="eye"></span><span class="eye"></span></div></div>
-        <div><div class="name">Caixa</div><div class="role">ganha no fluxo</div></div></div>
-      <span class="pill warn">reserva: ?</span>
-      <p class="say">Petrobras paga JCP em <strong>23/11</strong> e <strong>21/12</strong> para quem tinha a ação até 21/08. Antes de mais ações: reserva de emergência no Tesouro Selic.</p>
-    </article>
-
-    <article class="bot" style="--c: var(--r-fx)">
-      <div class="botHead"><div class="face"><div class="visor"><span class="eye"></span><span class="eye"></span></div></div>
-        <div><div class="name">Câmbio</div><div class="role">vigia euro e dólar</div></div></div>
-      <span class="pill idle">volátil</span>
-      <p class="say">Euro (PTAX) andou entre <span class="mono">R$ 5,64</span> e <span class="mono">R$ 6,15</span> no fim de outubro. Se precisar comprar, compre em partes.</p>
-    </article>
-  </section>
+  <section class="desk" id="desk" aria-label="Robôs da mesa"></section>
 
   <div class="grid2">
     <section class="card" aria-label="Carteira">
       <h2>Carteira por peso</h2>
-      <div class="rows">
-        <div class="row"><span class="tk">ITUB4</span><div class="bar"><div class="fill" style="width:62.5%;--fill:var(--neg)"></div><div class="limit"></div><span class="barlbl">31,3%</span></div><span class="val">R$ 1.000,74 <span class="neg">−9,53%</span></span></div>
-        <div class="row"><span class="tk">CURY3</span><div class="bar"><div class="fill" style="width:48.6%;--fill:var(--warn)"></div><div class="limit"></div><span class="barlbl">24,3%</span></div><span class="val">R$ 779,03 <span class="neg">−14,93%</span></span></div>
-        <div class="row"><span class="tk">BPAC11</span><div class="bar"><div class="fill" style="width:38.2%;--fill:var(--muted)"></div><div class="limit"></div><span class="barlbl">19,1%</span></div><span class="val">R$ 611,76 <span class="neg">−26,19%</span></span></div>
-        <div class="row"><span class="tk">PETR4</span><div class="bar"><div class="fill" style="width:25.3%;--fill:var(--muted)"></div><div class="limit"></div><span class="barlbl">12,7%</span></div><span class="val">R$ 405,68 <span class="neg">−11,05%</span></span></div>
-        <div class="row"><span class="tk">BBAS3</span><div class="bar"><div class="fill" style="width:25.3%;--fill:var(--muted)"></div><div class="limit"></div><span class="barlbl">12,6%</span></div><span class="val">R$ 404,75 <span class="neg">−7,91%</span></span></div>
-      </div>
-      <div class="legend"><i></i> limite da mesa: 20% por ação · escala até 32%</div>
+      <div class="rows" id="rows"><p class="empty">Carregando…</p></div>
+      <div class="legend"><i></i> limite da mesa: 20% por ação</div>
     </section>
-
-    <section class="card" aria-label="Log da mesa">
-      <h2>O que os robôs fizeram hoje</h2>
-      <ul class="log">
-        <li><span class="who" style="color:var(--accent)">CHEFE</span><span>Leu a carteira: 5 ações, R$ 3.201,96.</span></li>
-        <li><span class="who" style="color:var(--r-risk)">RISCO</span><span>Mediu concentração: ITUB4 31% &gt; 20%.</span></li>
-        <li><span class="who" style="color:var(--r-risk)">RISCO</span><span>Setor financeiro 63%. Vetou aporte em banco.</span></li>
-        <li><span class="who" style="color:var(--r-spy)">ESPIÃO</span><span>Buscou notícias das 5 empresas.</span></li>
-        <li><span class="who" style="color:var(--r-spy)">ESPIÃO</span><span>Marcou balanço PETR4 em 10/11.</span></li>
-        <li><span class="who" style="color:var(--r-cash)">CAIXA</span><span>Achou JCP PETR4: 23/11 e 21/12.</span></li>
-        <li><span class="who" style="color:var(--r-fx)">CÂMBIO</span><span>Leu PTAX do euro até 27/10.</span></li>
-        <li><span class="who" style="color:var(--r-trend)">TENDÊNCIA</span><span>Sem acesso às cotações de hoje. Em espera.</span></li>
-      </ul>
+    <section class="card" aria-label="Cotações">
+      <h2>Últimas cotações lidas</h2>
+      <div class="tablewrap"><table><thead><tr><th>Ativo</th><th>Preço</th><th>Dia</th><th>Fonte</th></tr></thead><tbody id="cot"><tr><td colspan="4" class="empty">Aguardando o primeiro turno com cotações.</td></tr></tbody></table></div>
+      <p class="small">Cotações vêm de buscas na web e podem ter atraso. Confira no app da corretora antes de operar.</p>
     </section>
   </div>
 
-  <section class="card" aria-label="Ficha de decisão">
-    <h2>Ficha de decisão do turno</h2>
-    <ol class="ficha">
-      <li><strong>Manter</strong> as 5 posições. Vender agora transforma o prejuízo de papel em prejuízo real.</li>
-      <li><strong>Nenhum aporte novo</strong> até ter reserva de emergência (meta inicial: 1 mês de gastos).</li>
-      <li>Próximo aporte, quando houver: <strong>fora de bancos</strong> (ex.: energia elétrica, saneamento ou um ETF de índice) para diluir o peso do ITUB4.</li>
-      <li>Acompanhar o balanço da Petrobras em 10/11 e o do BTG antes de qualquer decisão sobre BPAC11.</li>
-    </ol>
-    <div class="sign" role="group" aria-label="Sua assinatura">
-      <button id="sim" type="button" aria-pressed="false">Assino a ficha</button>
-      <button id="nao" type="button" aria-pressed="false">Quero discutir</button>
-    </div>
-    <p class="small" id="signmsg">Sua escolha fica salva só neste aparelho. Para a mesa saber, me conte na conversa.</p>
-  </section>
+  <div class="grid2">
+    <section class="card" aria-label="Log da mesa">
+      <h2>O que os robôs fizeram</h2>
+      <ul class="log" id="log"><li><span class="who">MESA</span><span>Aguardando o primeiro turno.</span></li></ul>
+    </section>
+    <section class="card" aria-label="Ficha de decisão">
+      <h2>Ficha de decisão</h2>
+      <ol class="ficha" id="ficha"><li>Aguardando o Chefe da Mesa.</li></ol>
+      <div class="sign" role="group" aria-label="Sua assinatura">
+        <button id="sim" type="button" aria-pressed="false">Assino a ficha</button>
+        <button id="nao" type="button" aria-pressed="false">Quero discutir</button>
+      </div>
+      <p class="small" id="signmsg">Sua escolha fica salva só neste aparelho. Para a mesa saber, me conte na conversa.</p>
+    </section>
+  </div>
 
-  <p class="small">Notícias de: <a href="https://rankia.com.br/petrobras-valor-de-mercado-recorde-petr4-sobe-94-2026-dividendos/">Rankia</a>, <a href="https://acionista.com.br/petrobras-petr4-anuncia-remuneracao-aos-acionistas/">Acionista</a>, <a href="https://www.seudinheiro.com/2026/bolsa-dolar/uma-semana-muda-tudo-acoes-do-btg-bpac11-derretem-ganhos-do-ano-vale-comprar-apos-o-tombo-jcav/">Seu Dinheiro</a>, <a href="https://numerando.com.br/cambio/euro/outubro-2026">Numerando (PTAX)</a>. Datas a confirmar no RI de cada empresa. Isto é análise de apoio, não recomendação profissional de investimento.</p>
+  <p class="small">Análise de apoio, não recomendação profissional de investimento. Nada é comprado ou vendido pelos robôs.</p>
 </div>
 
 <script>
 (function () {
-  var sim = document.getElementById('sim'), nao = document.getElementById('nao'), msg = document.getElementById('signmsg');
-  function set(v) {
-    sim.setAttribute('aria-pressed', v === 'sim'); nao.setAttribute('aria-pressed', v === 'nao');
-    if (v) msg.textContent = v === 'sim' ? 'Ficha assinada neste aparelho. Me avise na conversa.' : 'Anotado. Me diga na conversa o que quer discutir.';
-    try { localStorage.setItem('ficha-2026-11-04', v || ''); } catch (e) {}
+  var TRIGGER = "trig_01S17DzDaHhqaq2XiaDaxcBe";
+  var BOTS = [
+    { k: "risco", nome: "Risco", papel: "decide rápido, pode vetar", c: "--r-risk" },
+    { k: "tendencia", nome: "Tendência", papel: "aposta na direção", c: "--r-trend" },
+    { k: "espiao", nome: "Espião", papel: "segue quem sabe mais", c: "--r-spy" },
+    { k: "caixa", nome: "Caixa", papel: "ganha no fluxo", c: "--r-cash" },
+    { k: "cambio", nome: "Câmbio", papel: "vigia euro e dólar", c: "--r-fx" }
+  ];
+  var WHO = { CHEFE: "--accent", RISCO: "--r-risk", "TENDÊNCIA": "--r-trend", "ESPIÃO": "--r-spy", CAIXA: "--r-cash", "CÂMBIO": "--r-fx" };
+  var $ = function (id) { return document.getElementById(id); };
+  var brl = function (n) { return "R$ " + Number(n).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }); };
+  var pct = function (n) { return (n > 0 ? "+" : n < 0 ? "−" : "") + Math.abs(n).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + "%"; };
+  function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+  function face() { var f = el("div", "face"), v = el("div", "visor"); v.append(el("span", "eye"), el("span", "eye")); f.append(v); return f; }
+  var nivelOk = function (n) { return ["ok", "warn", "neg", "idle"].indexOf(n) >= 0 ? n : "idle"; };
+
+  function renderDesk(robos, working) {
+    var desk = $("desk"); desk.textContent = "";
+    var r = robos || {};
+    var ch = el("article", "bot chief" + (working ? " working" : ""));
+    var box = el("div"); box.style.cssText = "display:grid;gap:6px;min-width:0";
+    box.append(el("span", "name", "Chefe da Mesa"), el("span", "role", "junta tudo e entrega a ficha"));
+    var c = r.chefe || {};
+    if (c.status) { var p = el("span", "pill " + nivelOk(c.nivel), c.status); box.append(p); }
+    box.append(el("p", "say", c.texto || "Aguardando o primeiro turno."));
+    ch.append(face(), box); desk.append(ch);
+    BOTS.forEach(function (b, i) {
+      var d = r[b.k] || {};
+      var a = el("article", "bot" + (working ? " working" : "")); a.style.setProperty("--c", "var(" + b.c + ")");
+      var h = el("div", "botHead"), t = el("div"); t.append(el("div", "name", b.nome), el("div", "role", b.papel));
+      h.append(face(), t);
+      a.append(h, el("span", "pill " + nivelOk(d.nivel), d.status || "aguardando"), el("p", "say", d.texto || "Sem leitura ainda."));
+      a.querySelectorAll(".eye").forEach(function (e) { e.style.animationDelay = (i * 0.7) + "s"; });
+      desk.append(a);
+    });
   }
-  var saved = null; try { saved = localStorage.getItem('ficha-2026-11-04'); } catch (e) {}
+
+  function renderCarteira(cart) {
+    var acoes = (cart && cart.acoes) || [];
+    var total = 0, aplic = 0, bancos = 0;
+    acoes.forEach(function (a) { total += a.posicao; aplic += a.posicao - a.resultado; if (a.setor === "bancos") bancos += a.posicao; });
+    var res = total - aplic, k = $("kpis"); k.textContent = "";
+    if (!acoes.length) { k.append(el("p", "empty", "Carteira ainda não cadastrada.")); $("rows").textContent = ""; return; }
+    function kpi(lbl, val, cls, sub) { var d = el("div", "kpi"); d.append(el("span", "eyebrow", lbl)); var b = el("b", cls, val); d.append(b); if (sub) d.append(el("span", "mono " + (cls || ""), sub)); k.append(d); }
+    kpi("Total em bolsa", brl(total));
+    kpi("Valor aplicado", brl(aplic));
+    kpi("Resultado total", (res < 0 ? "−" : "") + brl(Math.abs(res)), res < 0 ? "neg" : "pos", pct(res / aplic * 100));
+    kpi("Em bancos", Math.round(bancos / total * 100) + "%", bancos / total > 0.4 ? "neg" : "", null);
+    var maxPct = Math.max(25, Math.ceil(Math.max.apply(null, acoes.map(function (a) { return a.posicao / total * 100; })) / 5) * 5);
+    var rows = $("rows"); rows.textContent = "";
+    acoes.slice().sort(function (x, y) { return y.posicao - x.posicao; }).forEach(function (a) {
+      var w = a.posicao / total * 100, row = el("div", "row"), bar = el("div", "bar"), f = el("div", "fill"), lim = el("div", "limit");
+      f.style.width = (w / maxPct * 100) + "%";
+      f.style.setProperty("--fill", w > 20 ? "var(--neg)" : "var(--muted)");
+      lim.style.left = (20 / maxPct * 100) + "%";
+      bar.append(f, lim, el("span", "barlbl", w.toLocaleString("pt-BR", { maximumFractionDigits: 1 }) + "%"));
+      var v = el("span", "val", brl(a.posicao) + " "), r = a.resultado / (a.posicao - a.resultado) * 100;
+      v.append(el("span", r < 0 ? "neg" : "pos", pct(r)));
+      row.append(el("span", "tk", a.ativo), bar, v); rows.append(row);
+    });
+  }
+
+  function renderAtual(s) {
+    s = s || {};
+    renderDesk(s.robos, false);
+    if (s.atualizado_em) {
+      var d = new Date(s.atualizado_em);
+      $("when").textContent = "Último turno: " + (isNaN(d) ? s.atualizado_em : d.toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" }));
+    }
+    var cot = $("cot"); if (Array.isArray(s.cotacoes) && s.cotacoes.length) {
+      cot.textContent = "";
+      s.cotacoes.forEach(function (q) {
+        var tr = el("tr"), vd = typeof q.var_dia === "number" ? q.var_dia : null;
+        tr.append(el("td", null, q.ativo || ""), el("td", null, typeof q.preco === "number" ? brl(q.preco) : (q.preco || "sem dado")),
+          el("td", vd == null ? "" : vd < 0 ? "neg" : "pos", vd == null ? "—" : pct(vd)), el("td", null, q.fonte || ""));
+        cot.append(tr);
+      });
+    }
+    var log = $("log"); if (Array.isArray(s.log) && s.log.length) {
+      log.textContent = "";
+      s.log.slice(0, 10).forEach(function (l) {
+        var li = el("li"), w = el("span", "who", (l.quem || "").toUpperCase());
+        var tok = WHO[(l.quem || "").toUpperCase()]; if (tok) w.style.color = "var(" + tok + ")";
+        li.append(w, el("span", null, l.texto || "")); log.append(li);
+      });
+    }
+    var fi = $("ficha"); if (Array.isArray(s.ficha) && s.ficha.length) { fi.textContent = ""; s.ficha.forEach(function (t) { fi.append(el("li", null, t)); }); }
+  }
+
+  renderDesk(null, true);
+
+  (async function () {
+    var timer = setTimeout(function () { $("when").textContent = "Banco da mesa indisponível agora. Recarregue a página."; renderDesk(null, false); }, 10000);
+    var db = await claude.use("db");
+    if (!db) { clearTimeout(timer); $("when").textContent = "Entre na sua conta Claude para ver os dados da mesa."; renderDesk(null, false); return; }
+    $("dot").classList.add("live");
+    db.doc("mesa/carteira").onSnapshot(function (s) { clearTimeout(timer); renderCarteira(s.exists ? s.data() : null); }, function () {});
+    db.doc("mesa/atual").onSnapshot(function (s) { clearTimeout(timer); renderAtual(s.exists ? s.data() : null); },
+      function () { $("dot").classList.remove("live"); $("when").textContent = "Conexão com a mesa caiu. Recarregue a página."; });
+  })();
+
+  // Botão: dispara um turno agora pelo conector Claude Code Remote
+  var agora = $("agora"), amsg = $("agoramsg");
+  (async function () {
+    var mcp = await claude.use("mcp");
+    if (!mcp) { agora.hidden = true; return; }
+    agora.addEventListener("click", async function () {
+      agora.disabled = true; amsg.textContent = "Chamando os robôs…"; renderDesk(null, true);
+      try {
+        await mcp.callTool("Claude Code Remote", "fire_trigger", { trigger_id: TRIGGER, text: "Turno pedido pelo Paulo no painel." });
+        amsg.textContent = "Robôs acionados. O painel atualiza sozinho quando o turno terminar (alguns minutos).";
+      } catch (e) {
+        amsg.textContent = "Não consegui chamar os robôs (" + (e && e.code || "erro") + "). Peça \"mesa, roda o turno\" na conversa.";
+        agora.disabled = false;
+      }
+    });
+  })();
+
+  var sim = $("sim"), nao = $("nao"), msg = $("signmsg");
+  function set(v) {
+    sim.setAttribute("aria-pressed", v === "sim"); nao.setAttribute("aria-pressed", v === "nao");
+    if (v) msg.textContent = v === "sim" ? "Ficha assinada neste aparelho. Me avise na conversa." : "Anotado. Me diga na conversa o que quer discutir.";
+    try { localStorage.setItem("ficha-assinatura", v || ""); } catch (e) {}
+  }
+  var saved = null; try { saved = localStorage.getItem("ficha-assinatura"); } catch (e) {}
   if (saved) set(saved);
-  sim.addEventListener('click', function () { set('sim'); });
-  nao.addEventListener('click', function () { set('nao'); });
+  sim.addEventListener("click", function () { set("sim"); });
+  nao.addEventListener("click", function () { set("nao"); });
 })();
 </script>
