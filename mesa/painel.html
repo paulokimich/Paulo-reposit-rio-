@@ -352,6 +352,8 @@ th { color: var(--muted); font-weight: 400; font-size: .7rem; text-transform: up
   </div>
   </details>
 
+  <section class="card" id="ordens" aria-label="Ordens do gerente"><h2>Ordens do gerente <span class="chip" id="ordensPara"></span></h2><div id="ordensBody" style="display:grid;gap:8px"></div></section>
+
   <section class="card" id="ideias" aria-label="Ideias dos robôs"><h2>Ideias dos robôs</h2><div id="ideiasBody" style="display:grid;gap:10px"></div></section>
 
   <section class="card" id="waiting" aria-label="Esperando você">
@@ -395,7 +397,7 @@ th { color: var(--muted); font-weight: 400; font-size: .7rem; text-transform: up
   var nivelOk = function (n) { return ["ok", "warn", "neg", "idle", "work"].indexOf(n) >= 0 ? n : "idle"; };
   var stMesa = {}, stEsc = {}, stCart = null, busy = 0, rr = -1, built = false;
   var vistos = []; try { vistos = JSON.parse(localStorage.getItem("vistos") || "[]"); } catch (e) {}
-  var audit = null, ideiasC = null, ideiasV = null;
+  var audit = null, ideiasC = null, ideiasV = null, ordensDoc = null;
   var RM = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
 
   function miniBot(colorVar) {
@@ -1093,6 +1095,18 @@ th { color: var(--muted); font-weight: 400; font-size: .7rem; text-transform: up
     if (nf) { var fechados = (prospects || []).filter(function (p) { return p.status === "fechou"; }).length; nf.textContent = fechados >= 1 ? "Clientes fechados: " + fechados + ". Novo andar liberado: diga ao gerente para contratar o próximo robô." : "Novos andares e robôs abrem com os primeiros clientes fechados (" + fechados + " até agora)."; }
   }
 
+  function renderOrdens() {
+    var host = $("ordensBody"); if (!host) return; host.textContent = "";
+    var o = ordensDoc; $("ordensPara").textContent = o && o.para ? o.para : "";
+    if (!o || !Array.isArray(o.ordens) || !o.ordens.length) { host.append(el("p", "sub", "O gerente gera as ordens do dia seguinte toda noite, na auditoria das 21h.")); return; }
+    if (Array.isArray(o.paulo) && o.paulo.length) {
+      var pc = el("div", "waitcard"); pc.style.setProperty("--c", "var(--accent, #ffd166)"); pc.append(el("b", null, "Para você"));
+      var ol = el("ol", "list"); o.paulo.forEach(function (t) { ol.append(el("li", null, t)); }); pc.append(ol); host.append(pc);
+    }
+    o.ordens.forEach(function (x) { var c = el("div", "waitcard"); c.append(el("b", null, (x.hora ? x.hora + " · " : "") + (x.quem || "")), el("p", null, x.ordem || "")); host.append(c); });
+    if (o.gerado_em) host.append(el("p", "sub", "Ordens geradas em " + o.gerado_em));
+  }
+
   /* ---------- Ideias dos robôs ---------- */
   var fmtP = function (n) { return typeof n === "number" ? n.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "—"; };
   function kvBox(pairs) { var kv = el("div", "kv"); pairs.forEach(function (k) { var d = el("div"); d.append(el("span", null, k[0]), el("b", k[2] || "", k[1])); kv.append(d); }); return kv; }
@@ -1161,6 +1175,7 @@ th { color: var(--muted); font-weight: 400; font-size: .7rem; text-transform: up
       prospects = qs.docs.map(function (d) { var o = d.data() || {}; o.id = d.id; return o; }).sort(function (a, b) { return (a.ordem || 0) - (b.ordem || 0); }); renderKanban(); renderTower();
     }, function (e) { var c = $("kbChip"); if (c) { c.className = "chip neg"; c.textContent = "erro ao ler (" + (e && e.code || "?") + ")"; } });
     db.doc("auditoria/atual").onSnapshot(function (s) { audit = s.exists ? s.data() : null; renderTower(); }, function () {});
+    db.doc("auditoria/ordens").onSnapshot(function (s) { ordensDoc = s.exists ? s.data() : null; renderOrdens(); }, function () {});
     db.doc("ideias/compras").onSnapshot(function (s) { ideiasC = s.exists ? s.data() : null; renderIdeias(); renderTower(); }, function () {});
     db.doc("ideias/vendas").onSnapshot(function (s) { ideiasV = s.exists ? s.data() : null; renderIdeias(); renderTower(); }, function () {});
     db.doc("estado/vistos").onSnapshot(function (s) {
