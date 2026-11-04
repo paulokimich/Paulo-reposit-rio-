@@ -171,6 +171,7 @@ button { font: inherit; color: inherit; }
 .acts { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
 .wa { background: #25d366; text-decoration: none; display: inline-block; }
 .mini.ok { background: var(--pos); }
+.call { background: #1d6fe0; text-decoration: none; display: inline-block; }
 
 /* Entregas */
 .runners { position: absolute; inset: 0; pointer-events: none; z-index: 10; }
@@ -609,6 +610,8 @@ th { color: var(--muted); font-weight: 400; font-size: .7rem; text-transform: up
     try { await ref.update(campos); }
     catch (e) { var full = Object.assign({}, base || {}, campos); delete full.id; await ref.set(full); }
   }
+  function phoneOf(c) { var m = /\(?(\d{2})\)?\s*(9?\d{4})-?(\d{4})/.exec(c || ""); return m ? m[1] + m[2] + m[3] : null; }
+  function callBtn(num) { var a = el("a", "copy call", "📞 Ligar"); a.href = "tel:+55" + num; return a; }
   function openClientes() {
     openSheet("Clientes", "frotas de Cuiabá e VG · você atualiza, o Vendedor acompanha", "--r-vendedor", null, function (body) {
       var ld = Array.isArray(stEsc.lista_do_dia) ? stEsc.lista_do_dia : [];
@@ -621,6 +624,7 @@ th { color: var(--muted); font-weight: 400; font-size: .7rem; text-transform: up
           if (x.motivo) box.append(el("span", "sub", x.motivo));
           var acts = el("div", "acts");
           if (x.mensagem) { var m = el("div", "legenda", x.mensagem), cp = el("button", "copy", "Copiar mensagem"); cp.type = "button"; cp.addEventListener("click", function () { copiar(x.mensagem, m, cp); }); box.append(m); acts.append(cp); }
+          var ph = phoneOf(x.contato); if (ph) acts.prepend(callBtn(ph));
           var dig = (x.contato || "").replace(/\D/g, ""), cel = dig.slice(-11);
           if (/^\d{2}9\d{8}$/.test(cel)) { var wa = el("a", "copy wa", "Abrir no WhatsApp"); wa.href = "https://wa.me/55" + cel + "?text=" + encodeURIComponent(x.mensagem || ""); wa.target = "_blank"; wa.rel = "noopener"; acts.append(wa); }
           var pr = prospects.filter(function (q) { return q.id === x.id; })[0];
@@ -653,7 +657,15 @@ th { color: var(--muted); font-weight: 400; font-size: .7rem; text-transform: up
         var r = el("div", "prow"), top = el("div", "top2");
         top.append(el("b", null, p.nome || ""), el("span", "sub", p.prioridade || "")); r.append(top);
         r.append(el("span", "sub", (p.segmento || "") + " · " + (p.cidade || "")));
-        if (p.contato) r.append(el("span", "tel", p.contato));
+        if (p.contato) {
+          r.append(el("span", "tel", p.contato));
+          var ph2 = phoneOf(p.contato);
+          if (ph2) {
+            var ac2 = el("div", "acts"); ac2.append(callBtn(ph2));
+            if (ph2.charAt(2) === "9") { var w2 = el("a", "copy wa", "WhatsApp"); w2.href = "https://wa.me/55" + ph2; w2.target = "_blank"; w2.rel = "noopener"; ac2.append(w2); }
+            r.append(ac2);
+          }
+        }
         var ctl = el("div", "pctl"), sel = el("select"), nota = el("input"), sv = el("button", "mini", "Salvar");
         sel.id = "st-" + p.id; sel.setAttribute("aria-label", "Situação de " + p.nome);
         ST.forEach(function (s) { var o = el("option", null, s); o.value = s; if (s === p.status) o.selected = true; sel.append(o); });
