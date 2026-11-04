@@ -58,6 +58,12 @@ header { display: grid; gap: 8px; }
 .role { font-family: var(--mono); font-size: .72rem; color: var(--muted); }
 .say { font-size: .9rem; margin: 0; }
 .pill { justify-self: start; font-family: var(--mono); font-size: .7rem; padding: 2px 8px; border-radius: 999px; border: 1px solid currentColor; }
+.monitor { background: var(--eye-bg); border: 3px solid var(--line); border-radius: 8px; padding: 8px 10px; min-height: 54px; transition: border-color .3s; }
+.working .monitor { border-color: var(--c, var(--accent)); }
+.screen { font-family: var(--mono); font-size: .72rem; color: var(--eye); overflow-wrap: anywhere; line-height: 1.4; }
+.caret { display: inline-block; width: 7px; height: 12px; background: var(--eye); margin-left: 4px; vertical-align: -2px; animation: blink 1s steps(1) infinite; }
+.tabletop { height: 8px; border-radius: 4px; background: var(--c, var(--line)); opacity: .45; margin-top: -8px; }
+.pill.work { color: var(--r-fx); }
 .pill.warn { color: var(--warn); } .pill.neg { color: var(--neg); } .pill.ok { color: var(--pos); } .pill.idle { color: var(--muted); }
 
 .card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 18px; display: grid; gap: 14px; min-width: 0; align-content: start; }
@@ -90,7 +96,7 @@ th { color: var(--muted); font-weight: 400; font-size: .72rem; text-transform: u
 @keyframes blink { 50% { opacity: .3 } }
 @keyframes look { 0%, 44%, 56%, 100% { transform: none } 48%, 52% { transform: scaleY(.15) } }
 @keyframes scan { from { transform: translateX(-3px) } to { transform: translateX(3px) } }
-@media (prefers-reduced-motion: reduce) { .dot, .eye { animation: none !important } }
+@media (prefers-reduced-motion: reduce) { .dot, .eye, .caret { animation: none !important } }
 @media (max-width: 480px) { .bot.chief { grid-template-columns: 1fr } .row { grid-template-columns: 60px 1fr } .val { grid-column: 2; text-align: left } }
 </style>
 
@@ -168,7 +174,19 @@ th { color: var(--muted); font-weight: 400; font-size: .72rem; text-transform: u
   var pct = function (n) { return (n > 0 ? "+" : n < 0 ? "−" : "") + Math.abs(n).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + "%"; };
   function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
   function face() { var f = el("div", "face"), v = el("div", "visor"); v.append(el("span", "eye"), el("span", "eye")); f.append(v); return f; }
-  var nivelOk = function (n) { return ["ok", "warn", "neg", "idle"].indexOf(n) >= 0 ? n : "idle"; };
+  var nivelOk = function (n) { return ["ok", "warn", "neg", "idle", "work"].indexOf(n) >= 0 ? n : "idle"; };
+  function station(b, d, i, working) {
+    var w = working || d.nivel === "work";
+    var a = el("article", "bot" + (w ? " working" : "")); a.style.setProperty("--c", "var(" + b.c + ")");
+    var h = el("div", "botHead"), t = el("div"); t.append(el("div", "name", b.nome), el("div", "role", b.papel));
+    h.append(face(), t);
+    var mon = el("div", "monitor"), scr = el("div", "screen", "> " + (d.tarefa || (w ? "trabalhando…" : "em espera")));
+    if (w) scr.append(el("span", "caret"));
+    mon.append(scr);
+    a.append(h, mon, el("div", "tabletop"), el("span", "pill " + nivelOk(d.nivel), d.status || "aguardando"), el("p", "say", d.texto || "Sem tarefa ainda."));
+    a.querySelectorAll(".eye").forEach(function (e) { e.style.animationDelay = (i * 0.6) + "s"; });
+    return a;
+  }
 
   function renderDesk(robos, working) {
     var desk = $("desk"); desk.textContent = "";
@@ -177,18 +195,11 @@ th { color: var(--muted); font-weight: 400; font-size: .72rem; text-transform: u
     var box = el("div"); box.style.cssText = "display:grid;gap:6px;min-width:0";
     box.append(el("span", "name", "Chefe da Mesa"), el("span", "role", "junta tudo e entrega a ficha"));
     var c = r.chefe || {};
+    if (c.nivel === "work") ch.classList.add("working");
     if (c.status) { var p = el("span", "pill " + nivelOk(c.nivel), c.status); box.append(p); }
     box.append(el("p", "say", c.texto || "Aguardando o primeiro turno."));
     ch.append(face(), box); desk.append(ch);
-    BOTS.forEach(function (b, i) {
-      var d = r[b.k] || {};
-      var a = el("article", "bot" + (working ? " working" : "")); a.style.setProperty("--c", "var(" + b.c + ")");
-      var h = el("div", "botHead"), t = el("div"); t.append(el("div", "name", b.nome), el("div", "role", b.papel));
-      h.append(face(), t);
-      a.append(h, el("span", "pill " + nivelOk(d.nivel), d.status || "aguardando"), el("p", "say", d.texto || "Sem leitura ainda."));
-      a.querySelectorAll(".eye").forEach(function (e) { e.style.animationDelay = (i * 0.7) + "s"; });
-      desk.append(a);
-    });
+    BOTS.forEach(function (b, i) { desk.append(station(b, r[b.k] || {}, i, working)); });
   }
 
   function renderCarteira(cart) {
@@ -252,15 +263,7 @@ th { color: var(--muted); font-weight: 400; font-size: .72rem; text-transform: u
   ];
   function renderEsc(s) {
     s = s || {}; var r = s.robos || {}, box = $("esc"); box.textContent = "";
-    ESC.forEach(function (b, i) {
-      var d = r[b.k] || {};
-      var a = el("article", "bot"); a.style.setProperty("--c", "var(" + b.c + ")");
-      var h = el("div", "botHead"), t = el("div"); t.append(el("div", "name", b.nome), el("div", "role", b.papel));
-      h.append(face(), t);
-      a.append(h, el("span", "pill " + nivelOk(d.nivel), d.status || "aguardando"), el("p", "say", d.texto || "Sem tarefa ainda."));
-      a.querySelectorAll(".eye").forEach(function (e) { e.style.animationDelay = (i * 0.5) + "s"; });
-      box.append(a);
-    });
+    ESC.forEach(function (b, i) { box.append(station(b, r[b.k] || {}, i, false)); });
     if (s.atualizado_em) { var dt = new Date(s.atualizado_em); $("escwhen").textContent = "Atualizado: " + (isNaN(dt) ? s.atualizado_em : dt.toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" })); }
     var ta = $("tarefas"); if (Array.isArray(s.tarefas) && s.tarefas.length) { ta.textContent = ""; s.tarefas.forEach(function (x) { ta.append(el("li", null, x)); }); }
   }
