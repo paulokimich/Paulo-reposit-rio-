@@ -241,6 +241,22 @@ th { color: var(--muted); font-weight: 400; font-size: .7rem; text-transform: up
 .waitcard p { margin: 0; font-size: .88rem; }
 #waiting h2 { display: flex; align-items: center; gap: 8px; }
 
+
+/* Torre isométrica */
+.isowrap { border-radius: 22px; overflow: hidden; background: radial-gradient(120% 60% at 50% 0%, #2a2f58 0%, #141a33 45%, #0b0f20 100%); box-shadow: 0 12px 34px rgba(10, 8, 30, .45); padding: 6px 0 0; }
+.iso { width: 100%; height: auto; display: block; }
+.iso text { font-family: var(--display); }
+.rb, .ob, .pill { cursor: pointer; }
+.rb:focus-visible, .ob:focus-visible, .pill:focus-visible { outline: 3px solid #ffd166; outline-offset: 2px; }
+.rb .eye { animation: look 4s infinite; transform-box: fill-box; transform-origin: center; }
+.rb[data-st="work"] .mon { fill: #1c6b57; }
+.rb[data-st="work"] .ind circle { animation: blink 1.2s infinite; }
+.plantas { margin-top: 4px; }
+.plantas > summary { cursor: pointer; font-weight: 700; font-size: .85rem; color: var(--muted); padding: 8px 4px; }
+.plantas > summary:focus-visible { outline: 3px solid var(--rug-inv); }
+.plantas[open] > summary { margin-bottom: 6px; }
+@media (prefers-reduced-motion: reduce) { .rb .eye, .rb .ind circle { animation: none !important } }
+
 @keyframes blink { 50% { opacity: .3 } }
 @keyframes look { 0%, 44%, 56%, 100% { transform: none } 48%, 52% { transform: scaleY(.15) } }
 @keyframes scan { from { transform: translateX(-2px) } to { transform: translateX(2px) } }
@@ -261,6 +277,9 @@ th { color: var(--muted); font-weight: 400; font-size: .7rem; text-transform: up
 
   <div class="chips" id="topchips" aria-live="polite"></div>
 
+  <section class="isowrap" id="isowrap" aria-label="Torre do Paulo em 3D"><div id="iso"></div></section>
+
+  <details class="plantas" id="plantas"><summary>Plantas dos andares (detalhes e animação)</summary>
   <div class="tower" id="scene">
     <div class="roof"><span>TORRE DO PAULO</span></div>
 
@@ -330,6 +349,7 @@ th { color: var(--muted); font-weight: 400; font-size: .7rem; text-transform: up
     <div class="ground" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
     <div class="runners" id="runners" aria-hidden="true"></div>
   </div>
+  </details>
 
   <section class="card" id="waiting" aria-label="Esperando você">
     <h2>Esperando você <span class="chip warn" id="waitN">0</span></h2>
@@ -485,6 +505,7 @@ th { color: var(--muted); font-weight: 400; font-size: .7rem; text-transform: up
   }
   setInterval(function () {
     if (!built || document.hidden || busy >= 1) return;
+    if (!$("plantas").open) return;
     var all = Array.prototype.slice.call(document.querySelectorAll(".ws.done:not(.away)"));
     if (!all.length) return;
     rr = (rr + 1) % all.length;
@@ -855,7 +876,199 @@ th { color: var(--muted); font-weight: 400; font-size: .7rem; text-transform: up
     lockFloor(5, fech >= 1, fech, 1, "Pós-venda", "robô que lembra rodízio e alinhamento e pede indicação depois de cada venda.");
     lockFloor(6, fech >= 3, fech, 3, "Expansão", "novas frentes (agro, locadoras) e a hora de avaliar um plano maior do Claude.");
     renderWaiting();
+    updateIso();
   }
+
+  /* ---------- Torre isométrica (SVG) ---------- */
+  var NS = "http://www.w3.org/2000/svg", IS = 24, IH = 4.2, IW = 7, ID = 2, ICX = 215, ITOP = 668;
+  function ip(x, y, z) { return [ICX + (x - y) * 0.866 * IS, ITOP + (x + y) * 0.5 * IS - z * IS]; }
+  function sv(tag, attrs, parent) { var e = document.createElementNS(NS, tag); for (var k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; }
+  function ipoly(pts, fill, parent, extra) {
+    var a = { points: pts.map(function (q) { return q[0].toFixed(1) + "," + q[1].toFixed(1); }).join(" "), fill: fill };
+    if (extra) for (var k in extra) a[k] = extra[k];
+    return sv("polygon", a, parent);
+  }
+  function ibox(g, x, y, z, w, d, h, c) {
+    var l = ipoly([ip(x, y + d, z), ip(x + w, y + d, z), ip(x + w, y + d, z + h), ip(x, y + d, z + h)], c.left, g);
+    ipoly([ip(x + w, y, z), ip(x + w, y + d, z), ip(x + w, y + d, z + h), ip(x + w, y, z + h)], c.right, g);
+    ipoly([ip(x, y, z + h), ip(x + w, y, z + h), ip(x + w, y + d, z + h), ip(x, y + d, z + h)], c.top, g);
+    return l;
+  }
+  var C_WOOD = { top: "#c48f58", left: "#9c6230", right: "#85521f" }, C_DARK = { top: "#3b3f4a", left: "#2a2d36", right: "#202329" };
+  var LBL = "paint-order:stroke;stroke:#3a2410;stroke-width:3px";
+  var IFLOORS = [
+    { n: 1, nome: "Atendimento", cor: "#00b4d8", kind: "hall" },
+    { n: 2, nome: "Vendas", cor: "#ff5d8f", kind: "team", team: "esc" },
+    { n: 3, nome: "Wall Street", cor: "#f5b700", kind: "team", team: "mesa" },
+    { n: 4, nome: "Gerência", cor: "#a493e0", kind: "hq" },
+    { n: 5, nome: "Pós-venda", cor: "#00b4d8", kind: "lock", need: 1 },
+    { n: 6, nome: "Expansão", cor: "#ff7f3f", kind: "lock", need: 3 }
+  ];
+  function wallRect(plane, a0, a1, z0, z1, fill, parent, extra) {
+    var pts = plane === "x0" ? [ip(0, a0, z0), ip(0, a1, z0), ip(0, a1, z1), ip(0, a0, z1)] : [ip(a0, 0, z0), ip(a1, 0, z0), ip(a1, 0, z1), ip(a0, 0, z1)];
+    return ipoly(pts, fill, parent, extra);
+  }
+  function obj(parent, id, label, onclick) {
+    var g = sv("g", { class: "ob", tabindex: "0", role: "button", "aria-label": label, id: id }, parent);
+    g.addEventListener("click", onclick);
+    g.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onclick(); } });
+    return g;
+  }
+  function label(parent, x, y, txt, size) { var t = sv("text", { x: x, y: y, "text-anchor": "middle", "font-size": size || 9, "font-weight": 600, fill: "#fff", style: LBL }, parent); t.textContent = txt; return t; }
+  function viaDom(id) { return function () { var e = $(id); if (e) e.click(); }; }
+  function slotXY(i) { return [1.0 + 1.25 * i, 1.05]; }
+  function robotSprite(g, x, y, z, colorStyle) {
+    var bp = ip(x, y, z), b = sv("g", { transform: "translate(" + bp[0].toFixed(1) + "," + bp[1].toFixed(1) + ")" }, g);
+    sv("ellipse", { cx: 0, cy: 2, rx: 13, ry: 5, fill: "rgba(0,0,0,.25)" }, b);
+    sv("rect", { x: -11, y: -28, width: 22, height: 24, rx: 7, style: colorStyle }, b);
+    sv("rect", { x: -8, y: -24, width: 16, height: 10, rx: 3, fill: "#14181f" }, b);
+    sv("rect", { x: -5, y: -22, width: 3, height: 6, rx: 1.5, class: "eye", fill: "#6ef0b8" }, b);
+    sv("rect", { x: 2, y: -22, width: 3, height: 6, rx: 1.5, class: "eye", fill: "#6ef0b8" }, b);
+    sv("line", { x1: 0, y1: -28, x2: 0, y2: -33, stroke: "#d7dbe6", "stroke-width": 1.6 }, b);
+    sv("circle", { cx: 0, cy: -34, r: 2.6, style: colorStyle }, b);
+    return bp;
+  }
+  function indicator(g, bp) {
+    var ind = sv("g", { class: "ind", transform: "translate(" + (bp[0] + 14).toFixed(1) + "," + (bp[1] - 38).toFixed(1) + ")" }, g);
+    sv("circle", { r: 7, fill: "#6b7080" }, ind); sv("text", { "text-anchor": "middle", y: 3.5, "font-size": 10, "font-weight": 700, fill: "#fff" }, ind);
+    return ind;
+  }
+  function drawFloorIso(svg, cfg, f) {
+    var z0 = f * IH, g = sv("g", { id: "isofl" + cfg.n }, svg), lock = cfg.kind === "lock";
+    ipoly([ip(0, ID, z0), ip(IW, ID, z0), ip(IW, ID, z0 - 0.35), ip(0, ID, z0 - 0.35)], lock ? "#4a4f5e" : "#a9aec0", g);
+    ipoly([ip(IW, 0, z0), ip(IW, ID, z0), ip(IW, ID, z0 - 0.35), ip(IW, 0, z0 - 0.35)], lock ? "#3d4150" : "#8a8fa5", g);
+    ipoly([ip(0, 0, z0), ip(IW, 0, z0), ip(IW, ID, z0), ip(0, ID, z0)], lock ? "#2a2f3f" : "#d9a46c", g, lock ? { stroke: "#ffd166", "stroke-dasharray": "4 3", "stroke-width": 1 } : null);
+    if (!lock) for (var i = 1; i < 7; i++) sv("line", { x1: ip(i, 0, z0)[0], y1: ip(i, 0, z0)[1], x2: ip(i, ID, z0)[0], y2: ip(i, ID, z0)[1], stroke: "rgba(120,70,20,.22)", "stroke-width": 1 }, g);
+    if (lock) {
+      [[0, 0], [IW, 0], [IW, ID], [0, ID]].forEach(function (c) { var a = ip(c[0], c[1], z0), b = ip(c[0], c[1], z0 + IH); sv("line", { x1: a[0], y1: a[1], x2: b[0], y2: b[1], stroke: "#ffd166", "stroke-width": 1.5, "stroke-dasharray": "5 3", opacity: .8 }, g); });
+      ipoly([ip(0, 0, z0 + IH), ip(IW, 0, z0 + IH), ip(IW, ID, z0 + IH), ip(0, ID, z0 + IH)], "none", g, { stroke: "#ffd166", "stroke-dasharray": "5 3", "stroke-width": 1.2, opacity: .8 });
+      var c = ip(IW / 2, ID / 2, z0 + 1.6);
+      sv("text", { x: c[0], y: c[1] - 4, "text-anchor": "middle", "font-size": 12, "font-weight": 700, fill: "#ffd166", id: "lockT" + cfg.n }, g);
+      sv("text", { x: c[0], y: c[1] + 11, "text-anchor": "middle", "font-size": 9, fill: "#cfd3dc", id: "lockS" + cfg.n }, g);
+      return;
+    }
+    wallRect("x0", 0, ID, z0, z0 + IH, "#2f8f87", g); wallRect("y0", 0, IW, z0, z0 + IH, "#267a73", g);
+    if (cfg.kind !== "hq") [0.5, 2.3, 4.1, 5.9].forEach(function (a) { wallRect("y0", a, a + 1.1, z0 + 2.2, z0 + 3.7, "#0e1830", g); });
+    if (cfg.kind === "team") {
+      var list = cfg.team === "mesa" ? BOTS : ESC;
+      list.forEach(function (b, i) {
+        var xy = slotXY(i), x = xy[0], y = xy[1], rg = sv("g", { class: "rb", tabindex: "0", role: "button", "data-k": b.k, "data-team": cfg.team, "aria-label": b.nome }, g);
+        var bp = robotSprite(rg, x, y - 0.15, z0 + 0.55, "fill:var(--r-" + b.k + ")");
+        ibox(rg, x - 0.55, y, z0, 1.1, 0.7, 0.62, C_WOOD);
+        var m = ibox(rg, x - 0.3, y + 0.12, z0 + 0.62, 0.6, 0.08, 0.5, { top: "#222", left: "#13202a", right: "#0c1319" }); m.setAttribute("class", "mon");
+        var lp = ip(x, y + 0.7, z0); label(rg, lp[0], lp[1] + (i % 2 ? 22 : 11), b.nome, 8.5);
+        indicator(rg, bp);
+        var go = function () { openBot(b, cfg.team); };
+        rg.addEventListener("click", go); rg.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(); } });
+      });
+    }
+    if (cfg.kind === "hall") {
+      var mb = obj(g, "iso-caixa", "Caixa de entrada de posts", viaDom("o-caixa"));
+      ibox(mb, 1.0, 1.0, z0, 0.12, 0.12, 0.9, { top: "#5a3a22", left: "#5a3a22", right: "#4a2f1b" });
+      ibox(mb, 0.7, 0.85, z0 + 0.9, 0.8, 0.45, 0.5, { top: "#ff6b6b", left: "#e63946", right: "#c92d3a" });
+      var mp = ip(1.0, 1.6, z0); label(mb, mp[0], mp[1] + 11, "Posts");
+      var kb = obj(g, "iso-clientes", "Quadro de clientes", viaDom("o-clientes"));
+      wallRect("y0", 2.6, 4.8, z0 + 1.5, z0 + 3.5, "#ffffff", kb, { stroke: "#c9ced6", "stroke-width": 1.5 });
+      [[2.75, "#ffd166"], [3.45, "#9be7ff"], [4.15, "#8cdf6a"]].forEach(function (c) { wallRect("y0", c[0], c[0] + 0.55, z0 + 1.7, z0 + 3.2, c[1], kb); });
+      var kp = ip(3.7, 0.2, z0 + 1.5); label(kb, kp[0], kp[1] + 12, "Clientes");
+      ibox(g, 5.0, 1.0, z0, 1.5, 0.7, 0.8, C_DARK);
+      var rp = ip(5.7, 1.8, z0); label(g, rp[0], rp[1] + 10, "recepção", 8);
+    }
+    if (cfg.kind === "hq") {
+      var tv = obj(g, "iso-tv", "TV de cotações", viaDom("o-tv"));
+      wallRect("y0", 2.7, 5.2, z0 + 1.6, z0 + 3.5, "#10162a", tv, { stroke: "#333a52", "stroke-width": 1.5 });
+      [[2.95, 0.9], [3.45, 1.5], [3.95, 1.1], [4.45, 1.7]].forEach(function (c, i) { wallRect("y0", c[0], c[0] + 0.28, z0 + 1.8, z0 + 1.8 + c[1] * 0.8, i % 2 ? "#ff7a7a" : "#6ef0b8", tv); });
+      var qd = obj(g, "iso-quadro", "Quadro com a ficha de decisão", viaDom("o-quadro"));
+      wallRect("y0", 0.3, 2.4, z0 + 1.6, z0 + 3.4, "#ffffff", qd, { stroke: "#c9ced6", "stroke-width": 1.5 });
+      [0.35, 0.8, 1.25].forEach(function (d) { wallRect("y0", 0.55, 2.0, z0 + 1.6 + d, z0 + 1.6 + d + 0.07, "#1f5fd1", qd); });
+      var mu = obj(g, "iso-mural", "Mural de tarefas", viaDom("o-mural"));
+      wallRect("x0", 0.2, 1.7, z0 + 1.7, z0 + 3.3, "#c8955c", mu, { stroke: "#8a5a2b", "stroke-width": 1.5 });
+      [["#ffe066", 0.3, 2.5], ["#ffadad", 0.9, 2.2], ["#9be7ff", 0.4, 1.9]].forEach(function (c) { wallRect("x0", c[1], c[1] + 0.45, z0 + c[2], z0 + c[2] + 0.45, c[0], mu); });
+      var cab = obj(g, "iso-carteira", "Arquivo: sua carteira", viaDom("o-carteira"));
+      ibox(cab, 0.4, 0.9, z0, 0.8, 0.7, 1.5, { top: "#8a95a3", left: "#6c7a89", right: "#586574" });
+      [0.35, 0.8, 1.2].forEach(function (h) { ibox(cab, 0.42, 0.9, z0 + h - 0.12, 0.8, 0.72, 0.1, { top: "#c9d1da", left: "#c9d1da", right: "#c9d1da" }); });
+      var cp2 = ip(0.8, 1.7, z0); label(cab, cp2[0], cp2[1] + 11, "Carteira");
+      var sh = obj(g, "iso-biblioteca", "Biblioteca: o que os robôs aprenderam", viaDom("o-biblioteca"));
+      ibox(sh, 5.8, 0.3, z0, 0.9, 0.55, 2.2, { top: "#8a5a2b", left: "#6e4520", right: "#58361a" });
+      var bk = ["#e63946", "#ffd166", "#4cc9f0"];
+      [0.4, 0.95, 1.5].forEach(function (h, i) { ibox(sh, 5.85, 0.3, z0 + h, 0.8, 0.56, 0.38, { top: bk[i], left: bk[i], right: bk[i] }); });
+      var sp = ip(6.25, 0.9, z0); label(sh, sp[0], sp[1] + 10, "Biblioteca");
+      var bg = obj(g, "iso-chefe", "Gerente: relatórios importantes", openBoss);
+      var bpos = robotSprite(bg, 3.6, 0.85, z0 + 0.55, "fill:#ffffff");
+      ibox(bg, 2.9, 1.0, z0, 1.4, 0.8, 0.62, C_DARK); ibox(bg, 3.25, 1.1, z0 + 0.62, 0.7, 0.08, 0.5, { top: "#222", left: "#13202a", right: "#0c1319" });
+      var bl = ip(3.6, 1.8, z0); label(bg, bl[0], bl[1] + 10, "Gerente");
+      indicator(bg, bpos).setAttribute("id", "iso-bossind");
+    }
+    ipoly([ip(0, ID, z0), ip(IW, ID, z0), ip(IW, ID, z0 + IH), ip(0, ID, z0 + IH)], "rgba(150,210,255,.10)", g, { stroke: "rgba(255,255,255,.35)", "stroke-width": 1, "pointer-events": "none" });
+    ipoly([ip(IW, 0, z0), ip(IW, ID, z0), ip(IW, ID, z0 + IH), ip(IW, 0, z0 + IH)], "rgba(150,210,255,.07)", g, { stroke: "rgba(255,255,255,.3)", "stroke-width": 1, "pointer-events": "none" });
+  }
+  function buildIso() {
+    var host = $("iso"); if (!host) return; host.textContent = "";
+    var svg = sv("svg", { viewBox: "36 20 338 790", class: "iso", role: "group", "aria-label": "Torre do Paulo" }, host);
+    [[30, 40], [90, 18], [160, 52], [250, 22], [330, 60], [350, 14], [60, 90], [300, 100]].forEach(function (st) { sv("circle", { cx: st[0], cy: st[1], r: 1.2, fill: "#fff", opacity: .7 }, svg); });
+    ipoly([ip(-3, -3, 0), ip(IW + 3, -3, 0), ip(IW + 3, ID + 3, 0), ip(-3, ID + 3, 0)], "#1c3a2c", svg);
+    ipoly([ip(-3, ID + 1, 0), ip(IW + 3, ID + 1, 0), ip(IW + 3, ID + 3, 0), ip(-3, ID + 3, 0)], "#2b2f3a", svg);
+    [[-2.2, 0.4], [-2.4, 3.2], [IW + 1.8, 0.2], [IW + 2.2, 3.4], [IW + 1.5, -2]].forEach(function (t) { var q = ip(t[0], t[1], 0); sv("rect", { x: q[0] - 2, y: q[1] - 8, width: 4, height: 8, fill: "#5a3a22" }, svg); sv("circle", { cx: q[0], cy: q[1] - 14, r: 9, fill: "#2e9e4f" }, svg); });
+    IFLOORS.forEach(function (cfg, f) { drawFloorIso(svg, cfg, f); });
+    IFLOORS.forEach(function (cfg, f) {
+      var q = ip(0, ID, f * IH + IH * 0.55), x = Math.max(40, q[0] - 134), y = q[1] - 12;
+      var pg = sv("g", { class: "pill", tabindex: "0", role: "button", "aria-label": "Andar " + cfg.n + ": " + cfg.nome }, svg);
+      sv("rect", { x: x, y: y, width: 126, height: 24, rx: 12, fill: "rgba(14,18,40,.88)", stroke: "rgba(255,255,255,.18)" }, pg);
+      sv("rect", { x: x + 4, y: y + 4, width: 16, height: 16, rx: 5, fill: cfg.cor }, pg);
+      sv("text", { x: x + 12, y: y + 16, "text-anchor": "middle", "font-size": 10, "font-weight": 700, fill: "#10162a" }, pg).textContent = cfg.n;
+      sv("text", { x: x + 25, y: y + 16, "font-size": 10.5, "font-weight": 600, fill: "#fff" }, pg).textContent = cfg.nome;
+      sv("text", { x: x + 90, y: y + 16, "font-size": 9, fill: "#aab", id: "pillc" + cfg.n }, pg);
+      sv("circle", { cx: x + 119, cy: y + 3, r: 6, fill: "#d93a3a", id: "pills" + cfg.n, display: "none" }, pg);
+      sv("circle", { cx: x + 106, cy: y + 3, r: 6, fill: "#d98a00", id: "pillw" + cfg.n, display: "none" }, pg);
+      sv("text", { x: x + 119, y: y + 6.3, "text-anchor": "middle", "font-size": 8, "font-weight": 700, fill: "#fff", id: "pillst" + cfg.n }, pg);
+      sv("text", { x: x + 106, y: y + 6.3, "text-anchor": "middle", "font-size": 8, "font-weight": 700, fill: "#fff", id: "pillwt" + cfg.n }, pg);
+      var go = function () { openFloor(cfg); };
+      pg.addEventListener("click", go); pg.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(); } });
+    });
+    updateIso();
+  }
+  function openFloor(cfg) {
+    openSheet("Andar " + cfg.n + " · " + cfg.nome, cfg.kind === "lock" ? "andar em obras" : "toque para abrir cada item", "--r-" + (cfg.team === "mesa" ? "caixa" : "vendedor"), null, function (body) {
+      if (cfg.kind === "lock") { var fech = (prospects || []).filter(function (p) { return p.status === "fechou"; }).length; body.append(el("p", "say", fech >= cfg.need ? "Andar liberado! Diga ao gerente: contrata o robô do andar " + cfg.n + "." : "Abre com " + cfg.need + " cliente(s) fechado(s). Fechados até agora: " + fech + ".")); return; }
+      var items = [];
+      if (cfg.kind === "team") (cfg.team === "mesa" ? BOTS : ESC).forEach(function (b) { items.push([b.nome, dataOf(cfg.team, b.k).status || "aguardando", function () { openBot(b, cfg.team); }]); });
+      if (cfg.kind === "hq") [["Gerente", "relatórios importantes", openBoss], ["TV de cotações", "preços lidos", viaDom("o-tv")], ["Quadro", "ficha de decisão", viaDom("o-quadro")], ["Mural", "suas tarefas", viaDom("o-mural")], ["Prancheta", "histórico", viaDom("o-historico")], ["Arquivo", "sua carteira", viaDom("o-carteira")], ["Biblioteca", "o que aprenderam", viaDom("o-biblioteca")]].forEach(function (i) { items.push(i); });
+      if (cfg.kind === "hall") [["Caixa de entrada", "mandar foto ou ideia de post", viaDom("o-caixa")], ["Clientes", "lista do dia e quadro", viaDom("o-clientes")]].forEach(function (i) { items.push(i); });
+      items.forEach(function (it) { var r = el("div", "waitcard"); r.append(el("b", null, it[0]), el("p", null, it[1])); var b = el("button", "mini", "Abrir"); b.type = "button"; b.addEventListener("click", function () { $("sheet").hidden = true; it[2](); }); r.append(b); body.append(r); });
+    });
+  }
+  function updateIso() {
+    if (!$("iso")) return;
+    document.querySelectorAll("#iso .rb").forEach(function (g) {
+      var k = g.getAttribute("data-k"), team = g.getAttribute("data-team"), x = dataOf(team, k), n = nivelOk(x.nivel);
+      var wait = isImp(team, k) && !seen(team + "/" + k + ":" + (x.texto || ""));
+      var st = isStuck(x) ? "stuck" : wait ? "wait" : n === "work" ? "work" : "rest";
+      g.setAttribute("data-st", st);
+      var ind = g.querySelector(".ind"), c = ind.querySelector("circle"), t = ind.querySelector("text");
+      c.setAttribute("fill", { stuck: "#d93a3a", wait: "#d98a00", work: "#1e9e57", rest: "#6b7080" }[st]);
+      t.textContent = { stuck: "×", wait: "!", work: "•", rest: "z" }[st];
+    });
+    var tot = { mesa: BOTS, esc: ESC };
+    IFLOORS.forEach(function (cfg) {
+      var cnt = $("pillc" + cfg.n), s = $("pills" + cfg.n), w = $("pillw" + cfg.n); if (!cnt) return;
+      s.setAttribute("display", "none"); w.setAttribute("display", "none"); $("pillst" + cfg.n).textContent = ""; $("pillwt" + cfg.n).textContent = "";
+      if (cfg.kind === "team") {
+        var st = floorStats(cfg.team, tot[cfg.team]); cnt.textContent = st.w + "/" + tot[cfg.team].length;
+        if (st.s) { s.setAttribute("display", ""); $("pillst" + cfg.n).textContent = st.s; }
+        if (st.wait) { w.setAttribute("display", ""); $("pillwt" + cfg.n).textContent = st.wait; }
+      } else if (cfg.kind === "hq") {
+        var aw = (audit && audit.ok === false && !seen("audit:" + audit.atualizado_em)) ? 1 : 0; cnt.textContent = "1/1";
+        if (aw) { s.setAttribute("display", ""); $("pillst" + cfg.n).textContent = 1; }
+      } else if (cfg.kind === "hall") { cnt.textContent = (pedidos || []).filter(function (p) { return p.status !== "pronto"; }).length ? "posts" : "livre"; }
+      else {
+        var fech = (prospects || []).filter(function (p) { return p.status === "fechou"; }).length, open = fech >= cfg.need;
+        cnt.textContent = open ? "aberto" : fech + "/" + cfg.need;
+        var T = $("lockT" + cfg.n), S2 = $("lockS" + cfg.n);
+        if (T) { T.textContent = open ? "LIBERADO" : "EM OBRAS"; S2.textContent = open ? "diga: contrata o robô" : "abre com " + cfg.need + " cliente(s) fechado(s)"; }
+      }
+    });
+  }
+
 
   /* ---------- Relógio ---------- */
   function clock() {
@@ -868,6 +1081,7 @@ th { color: var(--muted); font-weight: 400; font-size: .7rem; text-transform: up
 
   /* ---------- Dados ao vivo ---------- */
   renderOffice();
+  buildIso();
   (async function () {
     var timer = setTimeout(function () { $("when").textContent = "Escritório sem conexão agora. Recarregue a página."; }, 10000);
     var db = await claude.use("db");
