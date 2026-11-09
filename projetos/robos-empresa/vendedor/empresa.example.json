@@ -1,0 +1,25 @@
+{
+  "_aviso": "FICHA DE EXEMPLO. Paulo preenche com os dados reais da empresa. Tudo que estiver aqui o robô pode falar; o que NÃO estiver, ele não inventa e passa para uma pessoa.",
+  "nome": "[Nome da empresa]",
+  "o_que_vende": "Pneus novos e recapados para carro, caminhonete e caminhão; alinhamento e balanceamento. (EXEMPLO)",
+  "endereco": "[Rua, número, bairro] — Cuiabá/MT",
+  "horario": "Seg a sex 7h30–18h; sáb 7h30–12h",
+  "entrega": "Entrega em Cuiabá e Várzea Grande; frete a combinar. (EXEMPLO)",
+  "pagamento": "Pix, cartão em até [X]x, boleto para empresa com cadastro aprovado. (EXEMPLO)",
+  "vendedores_humanos": "[Nome] — WhatsApp [número]",
+  "produtos": [
+    {"item": "Pneu 175/70 R13 (EXEMPLO)", "preco": "R$ 289,00", "obs": "à vista no Pix"},
+    {"item": "Pneu 295/80 R22.5 liso (EXEMPLO)", "preco": "R$ 2.150,00", "obs": "caminhão"},
+    {"item": "Recapagem 295/80 R22.5 (EXEMPLO)", "preco": "R$ 690,00", "obs": "carcaça avaliada na loja"},
+    {"item": "Alinhamento + balanceamento carro (EXEMPLO)", "preco": "R$ 120,00", "obs": ""}
+  ],
+  "perguntas_frequentes": [
+    {"p": "Tem garantia?", "r": "Sim, garantia de fábrica para pneu novo e garantia da recapadora para recapagem. (EXEMPLO)"},
+    {"p": "Precisa agendar alinhamento?", "r": "Não precisa, mas agendando você não espera. (EXEMPLO)"}
+  ],
+  "promocao_atual": "",
+  "regras_extras": [
+    "Nunca dar desconto além do preço da ficha. Pedido de desconto vai para o vendedor humano.",
+    "Frota (3 ou mais caminhões) vai direto para o vendedor humano com o resumo do pedido."
+  ]
+}

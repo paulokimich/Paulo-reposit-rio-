@@ -41,5 +41,44 @@
       "pago": "pago",
       "documento": "documento"
     }
+  },
+  "contabil": {
+    "arquivo_extrato": "dados/exemplo_extrato.csv",
+    "arquivo_contas_pagar": "dados/exemplo_contas_pagar.json",
+    "regras": {
+      "Vendas": [
+        "PIX RECEBIDO",
+        "TED RECEBIDA",
+        "DEPOSITO VENDAS",
+        "MAQUININHA"
+      ],
+      "Compra de mercadoria": [
+        "FORNECEDOR"
+      ],
+      "Folha de pagamento": [
+        "FOLHA",
+        "SALARIO"
+      ],
+      "Impostos": [
+        "DAS",
+        "SIMPLES",
+        "DARF"
+      ],
+      "Energia e água": [
+        "ENERGISA",
+        "AGUA",
+        "SANEAMENTO"
+      ],
+      "Combustível": [
+        "POSTO",
+        "COMBUSTIVEL"
+      ],
+      "Tarifas bancárias": [
+        "TARIFA"
+      ],
+      "Aluguel": [
+        "ALUGUEL"
+      ]
+    }
   }
 }

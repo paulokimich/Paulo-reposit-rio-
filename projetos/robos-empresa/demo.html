@@ -58,6 +58,11 @@ table{border-collapse:collapse;width:100%;font-size:.9rem}
 td,th{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line)}
 th{font-size:.75rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em}
 .tw{overflow-x:auto}
+.chat{gap:8px}
+.chat .me,.chat .bot{max-width:85%;padding:9px 12px;border-radius:12px;font-size:.92rem}
+.chat .me{justify-self:end;background:var(--bubble);color:var(--bubble-fg);border-bottom-right-radius:3px}
+.chat .bot{justify-self:start;background:var(--bg);border:1px solid var(--line);border-bottom-left-radius:3px}
+.chat .note{justify-self:center;font-size:.78rem;font-weight:600;color:var(--warn);background:var(--warn-soft);padding:3px 10px;border-radius:99px}
 pre.resumo{margin:0;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:12px;white-space:pre-wrap;font-size:.88rem;font-family:ui-monospace,Menlo,monospace}
 </style>
 
@@ -65,6 +70,7 @@ pre.resumo{margin:0;background:var(--bg);border:1px solid var(--line);border-rad
   <header>
     <span class="eyebrow">Empresa do sogro · fase 1</span>
     <h1>Como os robôs trabalham</h1>
+    <p><b>A equipe:</b> Cobrança · Gerente · Contábil · Vendedor do WhatsApp. Próximo da fila: Pós-venda.</p>
     <p class="muted">Esta é uma demonstração com <b>8 clientes inventados</b>. Quando ligarmos na Moveri (ou na planilha do sistema), aparecem os clientes de verdade. <span class="tag">Dados de exemplo</span></p>
   </header>
 
@@ -87,6 +93,57 @@ pre.resumo{margin:0;background:var(--bg);border:1px solid var(--line);border-rad
   <section>
     <h2>Robô Gerente: o resumo que o dono recebe</h2>
     <div class="card"><pre class="resumo" id="resumo"></pre></div>
+  </section>
+
+  <section>
+    <h2>Robô Contábil: fechamento do mês</h2>
+    <p class="muted">Lê o extrato do banco, separa cada lançamento por categoria, mostra o resultado do mês, as contas a pagar da semana e o que falta para o contador. O que ele não reconhece, ele pergunta.</p>
+    <div class="stats">
+      <div class="stat"><b>R$ 21.170,00</b><span>entradas em novembro</span></div>
+      <div class="stat"><b>R$ 22.519,90</b><span>saídas em novembro</span></div>
+      <div class="stat"><b style="color:var(--bad)">−R$ 1.349,90</b><span>resultado do caixa</span></div>
+      <div class="stat"><b>1</b><span>lançamento para classificar</span></div>
+    </div>
+    <div class="card tw">
+      <table>
+        <thead><tr><th>Categoria</th><th style="text-align:right">Valor</th></tr></thead>
+        <tbody>
+          <tr><td>Vendas</td><td style="text-align:right">R$ 21.170,00</td></tr>
+          <tr><td>Folha de pagamento</td><td style="text-align:right">−R$ 9.800,00</td></tr>
+          <tr><td>Compra de mercadoria</td><td style="text-align:right">−R$ 8.200,00</td></tr>
+          <tr><td>Impostos (DAS)</td><td style="text-align:right">−R$ 2.340,00</td></tr>
+          <tr><td>Energia</td><td style="text-align:right">−R$ 1.150,00</td></tr>
+          <tr><td>Combustível</td><td style="text-align:right">−R$ 640,00</td></tr>
+          <tr><td>Tarifas bancárias</td><td style="text-align:right">−R$ 89,90</td></tr>
+          <tr><td><b>A classificar:</b> PIX ENVIADO JOSE ALGUEM</td><td style="text-align:right">−R$ 300,00</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card">
+      <h3>Contas a pagar até 16/11</h3>
+      <div class="item"><div class="row"><span class="who">Internet e telefone <span class="pill p-atraso">Atrasada</span></span><span class="val">R$ 260,00</span></div><span class="muted">venceu 07/11</span></div>
+      <div class="item"><div class="row"><span class="who">Aluguel do galpão</span><span class="val">R$ 4.500,00</span></div><span class="muted">vence 10/11</span></div>
+      <div class="item"><div class="row"><span class="who">Fornecedor de pneus (boleto 2/3)</span><span class="val">R$ 8.200,00</span></div><span class="muted">vence 13/11</span></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Robô Vendedor do WhatsApp</h2>
+    <p class="muted">Conversa de exemplo de como ele atende. Ele só fala preço que está na ficha da empresa e passa para um vendedor de verdade quando o cliente pede desconto, é frota ou quer fechar.</p>
+    <div class="card chat">
+      <div class="me">Bom dia, quanto tá o pneu do strada?</div>
+      <div class="bot">Bom dia! 😊 Pra te passar certinho: qual o ano da Strada? Ou me diz a medida que está na lateral do pneu (tipo 175/70 R13).</div>
+      <div class="me">175/70 R13 mesmo, 2015</div>
+      <div class="bot">Temos sim! O 175/70 R13 sai por R$ 289,00 cada, à vista no Pix. Vai querer quantos? Retira aqui ou prefere entrega?</div>
+      <div class="me">4, entrega no CPA. Faz 1000 os 4?</div>
+      <div class="bot">Os 4 ficam R$ 1.156,00. Desconto quem libera é o vendedor, já passei seu pedido pra ele: 4x 175/70 R13, entrega no CPA. Ele te responde aqui em instantes.</div>
+      <div class="note">Passou para o vendedor humano, com o resumo do pedido.</div>
+    </div>
+    <div class="card">
+      <h3>Duas versões</h3>
+      <div class="item"><div class="row"><span class="who">Grátis, liga hoje</span><span class="pill p-lembrete">Pronto</span></div><span class="muted">Saudação automática, mensagem fora do horário e 8 respostas rápidas (/pix, /endereco, /frota…) no app WhatsApp Business. Não é IA, mas já responde o repetido.</span></div>
+      <div class="item"><div class="row"><span class="who">Com IA, atende 24h</span><span class="pill p-hoje">Cérebro pronto</span></div><span class="muted">Conversa como na tela acima. Precisa da ficha real da empresa, conta Meta Business e servidor (≈ R$ 200–450/mês).</span></div>
+    </div>
   </section>
 
   <section>

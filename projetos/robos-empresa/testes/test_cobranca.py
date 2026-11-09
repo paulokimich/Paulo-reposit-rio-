@@ -50,5 +50,33 @@ class TestPlanilha(unittest.TestCase):
         self.assertTrue(c[2]["pago"])
 
 
+class TestContabil(unittest.TestCase):
+    def test_fechamento(self):
+        from contabil import contas_da_semana, fechamento, ler_extrato
+        from moveri import PASTA
+        cfg = carregar_config()["contabil"]
+        f = fechamento(ler_extrato(PASTA / cfg["arquivo_extrato"]), "2026-11", cfg["regras"])
+        self.assertAlmostEqual(f["entradas"], 21170.0)
+        self.assertAlmostEqual(f["resultado"], -1349.9)
+        self.assertEqual([p["descricao"] for p in f["pendentes"]], ["PIX ENVIADO JOSE ALGUEM"])
+        import json
+        pagar = json.loads((PASTA / cfg["arquivo_contas_pagar"]).read_text(encoding="utf-8"))
+        self.assertEqual(len(contas_da_semana(pagar, date(2026, 11, 9))), 3)
+
+
+class TestVendedor(unittest.TestCase):
+    def test_sistema_e_sinal(self):
+        sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "vendedor"))
+        from vendedor import SINAL_HUMANO, carregar_ficha, montar_sistema, separar_resposta
+        ficha = carregar_ficha()
+        s = montar_sistema(ficha)
+        self.assertIn("295/80 R22.5", s)
+        self.assertNotIn("_aviso", s)
+        self.assertEqual(s, montar_sistema(ficha))  # estável para o cache
+        texto, humano = separar_resposta("Um vendedor já continua.\n" + SINAL_HUMANO)
+        self.assertTrue(humano)
+        self.assertNotIn(SINAL_HUMANO, texto)
+
+
 if __name__ == "__main__":
     unittest.main()

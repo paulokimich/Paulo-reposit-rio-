@@ -1,0 +1,6 @@
+[
+  {"descricao": "Aluguel do galpão", "valor": 4500.0, "vencimento": "2026-11-10", "pago": false},
+  {"descricao": "Fornecedor de pneus (boleto 2/3)", "valor": 8200.0, "vencimento": "2026-11-13", "pago": false},
+  {"descricao": "Internet e telefone", "valor": 260.0, "vencimento": "2026-11-07", "pago": false},
+  {"descricao": "Contador (honorários)", "valor": 900.0, "vencimento": "2026-11-20", "pago": false}
+]

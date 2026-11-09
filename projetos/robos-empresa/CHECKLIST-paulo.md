@@ -23,6 +23,16 @@ Prazo para trazer: **terça, 10/11, até o meio-dia.**
 - [ ] **Quem vai clicar e enviar** as mensagens de cobrança nas primeiras semanas (nome e WhatsApp da empresa usado).
 - [ ] **Régua de cobrança** que o seu sogro aceita (padrão proposto: lembrete 3 dias antes, no dia, 1 e 7 dias depois; com 15+ dias uma pessoa liga).
 
+## Robô Contábil
+
+- [ ] **Extrato do banco do mês** exportado do internet banking (CSV ou Excel). Se tiver mais de um banco, um de cada.
+- [ ] **Contas a pagar** do mês (planilha ou lista: o quê, valor, vencimento).
+
+## Robô Vendedor do WhatsApp
+
+- [ ] **Hoje, grátis:** colar as mensagens de `vendedor/whatsapp-business-hoje.md` no WhatsApp Business da empresa (30 min).
+- [ ] **Ficha da empresa** preenchida (o modelo é `vendedor/empresa.example.json`): o que vende, os 20 produtos mais vendidos com preço, endereço, horário, entrega, pagamento, quem é o vendedor humano. Pode mandar em texto ou foto da tabela que eu monto.
+
 ## Depois (resumo financeiro completo)
 
 - [ ] A API mostra **caixa do dia, contas a pagar e vendas**?
