@@ -80,5 +80,17 @@
         "ALUGUEL"
       ]
     }
+  },
+  "whatsapp": {
+    "ativo": false,
+    "_ativo": "false = modo teste (só mostra o que mandaria). true = envia de verdade.",
+    "phone_number_id": "PENDENTE",
+    "versao_api": "v23.0",
+    "idioma": "pt_BR",
+    "horario": [
+      8,
+      18
+    ],
+    "limite_dia": 50
   }
 }

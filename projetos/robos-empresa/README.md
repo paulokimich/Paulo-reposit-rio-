@@ -6,7 +6,7 @@ Ajuda familiar, sem cobrança. Objetivo: cobrar melhor, organizar o financeiro e
 
 | Robô | Fase | Situação |
 |---|---|---|
-| Cobrança | 1 | **Pronto com dados de exemplo.** Falta ligar na API da Moveri |
+| Avisos de Vencimento (envio automático) | 1 | **Pronto com dados de exemplo, em modo teste.** Falta: dados reais + WhatsApp oficial (ver MODELOS-WHATSAPP.md) |
 | Gerente / Resumo financeiro | 1 | **Pronto (só contas a receber).** Cresce quando a API mostrar caixa e contas a pagar |
 | Contábil (fechamento do mês, contas a pagar, pacote do contador) | 1 | **Pronto com extrato de exemplo.** Falta o extrato real do banco (CSV) |
 | Pós-venda (lembrete de troca/recapagem) | 1 | A fazer, depende da API (histórico de vendas) |

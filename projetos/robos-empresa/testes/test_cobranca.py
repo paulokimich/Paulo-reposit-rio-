@@ -40,6 +40,57 @@ class TestCobranca(unittest.TestCase):
         self.assertEqual(r["vence_7d"], 450 + 5400)
 
 
+class TestEnvioAutomatico(unittest.TestCase):
+    def setUp(self):
+        from moveri import PASTA
+        self.reg = PASTA / "saida" / "enviados.json"
+        self.backup = self.reg.read_text() if self.reg.exists() else None
+        if self.reg.exists():
+            self.reg.unlink()
+        self.cfg = carregar_config()
+        self.r = lista_do_dia(contas_a_receber(self.cfg), date(2026, 11, 9), self.cfg)
+
+    def tearDown(self):
+        if self.reg.exists():
+            self.reg.unlink()
+        if self.backup is not None:
+            self.reg.write_text(self.backup)
+
+    def test_envia_uma_vez_e_respeita_horario(self):
+        from datetime import datetime
+        from cobranca import disparar
+        from whatsapp import CUIABA
+        cfg = {**self.cfg, "whatsapp": {**self.cfg["whatsapp"], "ativo": True, "phone_number_id": "123"}}
+        chamadas = []
+        fake = lambda tel, modelo, params, c: chamadas.append((tel, modelo, params)) or {"ok": True, "id": "x"}
+        seg_9h = datetime(2026, 11, 9, 9, 0, tzinfo=CUIABA)
+        log = disparar(self.r, cfg, seg_9h, fake)
+        self.assertEqual([l["status"] for l in log], ["ENVIADO"] * 4)
+        self.assertEqual(chamadas[0][1], "aviso_vencimento")
+        self.assertEqual(len(chamadas[0][2]), 5)
+        log2 = disparar(self.r, cfg, seg_9h, fake)  # rodou de novo: não repete
+        self.assertTrue(all(l["status"] == "já enviado antes" for l in log2))
+        self.assertEqual(len(chamadas), 4)
+        self.reg.unlink()
+        noite = datetime(2026, 11, 9, 20, 0, tzinfo=CUIABA)
+        self.assertTrue(all("fora do horário" in l["status"] for l in disparar(self.r, cfg, noite, fake)))
+
+    def test_modo_teste_nao_envia(self):
+        from datetime import datetime
+        from cobranca import disparar
+        from whatsapp import CUIABA
+        log = disparar(self.r, self.cfg, datetime(2026, 11, 9, 9, 0, tzinfo=CUIABA),
+                       lambda *a: self.fail("não deveria enviar"))
+        self.assertTrue(all(l["status"] == "TESTE: enviaria agora" for l in log))
+
+    def test_tom_gentil(self):
+        from cobranca import MODELOS
+        for _, texto in MODELOS.values():
+            self.assertIn("desconsider", texto)
+            for palavra in ("protesto", "SPC", "Serasa", "cobrança", "débito", "dívida"):
+                self.assertNotIn(palavra, texto)
+
+
 class TestPlanilha(unittest.TestCase):
     def test_csv_brasileiro(self):
         cfg = {"fonte": "planilha", "arquivo_planilha": "dados/exemplo_planilha.csv"}

@@ -70,7 +70,7 @@ pre.resumo{margin:0;background:var(--bg);border:1px solid var(--line);border-rad
   <header>
     <span class="eyebrow">Empresa do sogro · fase 1</span>
     <h1>Como os robôs trabalham</h1>
-    <p><b>A equipe:</b> Cobrança · Gerente · Contábil · Vendedor do WhatsApp. Próximo da fila: Pós-venda.</p>
+    <p><b>A equipe:</b> Avisos de Vencimento · Gerente · Contábil · Vendedor do WhatsApp. Próximo da fila: Pós-venda.</p>
     <p class="muted">Esta é uma demonstração com <b>8 clientes inventados</b>. Quando ligarmos na Moveri (ou na planilha do sistema), aparecem os clientes de verdade. <span class="tag">Dados de exemplo</span></p>
   </header>
 
@@ -81,8 +81,8 @@ pre.resumo{margin:0;background:var(--bg);border:1px solid var(--line);border-rad
   </section>
 
   <section>
-    <h2>Robô de Cobrança</h2>
-    <p class="muted">Ele monta a lista e escreve a mensagem. Uma pessoa da empresa abre o WhatsApp, confere e envia. Nada sai sozinho nas primeiras semanas.</p>
+    <h2>Robô de Avisos de Vencimento</h2>
+    <p class="muted">Toda manhã, a partir das 8h, ele <b>manda sozinho</b> pelo WhatsApp oficial um aviso gentil para cada cliente: 3 dias antes, no dia e, se passar, com 1 e 7 dias. Não cobra: avisa. Nunca repete mensagem, não manda domingo nem à noite, e para quem já pagou não manda nada. Estas são as mensagens que sairiam no dia escolhido.</p>
     <div class="card" id="enviar"></div>
     <h3>Para uma pessoa ligar (15+ dias de atraso)</h3>
     <div class="card" id="humano"></div>
@@ -198,7 +198,7 @@ const CONTAS = [
   {id:8,cliente:"FAZENDA EXEMPLO",telefone:"65999990008",valor:5400,venc:"2026-11-14",pago:false}
 ];
 const DIAS = [["2026-11-09","Seg 9/11"],["2026-11-10","Ter 10/11"],["2026-11-11","Qua 11/11"],["2026-11-15","Dom 15/11"],["2026-11-17","Ter 17/11"]];
-const PJ = ["LTDA","ME","EIRELI","SA","EPP","TRANSPORTES","FAZENDA","OFICINA"];
+const PJ = ["LTDA","ME","EIRELI","SA","EPP","TRANSPORTES","TRANSPORTADORA","FAZENDA","OFICINA","COMERCIO","AUTO"];
 const brl = v => v.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
 const dbr = s => s.split("-").reverse().join("/");
 const dd = (a,b) => Math.round((new Date(a+"T12:00")-new Date(b+"T12:00"))/864e5);
@@ -206,14 +206,13 @@ const esc = s => s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':
 
 function etapa(d){ if(d===-3) return "lembrete"; if(d===0) return "hoje"; if(d===1||d===7) return "atraso"; if(d>=15) return "humano"; return null; }
 function msg(c,t){
-  const w = c.cliente.toUpperCase().replace(/\./g," ").split(/\s+/);
-  const nome = w.some(x=>PJ.includes(x)) ? "tudo bem" : w[0][0]+w[0].slice(1).toLowerCase();
-  const v = brl(c.valor), venc = dbr(c.venc), doc = c.doc ? ` (${c.doc})` : "";
-  let t2;
-  if(t==="lembrete") t2 = `Olá, ${nome}! Passando para lembrar que a parcela de ${v}${doc} vence em ${venc}. ${PAGAR}`;
-  else if(t==="hoje") t2 = `Olá, ${nome}! Sua parcela de ${v}${doc} vence hoje (${venc}). ${PAGAR} Se já pagou, desconsidere.`;
-  else t2 = `Olá, ${nome}, tudo bem? Não identificamos o pagamento de ${v}${doc}, vencido em ${venc}. Se já pagou, pode desconsiderar. Se precisar de outra data, é só responder aqui que a gente combina.`;
-  return t2 + "\n\n" + EMPRESA;
+  const w = c.cliente.replace(/\./g," ").split(/\s+/).filter(x=>!x.startsWith("("));
+  const tc = x => x[0]+x.slice(1).toLowerCase();
+  const nome = w.some(x=>PJ.includes(x.toUpperCase())) ? w.slice(0,2).filter(x=>!["LTDA","ME","EIRELI","SA","EPP"].includes(x)).map(tc).join(" ") : tc(w[0]);
+  const v = brl(c.valor), venc = dbr(c.venc);
+  if(t==="lembrete") return `Olá, ${nome}! Tudo bem? 😊 Passando só para avisar que sua parcela de ${v} com a ${EMPRESA} vence em ${venc}. Para pagar: ${PAGAR} Se já pagou, pode desconsiderar. Qualquer dúvida, é só responder aqui.`;
+  if(t==="hoje") return `Olá, ${nome}! Bom dia! Lembrete rápido: sua parcela de ${v} com a ${EMPRESA} vence hoje, ${venc}. Para pagar: ${PAGAR} Se já pagou, desconsidere. Obrigado pela parceria!`;
+  return `Olá, ${nome}, tudo bem? Ainda não localizamos o pagamento da parcela de ${v} com a ${EMPRESA}, que venceu em ${venc}. Pode ter sido só um esquecimento, acontece. Para pagar: ${PAGAR} Se já pagou, desconsidere. Se precisar de outra data, responda aqui que a gente combina. 🙂`;
 }
 const ROT = {lembrete:["Lembrete","p-lembrete"],hoje:["Vence hoje","p-hoje"],atraso:["Atraso","p-atraso"]};
 

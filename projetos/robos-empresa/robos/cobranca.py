@@ -42,22 +42,45 @@ def etapa(dias: int, regua: dict) -> str | None:
     return None
 
 
+# Modelos de mensagem. Os MESMOS textos são cadastrados na Meta como modelos
+# "Utilidade" (pt_BR) para o envio automático: {{1}} nome, {{2}} valor,
+# {{3}} empresa, {{4}} data, {{5}} como pagar. Ver vendedor/../MODELOS-WHATSAPP.md
+MODELOS = {
+    "lembrete": ("aviso_vencimento",
+                 "Olá, {{1}}! Tudo bem? 😊 Passando só para avisar que sua parcela de {{2}} com a {{3}} "
+                 "vence em {{4}}. Para pagar: {{5}}. Se já pagou, pode desconsiderar. Qualquer dúvida, é só responder aqui."),
+    "vence_hoje": ("aviso_vence_hoje",
+                   "Olá, {{1}}! Bom dia! Lembrete rápido: sua parcela de {{2}} com a {{3}} vence hoje, {{4}}. "
+                   "Para pagar: {{5}}. Se já pagou, desconsidere. Obrigado pela parceria!"),
+    "atraso": ("aviso_pagamento_pendente",
+               "Olá, {{1}}, tudo bem? Ainda não localizamos o pagamento da parcela de {{2}} com a {{3}}, "
+               "que venceu em {{4}}. Pode ter sido só um esquecimento, acontece. Para pagar: {{5}}. "
+               "Se já pagou, desconsidere. Se precisar de outra data, responda aqui que a gente combina. 🙂"),
+}
+_PJ = ("LTDA", "ME", "EIRELI", "SA", "EPP", "TRANSPORTES", "TRANSPORTADORA", "FAZENDA", "OFICINA", "COMERCIO", "AUTO")
+
+
+def nome_saudacao(conta: dict) -> str:
+    if conta.get("contato"):
+        return conta["contato"].split()[0].title()
+    palavras = [p for p in conta["cliente"].replace(".", " ").split() if not p.startswith("(")]
+    if not palavras:
+        return "cliente"
+    if any(p.upper() in _PJ for p in palavras):  # empresa: usa as 2 primeiras palavras do nome
+        return " ".join(p.title() for p in palavras[:2] if p.upper() not in ("LTDA", "ME", "EIRELI", "SA", "EPP"))
+    return palavras[0].title()
+
+
+def parametros(conta: dict, empresa: dict) -> list[str]:
+    return [nome_saudacao(conta), brl(conta["valor"]), empresa["nome"], dbr(conta["vencimento"]),
+            empresa.get("como_pagar", "responda aqui que enviamos o Pix ou boleto").rstrip(". ")]
+
+
 def mensagem(conta: dict, tipo: str, dias: int, empresa: dict) -> str:
-    palavras = conta["cliente"].upper().replace(".", " ").split()
-    empresa_pj = any(p in palavras for p in ("LTDA", "ME", "EIRELI", "SA", "EPP", "TRANSPORTES", "FAZENDA", "OFICINA"))
-    nome = "tudo bem" if (empresa_pj or not palavras) else palavras[0].title()
-    valor, venc = brl(conta["valor"]), dbr(conta["vencimento"])
-    doc = f" ({conta['documento']})" if conta.get("documento") else ""
-    pag = empresa.get("como_pagar", "")
-    assinatura = f"\n\n{empresa['nome']}"
-    if tipo == "lembrete":
-        txt = f"Olá, {nome}! Passando para lembrar que a parcela de {valor}{doc} vence em {venc}. {pag}".strip()
-    elif tipo == "vence_hoje":
-        txt = f"Olá, {nome}! Sua parcela de {valor}{doc} vence hoje ({venc}). {pag} Se já pagou, desconsidere.".strip()
-    else:  # atraso
-        txt = (f"Olá, {nome}, tudo bem? Não identificamos o pagamento de {valor}{doc}, vencido em {venc}. "
-               f"Se já pagou, pode desconsiderar. Se precisar de outra data, é só responder aqui que a gente combina.")
-    return txt + assinatura
+    texto = MODELOS[tipo][1]
+    for i, v in enumerate(parametros(conta, empresa), 1):
+        texto = texto.replace("{{%d}}" % i, v)
+    return texto
 
 
 def link_whatsapp(telefone: str, texto: str) -> str:
@@ -112,13 +135,64 @@ def relatorio(r: dict) -> str:
     return "\n".join(linhas) + "\n"
 
 
+def disparar(r: dict, config: dict, agora=None, enviar_fn=None) -> list[dict]:
+    """Envia sozinho os avisos do dia pelo WhatsApp oficial. Devolve o log."""
+    import json
+    import whatsapp
+
+    cfg = config.get("whatsapp", {})
+    agora = agora or whatsapp.agora_cuiaba()
+    enviar_fn = enviar_fn or whatsapp.enviar_modelo
+    ativo = bool(cfg.get("ativo")) and cfg.get("phone_number_id") not in (None, "", "PENDENTE")
+    ok, motivo = whatsapp.pode_enviar_agora(cfg, agora)
+    reg_path = PASTA / "saida" / "enviados.json"
+    try:
+        registro = json.loads(reg_path.read_text(encoding="utf-8"))
+    except (FileNotFoundError, ValueError):
+        registro = {}
+    log, enviados_hoje = [], 0
+    for item in r["enviar"]:
+        chave = f"{item['id']}|{item['vencimento']}|{item['tipo']}|{item['dias']}"
+        modelo = MODELOS[item["tipo"]][0]
+        base = {"cliente": item["cliente"], "modelo": modelo, "valor": item["valor"]}
+        if chave in registro:
+            log.append({**base, "status": "já enviado antes"})
+            continue
+        if not ok:
+            log.append({**base, "status": f"não enviado: {motivo}"})
+            continue
+        if enviados_hoje >= cfg.get("limite_dia", 50):
+            log.append({**base, "status": "não enviado: limite do dia"})
+            continue
+        if not ativo:
+            log.append({**base, "status": "TESTE: enviaria agora"})
+            continue
+        res = enviar_fn(item["telefone"], modelo, parametros(item, config["empresa"]), cfg)
+        if res.get("ok"):
+            registro[chave] = {"quando": agora.isoformat(timespec="minutes"), "id": res.get("id", "")}
+            enviados_hoje += 1
+            log.append({**base, "status": "ENVIADO"})
+        else:
+            log.append({**base, "status": f"ERRO: {res.get('erro')}"})
+    reg_path.write_text(json.dumps(registro, ensure_ascii=False, indent=1), encoding="utf-8")
+    return log
+
+
 def main() -> None:
-    hoje = date.fromisoformat(sys.argv[1]) if len(sys.argv) > 1 else date.today()
+    args = [a for a in sys.argv[1:] if not a.startswith("--")]
+    hoje = date.fromisoformat(args[0]) if args else date.today()
     config = carregar_config()
     r = lista_do_dia(contas_a_receber(config), hoje, config)
     saida = PASTA / "saida" / f"cobranca-{hoje.isoformat()}.md"
-    saida.write_text(relatorio(r), encoding="utf-8")
-    print(f"{len(r['enviar'])} para enviar, {len(r['humano'])} para ligar, vencido {brl(r['total_vencido'])} -> {saida}")
+    texto = relatorio(r)
+    if "--enviar" in sys.argv:
+        log = disparar(r, config)
+        texto += "\n## Envio automático\n\n" + "\n".join(
+            f"- {l['cliente']} — {brl(l['valor'])} — {l['modelo']} — {l['status']}" for l in log) + "\n"
+        for l in log:
+            print(f"{l['status']:<28} {l['cliente']}")
+    saida.write_text(texto, encoding="utf-8")
+    print(f"{len(r['enviar'])} avisos, {len(r['humano'])} para ligar, vencido {brl(r['total_vencido'])} -> {saida}")
 
 
 if __name__ == "__main__":
