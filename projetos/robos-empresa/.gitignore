@@ -2,3 +2,4 @@ config.json
 saida/*
 !saida/.gitkeep
 __pycache__/
+dados/contas_receber.csv

@@ -37,9 +37,52 @@ def contas_a_receber(config: dict) -> list[dict]:
     if fonte == "exemplo":
         arquivo = PASTA / config.get("arquivo_exemplo", "dados/exemplo_contas_receber.json")
         return json.loads(arquivo.read_text(encoding="utf-8"))
+    if fonte == "planilha":
+        return _contas_da_planilha(PASTA / config["arquivo_planilha"], config.get("colunas_planilha", {}))
     if fonte == "api":
         return _contas_da_api(config["moveri"])
     raise ValueError(f"fonte desconhecida: {fonte}")
+
+
+def _numero_br(txt: str) -> float:
+    t = str(txt).replace("R$", "").strip()
+    if "," in t:
+        t = t.replace(".", "").replace(",", ".")
+    return float(t or 0)
+
+
+def _data_iso(txt: str) -> str:
+    t = str(txt).strip()[:10]
+    if "/" in t:
+        d, m, a = t.split("/")
+        return f"{a}-{int(m):02d}-{int(d):02d}"
+    return t
+
+
+def _contas_da_planilha(caminho: Path, colunas: dict) -> list[dict]:
+    """Plano B: planilha CSV exportada do sistema (separador ; ou ,).
+
+    `colunas` mapeia nome interno -> cabeçalho da planilha. Aceita valor no
+    formato 1.234,56 e data DD/MM/AAAA. Coluna "pago" vale sim/s/pago/1.
+    """
+    import csv
+    texto = caminho.read_text(encoding="utf-8-sig")
+    dialeto = csv.Sniffer().sniff(texto.splitlines()[0], delimiters=";,")
+    col = {k: colunas.get(k, k) for k in ("id", "cliente", "telefone", "valor", "vencimento", "pago", "documento")}
+    contas = []
+    for i, linha in enumerate(csv.DictReader(texto.splitlines(), dialect=dialeto), 1):
+        if not linha.get(col["cliente"]):
+            continue
+        contas.append({
+            "id": str(linha.get(col["id"]) or i),
+            "cliente": linha[col["cliente"]].strip(),
+            "telefone": "".join(ch for ch in str(linha.get(col["telefone"], "")) if ch.isdigit()),
+            "valor": _numero_br(linha.get(col["valor"], 0)),
+            "vencimento": _data_iso(linha[col["vencimento"]]),
+            "pago": str(linha.get(col["pago"], "")).strip().lower() in ("sim", "s", "pago", "1", "true"),
+            "documento": (linha.get(col["documento"]) or "").strip(),
+        })
+    return contas
 
 
 def _contas_da_api(cfg: dict) -> list[dict]:

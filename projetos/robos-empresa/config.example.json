@@ -1,13 +1,28 @@
 {
   "fonte": "exemplo",
+  "_fontes": "exemplo | planilha (plano B: CSV exportado do sistema) | api",
   "arquivo_exemplo": "dados/exemplo_contas_receber.json",
+  "arquivo_planilha": "dados/contas_receber.csv",
+  "colunas_planilha": {
+    "cliente": "cliente",
+    "telefone": "telefone",
+    "valor": "valor",
+    "vencimento": "vencimento",
+    "pago": "pago",
+    "documento": "documento"
+  },
   "empresa": {
     "nome": "[Nome da empresa]",
     "como_pagar": "Pix: [chave] ou boleto pelo link enviado."
   },
   "regua": {
-    "lembrete_antes": [-3],
-    "atraso": [1, 7],
+    "lembrete_antes": [
+      -3
+    ],
+    "atraso": [
+      1,
+      7
+    ],
     "passar_para_humano": 15
   },
   "moveri": {

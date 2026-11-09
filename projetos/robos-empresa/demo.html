@@ -1,0 +1,219 @@
+<title>Robôs da Empresa</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap">
+<style>
+/* Layout: coluna única de leitura; seletor de dia no topo muda o que os robôs mostram */
+:root{
+  --bg:#f3f5f4; --card:#ffffff; --fg:#17201d; --muted:#5d6b66; --line:#dbe2df;
+  --accent:#1f6f5c; --accent-soft:#e2f0ec; --bubble:#dcf3d5; --bubble-fg:#14301b;
+  --warn:#a85a00; --warn-soft:#fbeedb; --bad:#b3261e; --bad-soft:#fbe4e2;
+  --f-display:"Space Grotesk",system-ui,sans-serif; --f-body:"Inter",system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#111816; --card:#18211e; --fg:#e6ece9; --muted:#9aa8a3; --line:#2a3632;
+  --accent:#5cc2a6; --accent-soft:#1d3530; --bubble:#1f3a26; --bubble-fg:#d9f2dd;
+  --warn:#f0a94a; --warn-soft:#3a2a12; --bad:#f28b82; --bad-soft:#3b1e1c; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#111816; --card:#18211e; --fg:#e6ece9; --muted:#9aa8a3; --line:#2a3632;
+  --accent:#5cc2a6; --accent-soft:#1d3530; --bubble:#1f3a26; --bubble-fg:#d9f2dd;
+  --warn:#f0a94a; --warn-soft:#3a2a12; --bad:#f28b82; --bad-soft:#3b1e1c; color-scheme:dark}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:15px;line-height:1.55}
+.wrap{max-width:820px;margin:0 auto;padding-block:28px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:28px}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0}
+h1{font-size:1.9rem;line-height:1.15}
+h2{font-size:1.25rem}
+h3{font-size:1rem}
+p{margin:0}
+.muted{color:var(--muted)}
+.eyebrow{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);font-weight:600}
+header{display:grid;gap:10px}
+.tag{display:inline-block;font-size:.75rem;padding:2px 8px;border-radius:99px;background:var(--warn-soft);color:var(--warn);font-weight:600}
+section{display:grid;gap:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px;display:grid;gap:12px;min-width:0}
+.days{display:flex;flex-wrap:wrap;gap:8px}
+.days button{font:inherit;font-weight:500;padding:8px 14px;border-radius:99px;border:1px solid var(--line);background:var(--card);color:var(--fg);cursor:pointer}
+.days button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--card)}
+.days button:focus-visible,.copy:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;display:grid;gap:2px}
+.stat b{font-family:var(--f-display);font-size:1.35rem;font-variant-numeric:tabular-nums}
+.stat span{font-size:.8rem;color:var(--muted)}
+.item{display:grid;gap:10px;padding-block:14px;border-top:1px solid var(--line)}
+.item:first-of-type{border-top:0;padding-top:0}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:baseline;justify-content:space-between}
+.who{font-weight:600}
+.val{font-variant-numeric:tabular-nums;font-weight:600}
+.pill{font-size:.72rem;font-weight:600;padding:2px 8px;border-radius:99px}
+.p-lembrete{background:var(--accent-soft);color:var(--accent)}
+.p-hoje{background:var(--warn-soft);color:var(--warn)}
+.p-atraso{background:var(--bad-soft);color:var(--bad)}
+.bubble{background:var(--bubble);color:var(--bubble-fg);border-radius:10px 10px 10px 2px;padding:10px 12px;white-space:pre-wrap;font-size:.92rem;max-width:520px}
+.copy{justify-self:start;font:inherit;font-size:.8rem;font-weight:600;color:var(--accent);background:none;border:1px solid var(--accent);border-radius:8px;padding:5px 10px;cursor:pointer}
+.empty{color:var(--muted);font-style:italic}
+ol.flow{margin:0;padding-left:1.2em;display:grid;gap:8px}
+.check{display:grid;gap:8px}
+.check div{display:grid;grid-template-columns:96px 1fr;gap:10px;align-items:start}
+.check .d{font-size:.8rem;font-weight:600;color:var(--accent);padding-top:2px}
+table{border-collapse:collapse;width:100%;font-size:.9rem}
+td,th{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line)}
+th{font-size:.75rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+.tw{overflow-x:auto}
+pre.resumo{margin:0;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:12px;white-space:pre-wrap;font-size:.88rem;font-family:ui-monospace,Menlo,monospace}
+</style>
+
+<div class="wrap">
+  <header>
+    <span class="eyebrow">Empresa do sogro · fase 1</span>
+    <h1>Como os robôs trabalham</h1>
+    <p class="muted">Esta é uma demonstração com <b>8 clientes inventados</b>. Quando ligarmos na Moveri (ou na planilha do sistema), aparecem os clientes de verdade. <span class="tag">Dados de exemplo</span></p>
+  </header>
+
+  <section>
+    <h2>Escolha o dia e veja o que o robô faria de manhã</h2>
+    <div class="days" id="days"></div>
+    <div class="stats" id="stats"></div>
+  </section>
+
+  <section>
+    <h2>Robô de Cobrança</h2>
+    <p class="muted">Ele monta a lista e escreve a mensagem. Uma pessoa da empresa abre o WhatsApp, confere e envia. Nada sai sozinho nas primeiras semanas.</p>
+    <div class="card" id="enviar"></div>
+    <h3>Para uma pessoa ligar (15+ dias de atraso)</h3>
+    <div class="card" id="humano"></div>
+    <h3>Sem telefone no cadastro</h3>
+    <div class="card" id="semtel"></div>
+  </section>
+
+  <section>
+    <h2>Robô Gerente: o resumo que o dono recebe</h2>
+    <div class="card"><pre class="resumo" id="resumo"></pre></div>
+  </section>
+
+  <section>
+    <h2>Quando cada mensagem sai</h2>
+    <div class="card tw">
+      <table>
+        <thead><tr><th>Momento</th><th>O que acontece</th></tr></thead>
+        <tbody>
+          <tr><td>3 dias antes</td><td>Lembrete gentil com valor e data</td></tr>
+          <tr><td>No dia</td><td>"Vence hoje", com forma de pagamento</td></tr>
+          <tr><td>1 dia depois</td><td>"Não identificamos o pagamento", oferece combinar outra data</td></tr>
+          <tr><td>7 dias depois</td><td>Mesma mensagem educada, segunda tentativa</td></tr>
+          <tr><td>15+ dias</td><td>Sai do robô: uma pessoa liga</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>Como funciona por dentro</h2>
+    <div class="card">
+      <ol class="flow">
+        <li>Toda manhã (seg–sáb, 7h) o robô busca as contas a receber na <b>Moveri</b>. Plano B: lê a <b>planilha</b> exportada do sistema.</li>
+        <li>Separa quem está para vencer, vence hoje, atrasou ou precisa de ligação.</li>
+        <li>Escreve as mensagens e monta a lista com botão do WhatsApp.</li>
+        <li>Manda a lista para quem envia e o resumo para o dono.</li>
+      </ol>
+    </div>
+  </section>
+
+  <section>
+    <h2>Para começar na quarta (11/11)</h2>
+    <div class="card check">
+      <div><span class="d">Hoje, seg 9</span><span>Paulo pede à Moveri a <b>documentação da API</b> e a <b>chave</b>. Pede também ao sogro uma <b>planilha de contas a receber</b> exportada do sistema (plano B).</span></div>
+      <div><span class="d">Ter 10, manhã</span><span>Paulo traz: nome da empresa, chave Pix ou forma de pagamento, quem vai enviar as mensagens e o OK do sogro na régua acima.</span></div>
+      <div><span class="d">Ter 10, tarde</span><span>Claude liga na API (ou na planilha), roda com dados reais e mostra a primeira lista para conferência.</span></div>
+      <div><span class="d">Qua 11, 7h</span><span>Primeira lista de cobrança real. Rotina agendada passa a rodar toda manhã.</span></div>
+    </div>
+  </section>
+</div>
+
+<script>
+const EMPRESA = "[Nome da empresa]", PAGAR = "Pix: [chave] ou boleto pelo link enviado.";
+const CONTAS = [
+  {id:1,cliente:"JOAO DA SILVA (EXEMPLO)",telefone:"65999990001",valor:450,venc:"2026-11-12",pago:false,doc:"Boleto 1001"},
+  {id:2,cliente:"MARIA OLIVEIRA (EXEMPLO)",telefone:"65999990002",valor:1280.5,venc:"2026-11-09",pago:false,doc:"Boleto 1002"},
+  {id:3,cliente:"TRANSPORTES EXEMPLO LTDA",telefone:"65999990003",valor:3900,venc:"2026-11-08",pago:false,doc:"Duplicata 77"},
+  {id:4,cliente:"CARLOS SOUZA (EXEMPLO)",telefone:"65999990004",valor:320,venc:"2026-11-02",pago:false},
+  {id:5,cliente:"OFICINA EXEMPLO ME",telefone:"",valor:760,venc:"2026-11-08",pago:false},
+  {id:6,cliente:"ANA PEREIRA (EXEMPLO)",telefone:"65999990006",valor:2100,venc:"2026-10-20",pago:false},
+  {id:7,cliente:"PEDRO LIMA (EXEMPLO)",telefone:"65999990007",valor:500,venc:"2026-11-01",pago:true},
+  {id:8,cliente:"FAZENDA EXEMPLO",telefone:"65999990008",valor:5400,venc:"2026-11-14",pago:false}
+];
+const DIAS = [["2026-11-09","Seg 9/11"],["2026-11-10","Ter 10/11"],["2026-11-11","Qua 11/11"],["2026-11-15","Dom 15/11"],["2026-11-17","Ter 17/11"]];
+const PJ = ["LTDA","ME","EIRELI","SA","EPP","TRANSPORTES","FAZENDA","OFICINA"];
+const brl = v => v.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+const dbr = s => s.split("-").reverse().join("/");
+const dd = (a,b) => Math.round((new Date(a+"T12:00")-new Date(b+"T12:00"))/864e5);
+const esc = s => s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+function etapa(d){ if(d===-3) return "lembrete"; if(d===0) return "hoje"; if(d===1||d===7) return "atraso"; if(d>=15) return "humano"; return null; }
+function msg(c,t){
+  const w = c.cliente.toUpperCase().replace(/\./g," ").split(/\s+/);
+  const nome = w.some(x=>PJ.includes(x)) ? "tudo bem" : w[0][0]+w[0].slice(1).toLowerCase();
+  const v = brl(c.valor), venc = dbr(c.venc), doc = c.doc ? ` (${c.doc})` : "";
+  let t2;
+  if(t==="lembrete") t2 = `Olá, ${nome}! Passando para lembrar que a parcela de ${v}${doc} vence em ${venc}. ${PAGAR}`;
+  else if(t==="hoje") t2 = `Olá, ${nome}! Sua parcela de ${v}${doc} vence hoje (${venc}). ${PAGAR} Se já pagou, desconsidere.`;
+  else t2 = `Olá, ${nome}, tudo bem? Não identificamos o pagamento de ${v}${doc}, vencido em ${venc}. Se já pagou, pode desconsiderar. Se precisar de outra data, é só responder aqui que a gente combina.`;
+  return t2 + "\n\n" + EMPRESA;
+}
+const ROT = {lembrete:["Lembrete","p-lembrete"],hoje:["Vence hoje","p-hoje"],atraso:["Atraso","p-atraso"]};
+
+function render(hoje){
+  document.querySelectorAll("#days button").forEach(b=>b.setAttribute("aria-pressed", b.dataset.d===hoje));
+  const enviar=[],humano=[],sem=[];
+  for(const c of CONTAS){
+    if(c.pago) continue;
+    const d = dd(hoje,c.venc), t = etapa(d);
+    if(!t) continue;
+    const it = {...c,d,t};
+    if(t==="humano") humano.push(it); else if(c.telefone.length<10) sem.push(it); else enviar.push(it);
+  }
+  const abertas = CONTAS.filter(c=>!c.pago);
+  const venc = abertas.filter(c=>dd(hoje,c.venc)>0);
+  const vHoje = abertas.filter(c=>dd(hoje,c.venc)===0).reduce((s,c)=>s+c.valor,0);
+  const v7 = abertas.filter(c=>{const d=dd(hoje,c.venc);return d<0&&d>=-7}).reduce((s,c)=>s+c.valor,0);
+  const vVenc = venc.reduce((s,c)=>s+c.valor,0);
+
+  document.getElementById("stats").innerHTML = [
+    [enviar.length,"mensagens para enviar"],[humano.length,"clientes para ligar"],[brl(vVenc),"vencido e não pago"],[brl(vHoje),"vence hoje"]
+  ].map(([b,s])=>`<div class="stat"><b>${b}</b><span>${s}</span></div>`).join("");
+
+  document.getElementById("enviar").innerHTML = enviar.length ? enviar.map(i=>{
+    const q = i.d<0 ? `faltam ${-i.d} dias` : i.d===0 ? "hoje" : `${i.d} dia${i.d>1?"s":""} de atraso`;
+    const m = msg(i,i.t);
+    return `<div class="item"><div class="row"><span class="who">${esc(i.cliente)}</span><span class="val">${brl(i.valor)}</span></div>
+      <div class="row" style="justify-content:flex-start"><span class="pill ${ROT[i.t][1]}">${ROT[i.t][0]}</span><span class="muted">${q} · venc. ${dbr(i.venc)}</span></div>
+      <div class="bubble">${esc(m)}</div>
+      <button class="copy" data-m="${esc(m)}">Copiar mensagem</button></div>`;
+  }).join("") : `<p class="empty">Nenhuma mensagem neste dia. O robô só fala no momento certo da régua.</p>`;
+
+  document.getElementById("humano").innerHTML = humano.length ? humano.map(i=>
+    `<div class="item"><div class="row"><span class="who">${esc(i.cliente)}</span><span class="val">${brl(i.valor)}</span></div><span class="muted">${i.d} dias de atraso · tel. ${i.telefone||"sem telefone"}</span></div>`).join("")
+    : `<p class="empty">Ninguém para ligar neste dia.</p>`;
+  document.getElementById("semtel").innerHTML = sem.length ? sem.map(i=>
+    `<div class="item"><div class="row"><span class="who">${esc(i.cliente)}</span><span class="val">${brl(i.valor)}</span></div><span class="muted">Arrumar o telefone no cadastro para o robô conseguir avisar.</span></div>`).join("")
+    : `<p class="empty">Todos os clientes deste dia têm telefone.</p>`;
+
+  const maiores = venc.sort((a,b)=>b.valor-a.valor).slice(0,5);
+  document.getElementById("resumo").textContent =
+`Resumo da empresa — ${dbr(hoje)}
+
+Vencido e não pago: ${brl(vVenc)} (${venc.length} contas)
+Vence hoje: ${brl(vHoje)}
+Vence nos próximos 7 dias: ${brl(v7)}` + (maiores.length ? `
+
+Maiores atrasos:
+` + maiores.map(c=>`- ${c.cliente}: ${brl(c.valor)} (venceu ${dbr(c.venc)})`).join("\n") : "");
+}
+
+document.getElementById("days").innerHTML = DIAS.map(([d,l])=>`<button type="button" id="d-${d}" data-d="${d}">${l}</button>`).join("");
+document.getElementById("days").addEventListener("click",e=>{const b=e.target.closest("button"); if(b) render(b.dataset.d);});
+document.addEventListener("click",e=>{
+  const b=e.target.closest(".copy"); if(!b) return;
+  const ok=()=>{b.textContent="Copiada"; setTimeout(()=>b.textContent="Copiar mensagem",1500);};
+  try{ navigator.clipboard.writeText(b.dataset.m).then(ok,()=>{b.textContent="Selecione o texto acima";}); }catch(_){ b.textContent="Selecione o texto acima"; }
+});
+render("2026-11-09");
+</script>

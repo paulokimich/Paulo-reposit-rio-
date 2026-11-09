@@ -40,5 +40,15 @@ class TestCobranca(unittest.TestCase):
         self.assertEqual(r["vence_7d"], 450 + 5400)
 
 
+class TestPlanilha(unittest.TestCase):
+    def test_csv_brasileiro(self):
+        cfg = {"fonte": "planilha", "arquivo_planilha": "dados/exemplo_planilha.csv"}
+        c = contas_a_receber(cfg)
+        self.assertEqual(c[1]["valor"], 3900.0)
+        self.assertEqual(c[1]["vencimento"], "2026-11-08")
+        self.assertEqual(c[0]["telefone"], "65999990001")
+        self.assertTrue(c[2]["pago"])
+
+
 if __name__ == "__main__":
     unittest.main()

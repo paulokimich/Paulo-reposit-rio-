@@ -1,0 +1,4 @@
+id;cliente;telefone;valor;vencimento;pago;documento
+1;JOAO DA SILVA (EXEMPLO);(65) 99999-0001;450,00;12/11/2026;nao;Boleto 1001
+2;TRANSPORTES EXEMPLO LTDA;(65) 99999-0003;3.900,00;08/11/2026;nao;Duplicata 77
+3;PEDRO LIMA (EXEMPLO);(65) 99999-0007;500,00;01/11/2026;sim;

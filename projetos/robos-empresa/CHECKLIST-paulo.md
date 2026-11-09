@@ -2,6 +2,12 @@
 
 Marque com [x] conforme for conseguindo. Pode trazer aos poucos.
 
+## Meta: primeira cobrança real na quarta, 11/11, às 7h
+
+Prazo para trazer: **terça, 10/11, até o meio-dia.**
+
+- [ ] **Plano B (garante a quarta mesmo se a Moveri atrasar):** uma **planilha de contas a receber** exportada do sistema (Excel ou CSV) com cliente, telefone, valor, vencimento e se foi pago. Pode mandar pra mim pelo chat do Claude, ela NÃO vai pro repositório.
+
 ## Agora (destrava o robô de cobrança com dados reais)
 
 - [ ] **Documentação da API da Moveri** (link ou PDF). Perguntar:
