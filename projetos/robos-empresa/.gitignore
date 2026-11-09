@@ -1,0 +1,4 @@
+config.json
+saida/*
+!saida/.gitkeep
+__pycache__/

@@ -1,0 +1,30 @@
+{
+  "fonte": "exemplo",
+  "arquivo_exemplo": "dados/exemplo_contas_receber.json",
+  "empresa": {
+    "nome": "[Nome da empresa]",
+    "como_pagar": "Pix: [chave] ou boleto pelo link enviado."
+  },
+  "regua": {
+    "lembrete_antes": [-3],
+    "atraso": [1, 7],
+    "passar_para_humano": 15
+  },
+  "moveri": {
+    "url_base": "PENDENTE",
+    "endpoint_contas_receber": "PENDENTE",
+    "variavel_chave": "MOVERI_API_KEY",
+    "cabecalho_chave": "Authorization",
+    "prefixo_chave": "Bearer ",
+    "chave_lista": "data",
+    "campos": {
+      "id": "id",
+      "cliente": "cliente",
+      "telefone": "telefone",
+      "valor": "valor",
+      "vencimento": "vencimento",
+      "pago": "pago",
+      "documento": "documento"
+    }
+  }
+}
