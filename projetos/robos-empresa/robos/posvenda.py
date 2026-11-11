@@ -82,7 +82,7 @@ def lista_posvenda(vendas: list[dict], hoje: date, empresa: dict, ja_listados: s
         if m is None or chave in ja_listados:
             continue
         rotulo, modelo = MARCOS[m]
-        texto = modelo.format(nome=nome_saudacao(v), empresa=empresa["nome"], produto=v["produto"].lower())
+        texto = modelo.format(nome=nome_saudacao(v), empresa=empresa["nome"], produto=v["produto"])
         item = {**v, "dias": dias, "marco": rotulo, "mensagem": texto, "chave": chave}
         if len(v["telefone"]) < 10:
             sem_telefone.append(item)
