@@ -13,7 +13,11 @@
   },
   "empresa": {
     "nome": "[Nome da empresa]",
-    "como_pagar": "Pix: [chave] ou boleto pelo link enviado."
+    "pix": "",
+    "_pix": "chave Pix da empresa (CNPJ, e-mail ou telefone); vazio = oferece Pix ou boleto",
+    "como_pagar": "",
+    "_como_pagar": "vazio = oferece Pix ou boleto e o cliente responde com a escolha",
+    "quem_envia": "moça da cobrança"
   },
   "regua": {
     "lembrete_antes": [

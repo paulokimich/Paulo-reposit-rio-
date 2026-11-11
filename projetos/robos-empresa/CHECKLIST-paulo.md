@@ -19,8 +19,8 @@ Prazo para trazer: **terça, 10/11, até o meio-dia.**
   - Tem limite de chamadas por dia?
 - [ ] **Chave da API** — NÃO colar no chat. Quando tiver, me avise que eu abro um formulário seguro.
 - [ ] **Nome da empresa** como deve aparecer na assinatura das mensagens.
-- [ ] **Como o cliente paga** (chave Pix da empresa? boleto? link?).
-- [ ] **Quem vai clicar e enviar** as mensagens de cobrança nas primeiras semanas (nome e WhatsApp da empresa usado).
+- [x] **Como o cliente paga:** ele escolhe Pix ou boleto. Falta: a chave Pix da empresa (e, se a Moveri tiver, o link do boleto de cada parcela).
+- [x] **Quem envia** nas primeiras semanas: a moça da cobrança. Falta: onde ela quer receber a lista toda manhã.
 - [ ] **Régua de cobrança** que o seu sogro aceita (padrão proposto: lembrete 3 dias antes, no dia, 1 e 7 dias depois; com 15+ dias uma pessoa liga).
 
 ## Robô de Pós-venda

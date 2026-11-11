@@ -81,6 +81,8 @@ def _contas_da_planilha(caminho: Path, colunas: dict) -> list[dict]:
             "vencimento": _data_iso(linha[col["vencimento"]]),
             "pago": str(linha.get(col["pago"], "")).strip().lower() in ("sim", "s", "pago", "1", "true"),
             "documento": (linha.get(col["documento"]) or "").strip(),
+            "forma_pagamento": (linha.get(colunas.get("forma_pagamento", "forma_pagamento")) or "").strip(),
+            "link_boleto": (linha.get(colunas.get("link_boleto", "link_boleto")) or "").strip(),
         })
     return contas
 

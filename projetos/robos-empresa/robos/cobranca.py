@@ -71,9 +71,26 @@ def nome_saudacao(conta: dict) -> str:
     return palavras[0].title()
 
 
+PADRAO_PAGAR = "escolha Pix ou boleto e responda esta mensagem que a gente envia na hora"
+
+
+def como_pagar(conta: dict, empresa: dict) -> str:
+    """O cliente escolhe Pix ou boleto. Se a conta já tem boleto (link ou linha digitável),
+    manda direto; se o cliente prefere Pix e a empresa tem chave, manda a chave;
+    senão oferece os dois e a moça da cobrança responde com o que ele escolher."""
+    forma = str(conta.get("forma_pagamento", "")).strip().lower()
+    boleto = (conta.get("link_boleto") or conta.get("linha_digitavel") or "").strip()
+    pix = (empresa.get("pix") or "").strip()
+    if forma == "boleto" and boleto:
+        return f"boleto {boleto}"
+    if forma == "pix" and pix:
+        return f"Pix na chave {pix}"
+    return (empresa.get("como_pagar") or PADRAO_PAGAR).rstrip(". ")
+
+
 def parametros(conta: dict, empresa: dict) -> list[str]:
     return [nome_saudacao(conta), brl(conta["valor"]), empresa["nome"], dbr(conta["vencimento"]),
-            empresa.get("como_pagar", "responda aqui que enviamos o Pix ou boleto").rstrip(". ")]
+            como_pagar(conta, empresa)]
 
 
 def mensagem(conta: dict, tipo: str, dias: int, empresa: dict) -> str:

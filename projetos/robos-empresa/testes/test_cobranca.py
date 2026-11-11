@@ -115,6 +115,16 @@ class TestPosvenda(unittest.TestCase):
         self.assertIn("Contábil: 12 lançamentos", texto)
 
 
+class TestFormaDePagamento(unittest.TestCase):
+    def test_pix_boleto_ou_os_dois(self):
+        from cobranca import PADRAO_PAGAR, como_pagar
+        emp = {"nome": "X", "pix": "12.345.678/0001-90"}
+        self.assertEqual(como_pagar({"forma_pagamento": "Boleto", "link_boleto": "https://b.co/1"}, emp), "boleto https://b.co/1")
+        self.assertEqual(como_pagar({"forma_pagamento": "pix"}, emp), "Pix na chave 12.345.678/0001-90")
+        self.assertEqual(como_pagar({}, emp), PADRAO_PAGAR)                     # cliente ainda não escolheu
+        self.assertEqual(como_pagar({"forma_pagamento": "boleto"}, emp), PADRAO_PAGAR)  # boleto sem link
+
+
 class TestPlanilha(unittest.TestCase):
     def test_csv_brasileiro(self):
         cfg = {"fonte": "planilha", "arquivo_planilha": "dados/exemplo_planilha.csv"}
