@@ -23,6 +23,10 @@ Prazo para trazer: **terça, 10/11, até o meio-dia.**
 - [ ] **Quem vai clicar e enviar** as mensagens de cobrança nas primeiras semanas (nome e WhatsApp da empresa usado).
 - [ ] **Régua de cobrança** que o seu sogro aceita (padrão proposto: lembrete 3 dias antes, no dia, 1 e 7 dias depois; com 15+ dias uma pessoa liga).
 
+## Robô de Pós-venda
+
+- [ ] **Histórico de vendas** dos últimos 6 meses (planilha): cliente, telefone, o que comprou e data. Coluna opcional `nao_contatar` para quem não quer receber mensagem.
+
 ## Robô Contábil
 
 - [ ] **Extrato do banco do mês** exportado do internet banking (CSV ou Excel). Se tiver mais de um banco, um de cada.

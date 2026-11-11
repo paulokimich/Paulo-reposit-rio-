@@ -91,6 +91,30 @@ class TestEnvioAutomatico(unittest.TestCase):
                 self.assertNotIn(palavra, texto)
 
 
+class TestPosvenda(unittest.TestCase):
+    def test_marcos_e_opt_out(self):
+        from moveri import PASTA
+        from posvenda import lista_posvenda, ler_vendas
+        cfg = carregar_config()
+        r = lista_posvenda(ler_vendas(PASTA / cfg["posvenda"]["arquivo_vendas"]), date(2026, 11, 11), cfg["empresa"])
+        self.assertEqual({(i["cliente"].split()[0], i["dias"]) for i in r["enviar"]},
+                         {("JOAO", 7), ("TRANSPORTES", 90), ("MARIA", 181)})  # 181 = dentro da janela de 3 dias
+        self.assertNotIn("CARLOS", [i["cliente"].split()[0] for i in r["enviar"]])  # pediu para não receber
+        self.assertEqual([i["cliente"].split()[0] for i in r["sem_telefone"]], ["OFICINA"])
+        # no dia seguinte, quem já saiu na lista não repete
+        ja = {i["chave"] for i in r["enviar"] + r["sem_telefone"]}
+        r2 = lista_posvenda(ler_vendas(PASTA / cfg["posvenda"]["arquivo_vendas"]), date(2026, 11, 12), cfg["empresa"], ja)
+        self.assertEqual(r2["enviar"], [])
+
+    def test_rodar_tudo(self):
+        sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+        from rodar_tudo import rodar
+        texto = rodar(date(2026, 11, 11))
+        self.assertIn("DADOS DE EXEMPLO", texto)
+        self.assertIn("Pós-venda: 3 mensagens", texto)
+        self.assertIn("Contábil: 12 lançamentos", texto)
+
+
 class TestPlanilha(unittest.TestCase):
     def test_csv_brasileiro(self):
         cfg = {"fonte": "planilha", "arquivo_planilha": "dados/exemplo_planilha.csv"}

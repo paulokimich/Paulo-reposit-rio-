@@ -92,5 +92,8 @@
       18
     ],
     "limite_dia": 50
+  },
+  "posvenda": {
+    "arquivo_vendas": "dados/exemplo_vendas.csv"
   }
 }
