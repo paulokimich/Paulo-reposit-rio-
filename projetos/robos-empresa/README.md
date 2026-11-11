@@ -1,6 +1,6 @@
 # Robôs da empresa do sogro (via API da Moveri)
 
-Ajuda familiar, sem cobrança. Objetivo: cobrar melhor, organizar o financeiro e atender mais rápido.
+Ajuda familiar, sem cobrança. Empresa com **22 lojas**. Objetivo: cobrar melhor, organizar o financeiro e atender mais rápido.
 
 ## Status
 
