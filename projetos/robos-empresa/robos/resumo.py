@@ -27,7 +27,23 @@ def resumo(contas: list[dict], hoje: date) -> dict:
         "vence_hoje": sum(c["valor"] for c in abertas if venc(c) == hoje),
         "vence_7d": sum(c["valor"] for c in abertas if hoje < venc(c) <= hoje + timedelta(days=7)),
         "maiores": sorted(vencidas, key=lambda c: -c["valor"])[:5],
+        "lojas": ranking_lojas(contas, hoje),
     }
+
+
+def ranking_lojas(contas: list[dict], hoje: date) -> list[dict]:
+    """Inadimplência por loja: % do valor em aberto que já venceu há mais de 10 dias."""
+    lojas: dict[str, dict] = {}
+    for c in contas:
+        if c.get("pago"):
+            continue
+        l = lojas.setdefault(c.get("loja") or "sem loja", {"loja": c.get("loja") or "sem loja", "aberto": 0.0, "atraso10": 0.0})
+        l["aberto"] += c["valor"]
+        if (hoje - date.fromisoformat(c["vencimento"])).days > 10:
+            l["atraso10"] += c["valor"]
+    for l in lojas.values():
+        l["pct"] = round(100 * l["atraso10"] / l["aberto"], 1) if l["aberto"] else 0.0
+    return sorted(lojas.values(), key=lambda x: -x["pct"])
 
 
 def texto(r: dict) -> str:
@@ -35,6 +51,9 @@ def texto(r: dict) -> str:
          f"Vencido e não pago: {brl(r['vencido'])} ({r['qtd_vencido']} contas)",
          f"Vence hoje: {brl(r['vence_hoje'])}",
          f"Vence nos próximos 7 dias: {brl(r['vence_7d'])}"]
+    if len(r.get("lojas", [])) > 1:
+        l += ["", "Lojas com mais atraso (+10 dias, % do valor em aberto):"]
+        l += [f"- {x['loja']}: {x['pct']}% ({brl(x['atraso10'])} de {brl(x['aberto'])})" for x in r["lojas"][:5]]
     if r["maiores"]:
         l += ["", "Maiores atrasos:"]
         l += [f"- {c['cliente']}: {brl(c['valor'])} (venceu {dbr(c['vencimento'])})" for c in r["maiores"]]

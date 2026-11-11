@@ -9,7 +9,8 @@
     "valor": "valor",
     "vencimento": "vencimento",
     "pago": "pago",
-    "documento": "documento"
+    "documento": "documento",
+    "loja": "loja"
   },
   "empresa": {
     "nome": "[Nome da empresa]",
@@ -17,7 +18,9 @@
     "_pix": "chave Pix da empresa (CNPJ, e-mail ou telefone); vazio = oferece Pix ou boleto",
     "como_pagar": "",
     "_como_pagar": "vazio = oferece Pix ou boleto e o cliente responde com a escolha",
-    "quem_envia": "moça da cobrança"
+    "quem_envia": "moça da cobrança",
+    "mostrar_loja": true,
+    "_mostrar_loja": "true = assina 'Empresa (Loja X)' para o cliente reconhecer onde comprou"
   },
   "regua": {
     "lembrete_antes": [
@@ -46,7 +49,8 @@
       "valor": "valor",
       "vencimento": "vencimento",
       "pago": "pago",
-      "documento": "documento"
+      "documento": "documento",
+      "loja": "loja"
     }
   },
   "contabil": {
@@ -98,7 +102,8 @@
       8,
       18
     ],
-    "limite_dia": 50
+    "limite_dia": 250,
+    "_limite_dia": "a Meta começa com 250 clientes/dia para número novo; sobe depois da verificação da empresa"
   },
   "posvenda": {
     "arquivo_vendas": "dados/exemplo_vendas.csv"

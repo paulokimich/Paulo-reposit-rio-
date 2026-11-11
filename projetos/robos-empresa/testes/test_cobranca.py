@@ -151,6 +151,23 @@ class TestFormaDePagamento(unittest.TestCase):
         self.assertEqual(como_pagar({"forma_pagamento": "boleto"}, emp), PADRAO_PAGAR)  # boleto sem link
 
 
+class TestLojas(unittest.TestCase):
+    def test_loja_na_mensagem_e_resumo_por_loja(self):
+        from cobranca import por_loja
+        cfg = carregar_config()
+        contas = contas_a_receber(cfg)
+        r = lista_do_dia(contas, date(2026, 11, 9), cfg)
+        joao = next(i for i in r["enviar"] if i["id"] == "1")
+        self.assertIn("[Nome da empresa] (Loja Centro)", joao["mensagem"])
+        lojas = {x["loja"]: x for x in por_loja(r)}
+        self.assertEqual(lojas["Loja CPA"]["carencia"], 1)   # 5 (Oficina)
+        self.assertEqual(lojas["Loja Várzea Grande"]["enviar"], 1)  # 6 (Ana)
+        rs = resumo(contas, date(2026, 11, 9))
+        self.assertEqual(rs["lojas"][0]["loja"], "Loja Várzea Grande")  # só ela tem atraso de +10 dias
+        sem = {**cfg, "empresa": {**cfg["empresa"], "mostrar_loja": False}}
+        self.assertNotIn("(Loja Centro)", lista_do_dia(contas, date(2026, 11, 9), sem)["enviar"][0]["mensagem"])
+
+
 class TestPlanilha(unittest.TestCase):
     def test_csv_brasileiro(self):
         cfg = {"fonte": "planilha", "arquivo_planilha": "dados/exemplo_planilha.csv"}

@@ -38,7 +38,7 @@ do número. Na oficial, cada aviso custa uns **R$ 0,05** (categoria Utilidade).
 ## Os 3 modelos (copiar exatamente)
 
 Variáveis: {{1}} nome do cliente · {{2}} valor · {{3}} nome da empresa · {{4}} data · {{5}} como pagar.
-Exemplos para a Meta: {{1}} João · {{2}} R$ 450,00 · {{3}} Loja Exemplo · {{4}} 12/11/2026 · {{5}} escolha Pix ou boleto e responda esta mensagem que a gente envia na hora.
+Exemplos para a Meta: {{1}} João · {{2}} R$ 450,00 · {{3}} Loja Exemplo (Loja Centro) · {{4}} 12/11/2026 · {{5}} escolha Pix ou boleto e responda esta mensagem que a gente envia na hora.
 
 **Nome:** `aviso_vencimento`
 > Olá, {{1}}! Tudo bem? 😊 Passando só para avisar que sua parcela de {{2}} com a {{3}} vence em {{4}}. Para pagar: {{5}}. Se já pagou, pode desconsiderar. Qualquer dúvida, é só responder aqui.

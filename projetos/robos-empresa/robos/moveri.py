@@ -83,6 +83,7 @@ def _contas_da_planilha(caminho: Path, colunas: dict) -> list[dict]:
             "documento": (linha.get(col["documento"]) or "").strip(),
             "forma_pagamento": (linha.get(colunas.get("forma_pagamento", "forma_pagamento")) or "").strip(),
             "link_boleto": (linha.get(colunas.get("link_boleto", "link_boleto")) or "").strip(),
+            "loja": (linha.get(colunas.get("loja", "loja")) or "").strip(),
         })
     return contas
 
@@ -112,6 +113,7 @@ def _contas_da_api(cfg: dict) -> list[dict]:
             "vencimento": str(b.get(campos["vencimento"], ""))[:10],
             "pago": bool(b.get(campos["pago"], False)),
             "documento": b.get(campos.get("documento", ""), ""),
+            "loja": str(b.get(campos.get("loja", "loja"), "") or "").strip(),
         }
         for b in itens
     ]

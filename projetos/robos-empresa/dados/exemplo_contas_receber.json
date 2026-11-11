@@ -1,10 +1,77 @@
 [
-  {"id": "1", "cliente": "JOAO DA SILVA (EXEMPLO)", "telefone": "65999990001", "valor": 450.0, "vencimento": "2026-11-12", "pago": false, "documento": "Boleto 1001"},
-  {"id": "2", "cliente": "MARIA OLIVEIRA (EXEMPLO)", "telefone": "65999990002", "valor": 1280.5, "vencimento": "2026-11-09", "pago": false, "documento": "Boleto 1002"},
-  {"id": "3", "cliente": "TRANSPORTES EXEMPLO LTDA", "telefone": "65999990003", "valor": 3900.0, "vencimento": "2026-11-08", "pago": false, "documento": "Duplicata 77"},
-  {"id": "4", "cliente": "CARLOS SOUZA (EXEMPLO)", "telefone": "65999990004", "valor": 320.0, "vencimento": "2026-11-02", "pago": false},
-  {"id": "5", "cliente": "OFICINA EXEMPLO ME", "telefone": "", "valor": 760.0, "vencimento": "2026-11-08", "pago": false},
-  {"id": "6", "cliente": "ANA PEREIRA (EXEMPLO)", "telefone": "65999990006", "valor": 2100.0, "vencimento": "2026-10-20", "pago": false},
-  {"id": "7", "cliente": "PEDRO LIMA (EXEMPLO)", "telefone": "65999990007", "valor": 500.0, "vencimento": "2026-11-01", "pago": true},
-  {"id": "8", "cliente": "FAZENDA EXEMPLO", "telefone": "65999990008", "valor": 5400.0, "vencimento": "2026-11-14", "pago": false}
+ {
+  "id": "1",
+  "cliente": "JOAO DA SILVA (EXEMPLO)",
+  "telefone": "65999990001",
+  "valor": 450.0,
+  "vencimento": "2026-11-12",
+  "pago": false,
+  "documento": "Boleto 1001",
+  "loja": "Loja Centro"
+ },
+ {
+  "id": "2",
+  "cliente": "MARIA OLIVEIRA (EXEMPLO)",
+  "telefone": "65999990002",
+  "valor": 1280.5,
+  "vencimento": "2026-11-09",
+  "pago": false,
+  "documento": "Boleto 1002",
+  "loja": "Loja CPA"
+ },
+ {
+  "id": "3",
+  "cliente": "TRANSPORTES EXEMPLO LTDA",
+  "telefone": "65999990003",
+  "valor": 3900.0,
+  "vencimento": "2026-11-08",
+  "pago": false,
+  "documento": "Duplicata 77",
+  "loja": "Loja Várzea Grande"
+ },
+ {
+  "id": "4",
+  "cliente": "CARLOS SOUZA (EXEMPLO)",
+  "telefone": "65999990004",
+  "valor": 320.0,
+  "vencimento": "2026-11-02",
+  "pago": false,
+  "loja": "Loja Centro"
+ },
+ {
+  "id": "5",
+  "cliente": "OFICINA EXEMPLO ME",
+  "telefone": "",
+  "valor": 760.0,
+  "vencimento": "2026-11-08",
+  "pago": false,
+  "loja": "Loja CPA"
+ },
+ {
+  "id": "6",
+  "cliente": "ANA PEREIRA (EXEMPLO)",
+  "telefone": "65999990006",
+  "valor": 2100.0,
+  "vencimento": "2026-10-20",
+  "pago": false,
+  "loja": "Loja Várzea Grande"
+ },
+ {
+  "id": "7",
+  "cliente": "PEDRO LIMA (EXEMPLO)",
+  "telefone": "65999990007",
+  "valor": 500.0,
+  "vencimento": "2026-11-01",
+  "pago": true,
+  "loja": "Loja Centro"
+ },
+ {
+  "id": "8",
+  "cliente": "FAZENDA EXEMPLO",
+  "telefone": "65999990008",
+  "valor": 5400.0,
+  "vencimento": "2026-11-14",
+  "pago": false,
+  "loja": "Loja CPA"
+ }
 ]

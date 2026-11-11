@@ -103,9 +103,29 @@ def como_pagar(conta: dict, empresa: dict) -> str:
     return (empresa.get("como_pagar") or PADRAO_PAGAR).rstrip(". ")
 
 
+def nome_empresa(conta: dict, empresa: dict) -> str:
+    """Com 22 lojas, o cliente reconhece a loja onde comprou: 'Empresa (Loja Centro)'."""
+    loja = (conta.get("loja") or "").strip()
+    if loja and empresa.get("mostrar_loja", True):
+        return f"{empresa['nome']} ({loja})"
+    return empresa["nome"]
+
+
 def parametros(conta: dict, empresa: dict) -> list[str]:
-    return [nome_saudacao(conta), brl(conta["valor"]), empresa["nome"], dbr(conta["vencimento"]),
+    return [nome_saudacao(conta), brl(conta["valor"]), nome_empresa(conta, empresa), dbr(conta["vencimento"]),
             como_pagar(conta, empresa)]
+
+
+def por_loja(r: dict) -> list[dict]:
+    """Quantos avisos, carências e ligações por loja (para a moça da cobrança e o dono)."""
+    lojas: dict[str, dict] = {}
+    for grupo in ("enviar", "carencia", "humano", "sem_telefone"):
+        for i in r.get(grupo, []):
+            l = lojas.setdefault(i.get("loja") or "sem loja", {"loja": i.get("loja") or "sem loja",
+                                 "enviar": 0, "carencia": 0, "humano": 0, "sem_telefone": 0, "valor": 0.0})
+            l[grupo] += 1
+            l["valor"] += i["valor"]
+    return sorted(lojas.values(), key=lambda x: -x["valor"])
 
 
 def mensagem(conta: dict, tipo: str, dias: int, empresa: dict) -> str:
@@ -181,15 +201,26 @@ def lista_do_dia(contas: list[dict], hoje: date, config: dict, ja: set | None = 
     }
 
 
+def _tabela_lojas(r: dict) -> list[str]:
+    lojas = por_loja(r)
+    if len(lojas) <= 1:
+        return []
+    l = ["## Por loja", "", "| Loja | Avisos | Conferir baixa | Ligar | Sem telefone | Valor envolvido |", "|---|---:|---:|---:|---:|---:|"]
+    l += [f"| {x['loja']} | {x['enviar']} | {x['carencia']} | {x['humano']} | {x['sem_telefone']} | {brl(x['valor'])} |" for x in lojas]
+    return l + [""]
+
+
 def relatorio(r: dict) -> str:
     rot = {"lembrete": "Lembrete", "vence_hoje": "Vence hoje", "atraso": "Atraso"}
     linhas = [f"# Cobrança do dia — {dbr(r['data'])}", "",
               f"Total vencido em aberto: **{brl(r['total_vencido'])}**", "",
+              *(_tabela_lojas(r)),
               f"## Enviar hoje ({len(r['enviar'])})", "",
               "Clique no link, confira a mensagem e envie. Horário: 8h–18h, seg–sáb.", ""]
     for i in r["enviar"]:
         quando = f"{-i['dias']} dia(s) para vencer" if i["dias"] < 0 else ("hoje" if i["dias"] == 0 else f"{i['dias']} dia(s) de atraso")
-        linhas.append(f"- **{i['cliente']}** — {brl(i['valor'])} — {rot[i['tipo']]} ({quando}) — [abrir WhatsApp]({i['link']})")
+        loja = f" [{i['loja']}]" if i.get("loja") else ""
+        linhas.append(f"- **{i['cliente']}**{loja} — {brl(i['valor'])} — {rot[i['tipo']]} ({quando}) — [abrir WhatsApp]({i['link']})")
     carencia = r.get("carencia", [])
     linhas += ["", f"## Conferir baixa ({len(carencia)})", "",
                "Vencidos há até 10 dias: o robô NÃO fala com eles ainda. Se já pagaram, dar baixa no sistema.", ""]
