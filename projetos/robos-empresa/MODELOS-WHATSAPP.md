@@ -7,8 +7,9 @@ gentil para cada cliente no momento certo. Ninguém precisa clicar.
 |---|---|---|
 | 3 dias antes de vencer | `aviso_vencimento` | "Passando só para avisar que vence em..." |
 | No dia | `aviso_vence_hoje` | "Lembrete rápido: vence hoje..." |
-| 1 e 7 dias depois | `aviso_pagamento_pendente` | "Pode ter sido só um esquecimento, acontece..." |
-| 15+ dias | — | O robô para. Uma pessoa liga. |
+| 1 a 10 dias depois | — | Silêncio: a baixa pode atrasar no sistema. Só aparece em "conferir baixa" para a moça da cobrança. |
+| 11 e 18 dias depois | `aviso_pagamento_pendente` | "Pode ter sido só um esquecimento, acontece..." |
+| 25+ dias | — | O robô para. Uma pessoa liga. |
 
 Proteções: nunca manda a mesma mensagem 2x, não manda domingo nem fora do horário,
 não manda para quem já pagou, máximo 50 por dia, e começa em **modo teste**

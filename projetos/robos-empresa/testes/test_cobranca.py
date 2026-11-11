@@ -17,16 +17,42 @@ class TestCobranca(unittest.TestCase):
 
     def test_regua(self):
         tipos = {i["id"]: i["tipo"] for i in self.r["enviar"]}
-        self.assertEqual(tipos, {"1": "lembrete", "2": "vence_hoje", "3": "atraso", "4": "atraso"})
+        self.assertEqual(tipos, {"1": "lembrete", "2": "vence_hoje", "6": "atraso"})  # 6: 20 dias de atraso
 
     def test_humano_sem_telefone_e_pago(self):
-        self.assertEqual([i["id"] for i in self.r["humano"]], ["6"])
-        self.assertEqual([i["id"] for i in self.r["sem_telefone"]], ["5"])
+        self.assertEqual(self.r["humano"], [])
+        self.assertEqual(self.r["sem_telefone"], [])
+        r = lista_do_dia(self.contas, date(2026, 11, 14), self.cfg)  # 6 chega a 25 dias
+        self.assertEqual([i["id"] for i in r["humano"]], ["6"])
+
+    def test_janela_nao_repete(self):
+        from cobranca import chave
+        ja = {chave(i) for i in self.r["enviar"]}
+        r2 = lista_do_dia(self.contas, date(2026, 11, 10), self.cfg, ja)
+        self.assertNotIn("1", [i["id"] for i in r2["enviar"]])  # lembrete do João já saiu ontem
+        self.assertNotIn("6", [i["id"] for i in r2["enviar"]])  # atraso da Ana já saiu ontem
+
+    def test_carencia_de_10_dias(self):
+        # 3 (1 dia), 4 (7 dias) e 5 (1 dia, sem telefone) estão na carência: ninguém recebe mensagem
+        self.assertEqual(sorted(i["id"] for i in self.r["carencia"]), ["3", "4", "5"])
+        enviados = {i["id"] for i in self.r["enviar"]}
+        self.assertFalse(enviados & {"3", "4", "5"})
+        from cobranca import etapa
+        regua = self.cfg["regua"]
+        for d in range(1, 11):
+            self.assertEqual(etapa(d, regua)[0], "carencia", d)
+        self.assertEqual(etapa(11, regua), ("atraso", 11))
+        self.assertEqual(etapa(13, regua), ("atraso", 11))   # janela: domingo não faz perder
+        self.assertIsNone(etapa(14, regua))
+        self.assertEqual(etapa(18, regua), ("atraso", 18))
+        self.assertEqual(etapa(25, regua)[0], "humano")
+        # mesmo se alguém configurar atraso dentro da carência, o robô não cobra
+        self.assertEqual(etapa(5, {**regua, "atraso": [5]})[0], "carencia")
         self.assertNotIn("7", [i["id"] for i in self.r["enviar"] + self.r["humano"]])
 
     def test_link_e_tom(self):
-        item = next(i for i in self.r["enviar"] if i["id"] == "3")
-        self.assertTrue(item["link"].startswith("https://wa.me/5565999990003?text="))
+        item = next(i for i in self.r["enviar"] if i["id"] == "6")
+        self.assertTrue(item["link"].startswith("https://wa.me/5565999990006?text="))
         for proibido in ("protesto", "SPC", "Serasa", "justiça"):
             self.assertNotIn(proibido, item["mensagem"])
 
@@ -65,12 +91,12 @@ class TestEnvioAutomatico(unittest.TestCase):
         fake = lambda tel, modelo, params, c: chamadas.append((tel, modelo, params)) or {"ok": True, "id": "x"}
         seg_9h = datetime(2026, 11, 9, 9, 0, tzinfo=CUIABA)
         log = disparar(self.r, cfg, seg_9h, fake)
-        self.assertEqual([l["status"] for l in log], ["ENVIADO"] * 4)
+        self.assertEqual([l["status"] for l in log], ["ENVIADO"] * 3)
         self.assertEqual(chamadas[0][1], "aviso_vencimento")
         self.assertEqual(len(chamadas[0][2]), 5)
         log2 = disparar(self.r, cfg, seg_9h, fake)  # rodou de novo: não repete
         self.assertTrue(all(l["status"] == "já enviado antes" for l in log2))
-        self.assertEqual(len(chamadas), 4)
+        self.assertEqual(len(chamadas), 3)
         self.reg.unlink()
         noite = datetime(2026, 11, 9, 20, 0, tzinfo=CUIABA)
         self.assertTrue(all("fora do horário" in l["status"] for l in disparar(self.r, cfg, noite, fake)))

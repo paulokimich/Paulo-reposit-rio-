@@ -21,7 +21,7 @@ Prazo para trazer: **terça, 10/11, até o meio-dia.**
 - [ ] **Nome da empresa** como deve aparecer na assinatura das mensagens.
 - [x] **Como o cliente paga:** ele escolhe Pix ou boleto. Falta: a chave Pix da empresa (e, se a Moveri tiver, o link do boleto de cada parcela).
 - [x] **Quem envia** nas primeiras semanas: a moça da cobrança. Falta: onde ela quer receber a lista toda manhã.
-- [ ] **Régua de cobrança** que o seu sogro aceita (padrão proposto: lembrete 3 dias antes, no dia, 1 e 7 dias depois; com 15+ dias uma pessoa liga).
+- [ ] **Régua de cobrança** que o seu sogro aceita (atual: lembrete 3 dias antes e no dia; carência de 10 dias por causa da baixa; aviso com 11 e 18 dias de atraso; com 25+ dias uma pessoa liga).
 
 ## Robô de Pós-venda
 

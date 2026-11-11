@@ -33,13 +33,15 @@ def rodar(hoje: date, enviar: bool = False, gravar: bool = False) -> str:
 
     try:
         contas = contas_a_receber(cfg)
-        r = cobranca.lista_do_dia(contas, hoje, cfg)
+        r = cobranca.lista_do_dia(contas, hoje, cfg, set(cobranca.carregar_registro()) if gravar else set())
         partes.append(cobranca.relatorio(r))
         if enviar:
             log = cobranca.disparar(r, cfg)
             partes += ["## Envio automático", ""] + [f"- {x['cliente']} — {x['status']}" for x in log] + [""]
+        elif gravar:
+            cobranca.registrar_listados(r, hoje)
         partes.append("## Resumo para o dono\n\n```\n" + resumo.texto(resumo.resumo(contas, hoje)) + "```\n")
-        status.append(f"Avisos: {len(r['enviar'])} hoje, {len(r['humano'])} para ligar")
+        status.append(f"Avisos: {len(r['enviar'])} hoje, {len(r['carencia'])} em carência (conferir baixa), {len(r['humano'])} para ligar")
     except FileNotFoundError as e:
         status.append(f"Avisos e Gerente: sem dados ({Path(e.filename).name} não entregue)")
 

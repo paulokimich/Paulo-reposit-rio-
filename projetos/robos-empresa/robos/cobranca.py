@@ -29,16 +29,31 @@ def dbr(iso: str) -> str:
     return f"{d}/{m}/{a}"
 
 
-def etapa(dias: int, regua: dict) -> str | None:
-    """dias = hoje - vencimento (negativo = ainda vai vencer)."""
-    if dias in regua.get("lembrete_antes", []):
-        return "lembrete"
+def etapa(dias: int, regua: dict) -> tuple[str, int] | None:
+    """Em que etapa da régua a conta está hoje. dias = hoje - vencimento.
+
+    Devolve (tipo, marco) ou None. Cada marco vale por `janela` dias (padrão 3),
+    para não perder o aviso se o dia certo cair num domingo; o registro de
+    envios garante que cada marco sai uma vez só.
+
+    CARÊNCIA: de 1 a `carencia_dias` (padrão 10) dias de atraso o robô NÃO fala
+    com o cliente, porque a baixa do pagamento pode atrasar no sistema e não
+    queremos cobrar quem já pagou. Esses aparecem na lista "conferir baixa".
+    """
+    janela = regua.get("janela", 3)
+    carencia = regua.get("carencia_dias", 10)
     if dias == 0:
-        return "vence_hoje"
-    if dias in regua.get("atraso", []):
-        return "atraso"
-    if dias >= regua.get("passar_para_humano", 15):
-        return "humano"
+        return ("vence_hoje", 0)
+    for m in regua.get("lembrete_antes", []):
+        if m <= dias < min(m + janela, 0):
+            return ("lembrete", m)
+    if 0 < dias <= carencia:
+        return ("carencia", 0)
+    if dias >= regua.get("passar_para_humano", 25):
+        return ("humano", 0)
+    for m in regua.get("atraso", []):
+        if m > carencia and m <= dias < m + janela:
+            return ("atraso", m)
     return None
 
 
@@ -105,18 +120,49 @@ def link_whatsapp(telefone: str, texto: str) -> str:
     return f"https://wa.me/{fone}?text={urllib.parse.quote(texto)}"
 
 
-def lista_do_dia(contas: list[dict], hoje: date, config: dict) -> dict:
+def chave(item: dict) -> str:
+    return f"{item['id']}|{item['vencimento']}|{item['tipo']}|{item['marco']}"
+
+
+REGISTRO = PASTA / "saida" / "enviados.json"
+
+
+def carregar_registro() -> dict:
+    import json
+    try:
+        return json.loads(REGISTRO.read_text(encoding="utf-8"))
+    except (FileNotFoundError, ValueError):
+        return {}
+
+
+def registrar_listados(r: dict, hoje: date) -> None:
+    """Modo manual: marca quem já saiu na lista para não repetir nos dias da janela."""
+    import json
+    reg = carregar_registro()
+    for i in r["enviar"] + r["sem_telefone"]:
+        reg.setdefault(chave(i), {"listado": hoje.isoformat()})
+    REGISTRO.write_text(json.dumps(reg, ensure_ascii=False, indent=1), encoding="utf-8")
+
+
+def lista_do_dia(contas: list[dict], hoje: date, config: dict, ja: set | None = None) -> dict:
+    """ja = chaves já enviadas/listadas antes (não repete o mesmo marco)."""
+    ja = ja or set()
     regua, empresa = config["regua"], config["empresa"]
-    enviar, humano, sem_telefone = [], [], []
+    enviar, humano, sem_telefone, carencia = [], [], [], []
     for c in contas:
         if c.get("pago"):
             continue
         dias = (hoje - date.fromisoformat(c["vencimento"])).days
-        tipo = etapa(dias, regua)
-        if tipo is None:
+        e = etapa(dias, regua)
+        if e is None:
             continue
-        item = {**c, "dias": dias, "tipo": tipo}
-        if tipo == "humano":
+        tipo, marco = e
+        item = {**c, "dias": dias, "tipo": tipo, "marco": marco}
+        if tipo in ("lembrete", "vence_hoje", "atraso") and chave(item) in ja:
+            continue
+        if tipo == "carencia":
+            carencia.append(item)
+        elif tipo == "humano":
             humano.append(item)
         elif len(c.get("telefone", "")) < 10:
             sem_telefone.append(item)
@@ -130,6 +176,7 @@ def lista_do_dia(contas: list[dict], hoje: date, config: dict) -> dict:
         "enviar": enviar,
         "humano": sorted(humano, key=lambda x: -x["valor"]),
         "sem_telefone": sem_telefone,
+        "carencia": sorted(carencia, key=lambda x: -x["dias"]),
         "total_vencido": sum(c["valor"] for c in em_aberto),
     }
 
@@ -143,6 +190,10 @@ def relatorio(r: dict) -> str:
     for i in r["enviar"]:
         quando = f"{-i['dias']} dia(s) para vencer" if i["dias"] < 0 else ("hoje" if i["dias"] == 0 else f"{i['dias']} dia(s) de atraso")
         linhas.append(f"- **{i['cliente']}** — {brl(i['valor'])} — {rot[i['tipo']]} ({quando}) — [abrir WhatsApp]({i['link']})")
+    carencia = r.get("carencia", [])
+    linhas += ["", f"## Conferir baixa ({len(carencia)})", "",
+               "Vencidos há até 10 dias: o robô NÃO fala com eles ainda. Se já pagaram, dar baixa no sistema.", ""]
+    linhas += [f"- {i['cliente']} — {brl(i['valor'])} — venceu {dbr(i['vencimento'])} ({i['dias']} dia(s))" for i in carencia] or ["- Nenhum."]
     linhas += ["", f"## Para uma pessoa ligar ({len(r['humano'])})", "", "Atraso longo: conversa humana, não robô.", ""]
     for i in r["humano"]:
         linhas.append(f"- **{i['cliente']}** — {brl(i['valor'])} — {i['dias']} dias — tel. {i.get('telefone') or 'sem telefone'}")
@@ -169,10 +220,10 @@ def disparar(r: dict, config: dict, agora=None, enviar_fn=None) -> list[dict]:
         registro = {}
     log, enviados_hoje = [], 0
     for item in r["enviar"]:
-        chave = f"{item['id']}|{item['vencimento']}|{item['tipo']}|{item['dias']}"
+        k = chave(item)
         modelo = MODELOS[item["tipo"]][0]
         base = {"cliente": item["cliente"], "modelo": modelo, "valor": item["valor"]}
-        if chave in registro:
+        if k in registro and "listado" not in registro[k]:
             log.append({**base, "status": "já enviado antes"})
             continue
         if not ok:
@@ -186,7 +237,7 @@ def disparar(r: dict, config: dict, agora=None, enviar_fn=None) -> list[dict]:
             continue
         res = enviar_fn(item["telefone"], modelo, parametros(item, config["empresa"]), cfg)
         if res.get("ok"):
-            registro[chave] = {"quando": agora.isoformat(timespec="minutes"), "id": res.get("id", "")}
+            registro[k] = {"quando": agora.isoformat(timespec="minutes"), "id": res.get("id", "")}
             enviados_hoje += 1
             log.append({**base, "status": "ENVIADO"})
         else:
@@ -199,7 +250,7 @@ def main() -> None:
     args = [a for a in sys.argv[1:] if not a.startswith("--")]
     hoje = date.fromisoformat(args[0]) if args else date.today()
     config = carregar_config()
-    r = lista_do_dia(contas_a_receber(config), hoje, config)
+    r = lista_do_dia(contas_a_receber(config), hoje, config, set(carregar_registro()))
     saida = PASTA / "saida" / f"cobranca-{hoje.isoformat()}.md"
     texto = relatorio(r)
     if "--enviar" in sys.argv:
@@ -208,6 +259,8 @@ def main() -> None:
             f"- {l['cliente']} — {brl(l['valor'])} — {l['modelo']} — {l['status']}" for l in log) + "\n"
         for l in log:
             print(f"{l['status']:<28} {l['cliente']}")
+    else:
+        registrar_listados(r, hoje)
     saida.write_text(texto, encoding="utf-8")
     print(f"{len(r['enviar'])} avisos, {len(r['humano'])} para ligar, vencido {brl(r['total_vencido'])} -> {saida}")
 
